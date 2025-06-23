@@ -26,6 +26,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(AlgorithmDesign
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        mainwindow.ui
+        dp.h dp.cpp dp.ui
+        collect_coin.cpp collect_coin.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET AlgorithmDesign APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
