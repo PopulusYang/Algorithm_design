@@ -1,3 +1,0 @@
-D:\Qt\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\CPTDesign.dir/objects.a
-C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\CPTDesign.dir/objects.a @CMakeFiles\CPTDesign.dir\objects1.rsp
-C:\msys64\mingw64\bin\g++.exe -g -mwindows -Wl,--whole-archive CMakeFiles\CPTDesign.dir/objects.a -Wl,--no-whole-archive -o CPTDesign.exe -Wl,--out-implib,libCPTDesign.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\CPTDesign.dir\linkLibs.rsp
