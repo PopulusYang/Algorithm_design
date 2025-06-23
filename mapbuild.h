@@ -9,9 +9,10 @@
 #include <algorithm>
 #include <utility>
 
-// ÎªÁË·ûºÏÌâÄ¿ÒªÇó£¬¶¨ÒåÒ»¸ö¹Ì¶¨µÄMAXSIZE£¬µ«ÄÚ²¿Ê¹ÓÃ¶¯Ì¬µÄstd::vector<std::string>
-// ÕâÑù×ö¸üÁé»îÇÒÊÇC++µÄ×î¼ÑÊµ¼ù¡£
-const int MAXSIZE = 51; // ×î´óÖ§³Ö51x51µÄÃÔ¹¬
+#include "gamemain.h"
+
+// ä¸ºäº†ç¬¦åˆé¢˜ç›®è¦æ±‚ï¼Œå®šä¹‰ä¸€ä¸ªå›ºå®šçš„MAXSIZEï¼Œä½†å†…éƒ¨ä½¿ç”¨åŠ¨æ€çš„std::vector<std::string>
+// è¿™æ ·åšæ›´çµæ´»ä¸”æ˜¯C++çš„æœ€ä½³å®è·µã€‚
 
 enum class MAZE
 {
@@ -25,17 +26,17 @@ enum class MAZE
     LOCKER
 };
 
-class MazeGenerator {
+class MazeGenerator :virtual public gamemain
+{
 public:
-    int mazesize;
-    // ¹¹Ôìº¯Êı£¬³õÊ¼»¯ÃÔ¹¬³ß´çºÍËæ»úÊıÉú³ÉÆ÷
-    MazeGenerator(int size) {
-        // È·±£ÃÔ¹¬³ß´çÊÇÆæÊı£¬Õâ¶ÔËã·¨ÖÁ¹ØÖØÒª
-        mazesize=size;
+    
+    // æ„é€ å‡½æ•°ï¼Œåˆå§‹åŒ–è¿·å®«å°ºå¯¸å’Œéšæœºæ•°ç”Ÿæˆå™¨
+    MazeGenerator(int size): gamemain(size){
+        // ç¡®ä¿è¿·å®«å°ºå¯¸æ˜¯å¥‡æ•°ï¼Œè¿™å¯¹ç®—æ³•è‡³å…³é‡è¦
         if (size % 2 == 0) {
             size++;
         }
-        // È·±£³ß´ç²»Ğ¡ÓÚ×îĞ¡ÏŞÖÆ7
+        // ç¡®ä¿å°ºå¯¸ä¸å°äºæœ€å°é™åˆ¶7
         if (size < 7) {
             size = 7;
         }
@@ -47,9 +48,9 @@ public:
         }
 
         this->dimension = size;
-        this->rng.seed(std::time(nullptr)); // Ê¹ÓÃµ±Ç°Ê±¼ä×÷ÎªËæ»úÊıÖÖ×Ó
+        this->rng.seed(std::time(nullptr)); // ä½¿ç”¨å½“å‰æ—¶é—´ä½œä¸ºéšæœºæ•°ç§å­
 
-        // ³õÊ¼»¯ÃÔ¹¬Íø¸ñ£¬ËÄÖÜÊÇÇ½(WALL)£¬ÄÚ²¿ÊÇÍ¨Â·(WAY)
+        // åˆå§‹åŒ–è¿·å®«ç½‘æ ¼ï¼Œå››å‘¨æ˜¯å¢™(WALL)ï¼Œå†…éƒ¨æ˜¯é€šè·¯(WAY)
         for (int i = 0; i < MAXSIZE; ++i) {
             for (int j = 0; j < MAXSIZE; ++j) {
                 maze[i][j] = static_cast<int>(MAZE::WAY);
@@ -63,12 +64,12 @@ public:
         }
     }
 
-    // Éú³ÉÃÔ¹¬Ö÷º¯Êı
+    // ç”Ÿæˆè¿·å®«ä¸»å‡½æ•°
     void generate() {
         divide(1, 1, dimension - 2, dimension - 2);
     }
 
-    // ·ÅÖÃ¸÷ÖÖÎï¼ş
+    // æ”¾ç½®å„ç§ç‰©ä»¶
     void placeFeatures() {
         int gold_count = 0;
         int trap_count = 0;
@@ -111,7 +112,7 @@ public:
         }
     }
 
-    // ´òÓ¡ÃÔ¹¬µ½¿ØÖÆÌ¨
+    // æ‰“å°è¿·å®«åˆ°æ§åˆ¶å°
     void print() const {
         for (int i = 0; i < dimension; ++i) {
             for (int j = 0; j < dimension; ++j) {
@@ -142,7 +143,7 @@ public:
         }
     }
 
-    // Èç¹ûĞèÒª½«½á¹û´æÈë std::string maze[MAXSIZE][MAXSIZE]£¬¿ÉÒÔµ÷ÓÃ´Ëº¯Êı
+    // å¦‚æœéœ€è¦å°†ç»“æœå­˜å…¥ std::string maze[MAXSIZE][MAXSIZE]ï¼Œå¯ä»¥è°ƒç”¨æ­¤å‡½æ•°
     void exportToLegacyArray(std::string arr[MAXSIZE][MAXSIZE]) const {
         for(int r = 0; r < dimension; ++r) {
             for (int c = 0; c < dimension; ++c) {
@@ -163,80 +164,72 @@ public:
         }
     }
 
-    int getSize(){
-        return mazesize;
-    }
-
-    //»ñÈ¡ÃÔ¹¬Êı×é
-    int (*getMaze())[MAXSIZE] {
-        return maze;
-    }
+    
 
 private:
-    int dimension;
-    int maze[MAXSIZE][MAXSIZE];
-    std::mt19937 rng; // Mersenne Twister Ëæ»úÊıÒıÇæ
+    
+    std::mt19937 rng; // Mersenne Twister éšæœºæ•°å¼•æ“
 
-    // ·ÖÖÎ·¨ºËĞÄµİ¹éº¯Êı
+    // åˆ†æ²»æ³•æ ¸å¿ƒé€’å½’å‡½æ•°
     void divide(int r, int c, int h, int w) {
-        // »ù×¼Çé¿ö£ºÈç¹ûÇøÓòÌ«Ğ¡£¬ÎŞ·¨ÔÙ·Ö¸î£¬Ôò·µ»Ø
+        // åŸºå‡†æƒ…å†µï¼šå¦‚æœåŒºåŸŸå¤ªå°ï¼Œæ— æ³•å†åˆ†å‰²ï¼Œåˆ™è¿”å›
         if (h < 3 || w < 3) {
             return;
         }
 
-        // ¾ö¶¨·Ö¸î·½Ïò£ºÈç¹û¿í¶È´óÓÚ¸ß¶È£¬Ôò´¹Ö±·Ö¸î£¬·ñÔòË®Æ½·Ö¸î
+        // å†³å®šåˆ†å‰²æ–¹å‘ï¼šå¦‚æœå®½åº¦å¤§äºé«˜åº¦ï¼Œåˆ™å‚ç›´åˆ†å‰²ï¼Œå¦åˆ™æ°´å¹³åˆ†å‰²
         bool horizontal = (h > w);
-        if (h == w) { // Èç¹ûÊÇÕı·½ĞÎ£¬Ëæ»úÑ¡Ôñ·½Ïò
+        if (h == w) { // å¦‚æœæ˜¯æ­£æ–¹å½¢ï¼Œéšæœºé€‰æ‹©æ–¹å‘
             std::uniform_int_distribution<int> dist(0, 1);
             horizontal = dist(rng) == 0;
         }
 
         if (horizontal) {
-            // Ë®Æ½·Ö¸î
-            // 1. Ñ¡ÔñÒ»¸öÅ¼ÊıĞĞÀ´½¨ÔìÇ½±Ú
+            // æ°´å¹³åˆ†å‰²
+            // 1. é€‰æ‹©ä¸€ä¸ªå¶æ•°è¡Œæ¥å»ºé€ å¢™å£
             std::uniform_int_distribution<int> wall_dist(r + 1, r + h - 2);
             int wall_r = wall_dist(rng);
             if (wall_r % 2 != 0) wall_r++;
             if (wall_r >= r + h -1) wall_r -= 2;
 
-            // 2. Ñ¡ÔñÒ»¸öÆæÊıĞĞÀ´´ò¿ªÍ¨µÀ
+            // 2. é€‰æ‹©ä¸€ä¸ªå¥‡æ•°è¡Œæ¥æ‰“å¼€é€šé“
             std::uniform_int_distribution<int> passage_dist(c, c + w - 1);
             int passage_c = passage_dist(rng);
-            if (passage_c % 2 == 0) passage_c++; // È·±£ÊÇÆæÊıÁĞ
+            if (passage_c % 2 == 0) passage_c++; // ç¡®ä¿æ˜¯å¥‡æ•°åˆ—
             if (passage_c >= c + w) passage_c -= 2;
 
-            // 3. ½¨ÔìÇ½±Ú²¢´ò¿ªÍ¨µÀ
+            // 3. å»ºé€ å¢™å£å¹¶æ‰“å¼€é€šé“
             for (int i = c; i < c + w; ++i) {
                 if (i != passage_c) {
                     maze[wall_r][i] = static_cast<int>(MAZE::WALL);
                 }
             }
 
-            // 4. µİ¹é´¦ÀíÉÏÏÂÁ½¸ö×ÓÇøÓò
+            // 4. é€’å½’å¤„ç†ä¸Šä¸‹ä¸¤ä¸ªå­åŒºåŸŸ
             divide(r, c, wall_r - r, w);
             divide(wall_r + 1, c, r + h - (wall_r + 1), w);
 
         } else {
-            // ´¹Ö±·Ö¸î
-            // 1. Ñ¡ÔñÒ»¸öÅ¼ÊıÁĞÀ´½¨ÔìÇ½±Ú
+            // å‚ç›´åˆ†å‰²
+            // 1. é€‰æ‹©ä¸€ä¸ªå¶æ•°åˆ—æ¥å»ºé€ å¢™å£
             std::uniform_int_distribution<int> wall_dist(c + 1, c + w - 2);
             int wall_c = wall_dist(rng);
             if (wall_c % 2 != 0) wall_c++;
             if (wall_c >= c + w - 1) wall_c -= 2;
 
-            // 2. Ñ¡ÔñÒ»¸öÆæÊıĞĞÀ´´ò¿ªÍ¨µÀ
+            // 2. é€‰æ‹©ä¸€ä¸ªå¥‡æ•°è¡Œæ¥æ‰“å¼€é€šé“
             std::uniform_int_distribution<int> passage_dist(r, r + h - 1);
             int passage_r = passage_dist(rng);
             if (passage_r % 2 == 0) passage_r++;
             if (passage_r >= r + h) passage_r -= 2;
 
-            // 3. ½¨ÔìÇ½±Ú²¢´ò¿ªÍ¨µÀ
+            // 3. å»ºé€ å¢™å£å¹¶æ‰“å¼€é€šé“
             for (int i = r; i < r + h; ++i) {
                 if (i != passage_r) {
                     maze[i][wall_c] = static_cast<int>(MAZE::WALL);
                 }
             }
-            // 4. µİ¹é´¦Àí×óÓÒÁ½¸ö×ÓÇøÓò
+            // 4. é€’å½’å¤„ç†å·¦å³ä¸¤ä¸ªå­åŒºåŸŸ
             divide(r, c, h, wall_c - c);
             divide(r, wall_c + 1, h, c + w - (wall_c + 1));
         }
