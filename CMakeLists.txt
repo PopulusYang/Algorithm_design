@@ -20,10 +20,12 @@ set(PROJECT_SOURCES
         mapbuild.h
         dp.cpp
         dp.h
-        dp.ui
         collect_coin.cpp
         collect_coin.h
         backtrack_find_clue.cpp
+        dp.h
+        dp.cpp
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
