@@ -1,33 +1,39 @@
 #ifndef DP_H
 #define DP_H
 
-#include <QWidget>
 #include <cmath>
+#include <vector>
+#include <queue>
+#include <iostream>
 
 #include "gamemain.h"
 
-namespace Ui {
-class dp;
-}
 
-typedef struct point{
-    int x;
-    int y;
-} point;
-
-class dp : public QWidget, virtual public gamemain
+struct State
 {
-    Q_OBJECT
-    int **weight_table;
+    point pos;//该状态坐标
+    int totalWeight;//该状态权值和
+    std::vector<point> path;//该状态得到的路径
 
-public:
-    explicit dp(QWidget *parent = nullptr);
-    ~dp();
-    int weight(point dest, point current) const;
-
-private:
-    Ui::dp *ui;
+    bool operator<(const State &other) const
+    {
+        return totalWeight < other.totalWeight; // max-heap
+    }
 };
+
+class dp : virtual public gamemain
+{
+private:
+    int weight(point dest, point current) const;
+    int getCellWeight(MAZE cellType) const;
+    void printDPTable(const std::vector<std::vector<int>> &maxWeight) const;
+public : 
+    explicit dp(int size):gamemain(size){}
+
+    std::vector<point> findBestPath();
+
+};
+
 
 
 
