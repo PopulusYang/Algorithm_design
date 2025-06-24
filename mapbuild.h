@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <utility>
 
+
 // 为了符合题目要求，定义一个固定的MAXSIZE，但内部使用动态的std::vector<std::string>
 // 这样做更灵活且是C++的最佳实践。
 const int MAXSIZE = 51; // 最大支持51x51的迷宫
@@ -22,12 +23,19 @@ enum class MAZE
     WAY,
     EXIT,
     SOURCE,
-    LOCKER
+    LOCKER,
+    CLUE
 };
 
 class MazeGenerator {
 public:
     int mazesize;
+    std::pair<int, int> start; // 起点坐标
+    std::pair<int, int> exit;  // 终点坐标
+    std::pair<int, int> boss;  // BOSS坐标
+    std::pair<int, int> locker; // 机关坐标
+    std::pair<int, int> clue;  // 线索坐标
+
     // 构造函数，初始化迷宫尺寸和随机数生成器
     MazeGenerator(int size) {
         // 确保迷宫尺寸是奇数，这对算法至关重要
@@ -73,16 +81,17 @@ public:
         int gold_count = 0;
         int trap_count = 0;
         int locker_count = 0;
+        int clue_count = 3;
         bool has_boss = false;
 
         if (dimension >= 15) {
-            gold_count = 3;
-            trap_count = 2;
-            locker_count = 2;
+            gold_count = 12;
+            trap_count = 6;
+            locker_count = 1;
             has_boss = true;
         } else if (dimension >= 7) {
-            gold_count = 1;
-            trap_count = 1;
+            gold_count = 4;
+            trap_count = 4;
             locker_count = 1;
         }
 
@@ -109,6 +118,9 @@ public:
         for (int i = 0; i < locker_count; ++i) {
             placeFeature(empty_cells, MAZE::LOCKER);
         }
+        for (int i = 0; i < clue_count; ++i) {
+            placeFeature(empty_cells, MAZE::CLUE);
+        }
     }
 
     // 打印迷宫到控制台
@@ -125,6 +137,7 @@ public:
                     case MAZE::TRAP: to_print = 'T'; break;
                     case MAZE::LOCKER: to_print = 'L'; break;
                     case MAZE::BOSS: to_print = 'B'; break;
+                    case MAZE::CLUE: to_print = 'C'; break;
                     default: to_print = '?'; break;
                 }
                 std::cout << to_print;
@@ -156,6 +169,7 @@ public:
                     case MAZE::TRAP: ch = 'T'; break;
                     case MAZE::LOCKER: ch = 'L'; break;
                     case MAZE::BOSS: ch = 'B'; break;
+                    case MAZE::CLUE: ch = 'C'; break;
                     default: ch = '?'; break;
                 }
                 arr[r][c] = ch;
@@ -163,13 +177,39 @@ public:
         }
     }
 
-    int getSize(){
+    // 获取迷宫尺寸
+    int getsize(){
         return mazesize;
     }
 
     //获取迷宫数组
-    int (*getMaze())[MAXSIZE] {
+    int (*getmaze())[MAXSIZE] {
         return maze;
+    }
+
+    // 获取起点坐标
+    std::pair<int, int> getStart() const {
+        return start;
+    }   
+
+    // 获取终点坐标
+    std::pair<int, int> getExit() const {
+        return exit;
+    }       
+
+    // 获取BOSS坐标     
+    std::pair<int, int> getBoss() const {
+        return boss;
+    }
+
+    // 获取机关坐标
+    std::pair<int, int> getLocker() const {     
+        return locker;
+    }
+
+    // 获取线索坐标
+    std::pair<int, int> getClue() const {   
+        return clue;
     }
 
 private:
@@ -246,7 +286,57 @@ private:
         std::pair<int, int> pos = cells.back();
         cells.pop_back();
         maze[pos.first][pos.second] = static_cast<int>(feature);
+        switch(feature) {
+            case MAZE::START:
+                start = pos;
+                break;
+            case MAZE::EXIT:
+                exit = pos;
+                break;
+            case MAZE::BOSS:
+                boss = pos;
+                break;
+            case MAZE::LOCKER:
+                locker = pos;
+                break;
+            case MAZE::CLUE:
+                clue = pos;
+                break;
+            default:
+                break;
+        }
     }
 };
+
+// int call_mapbuild_example() {
+// //int main() {
+//     int size;
+//     std::cout << "请输入迷宫的尺寸 (推荐奇数, 最小为7): ";
+//     std::cin >> size;
+
+//     std::cout << "\n正在生成 " << size << "x" << size << " (或调整后的尺寸) 的迷宫...\n" << std::endl;
+
+//     // 创建生成器实例
+//     MazeGenerator generator(size);
+
+//     // 生成迷宫结构
+//     generator.generate();
+    
+//     // 随机放置各种物件
+//     generator.placeFeatures();
+
+//     //获取迷宫数组,打印maze[0][0]
+//     std::cout<<generator.getmaze()[0][0];
+
+//     // 打印最终的迷宫
+//     std::cout << "迷宫生成完毕:" << std::endl;
+//     std::cout << "S: 起点, E: 终点, #: 墙壁, G: 金币, T: 陷阱, L: 机关, B: BOSS" << std::endl;
+//     std::cout << "-------------------------------------------------" << std::endl;
+//     generator.print();
+//     std::cout << "-------------------------------------------------" << std::endl;
+//     generator.print_num();
+
+//     return 0;
+// }
 
 #endif
