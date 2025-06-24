@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     setAttribute(Qt::WA_InputMethodEnabled, false); // 禁用输入法
 
     // 加载精灵图
-    playerSprite.load("../player.png"); // 确保player.png在资源文件或同目录下
+    playerSprite.load("./player.png"); // 确保player.png在资源文件或同目录下
 }
 
 MainWindow::~MainWindow()

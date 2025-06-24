@@ -1,13 +1,12 @@
 #include "collect_coin.h"
 
-std::vector<point> coin_collecter::get_path(MAZE **newinformation = nullptr)
+coin_collecter::coin_collecter(int**map,int size)
+    :map(map),
+    size(size)
 {
-    point b;
-    for (int i = 0; i < 3; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            wait();//暂时放这里
-        }
-    }
+    map=new int*[size];
+}
+coin_collecter::~coin_collecter()
+{
+
 }

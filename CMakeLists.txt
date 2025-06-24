@@ -18,6 +18,7 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         mapbuild.h
+        backtrack_find_clue.cpp
         dp.h
         dp.cpp
 
@@ -27,6 +28,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(AlgorithmDesign
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        collect_coin.cpp
+        collect_coin.h gamemain.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET AlgorithmDesign APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
