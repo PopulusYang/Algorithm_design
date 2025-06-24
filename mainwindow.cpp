@@ -51,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
     playerTimer->start(16); // ~60fps
     setFocusPolicy(Qt::StrongFocus);
     setAttribute(Qt::WA_InputMethodEnabled, false); // 禁用输入法
+
+    // 加载精灵图
+    playerSprite.load("../player.png"); // 确保player.png在资源文件或同目录下
 }
 
 MainWindow::~MainWindow()
@@ -82,24 +85,67 @@ void MainWindow::onPlayerMove()
 {
     // 计算加速度
     playerAcc = QPointF(0, 0);
+    bool moving = false;
     if (pressedKeys.contains(Qt::Key_W))
+    {
         playerAcc.ry() -= moveSpeed;
+        playerDir = 2;
+        moving = true;
+    }
     if (pressedKeys.contains(Qt::Key_S))
+    {
         playerAcc.ry() += moveSpeed;
+        playerDir = 1;
+        moving = true;
+    }
     if (pressedKeys.contains(Qt::Key_A))
+    {
         playerAcc.rx() -= moveSpeed;
+        playerDir = 0;
+        moving = true;
+    }
     if (pressedKeys.contains(Qt::Key_D))
+    {
         playerAcc.rx() += moveSpeed;
+        playerDir = 3;
+        moving = true;
+    }
+
+    // 更新状态
+    if (moving)
+    {
+        playerState = "walk";
+        animFrameCounter++;
+        if (animFrameCounter >= 6)
+        { // 每6帧才切换一次动画帧，数值越大动画越慢
+            playerAnim = (playerAnim + 1) % 4;
+            animFrameCounter = 0;
+        }
+    }
+    else
+    {
+        playerState = "idle";
+        playerAnim = 0;
+        animFrameCounter = 0;
+    }
 
     // 更新速度（惯性）
     playerVel = inertia * playerVel + (1 - inertia) * playerAcc;
+
+    // 限制最大速度
+    const float maxSpeed = 0.025f;
+    if (std::hypot(playerVel.x(), playerVel.y()) > maxSpeed)
+    {
+        float scale = maxSpeed / std::hypot(playerVel.x(), playerVel.y());
+        playerVel *= scale;
+    }
 
     // 预测新位置
     QPointF nextPos = playerPos + playerVel;
 
     // 边界和障碍检测
-    int nx = qRound(nextPos.y());
-    int ny = qRound(nextPos.x());
+    int nx = qRound(nextPos.y()+0.15);
+    int ny = qRound(nextPos.x()+0.1);
     if (gameController && gameController->inBounds(nx, ny))
     {
         MAZE cell = static_cast<MAZE>(gameController->getMaze()[nx][ny]);
@@ -120,11 +166,15 @@ void MainWindow::paintEvent(QPaintEvent *event)
 {
     QMainWindow::paintEvent(event);
     QPainter painter(this);
-
     if (!gameController)
-    {
         return;
-    }
+
+    // --> 将摄像机中心移动到玩家附近
+    painter.save();
+    painter.scale(1.5, 1.5); // 将显示区域放大
+    float camX = playerPos.x() * blockSize - width() / 3.0f;
+    float camY = playerPos.y() * blockSize - height() / 3.0f;
+    painter.translate(-camX, -camY);
 
     int mazeSize = gameController->getSize();
     const int (*maze)[MAXSIZE] = gameController->getMaze();
@@ -217,12 +267,41 @@ void MainWindow::paintEvent(QPaintEvent *event)
     }
 
     // 绘制玩家
-    painter.setBrush(QBrush(Qt::red));
-    painter.setPen(Qt::NoPen);
-    int px = playerPos.x() * blockSize + blockSize / 4;
-    int py = playerPos.y() * blockSize + blockSize / 4;
-    int size = blockSize / 2;
-    painter.drawEllipse(QRect(px, py, size, size));
+    // painter.setBrush(QBrush(Qt::red));
+    // painter.setPen(Qt::NoPen);
+    // int px = playerPos.x() * blockSize + blockSize * 3 / 8;
+    // int py = playerPos.y() * blockSize + blockSize * 3 / 8;
+    // int size = blockSize / 4; // 更小的玩家
+    // painter.drawEllipse(QRect(px, py, size, size));
+
+    // 使用精灵图绘制玩家
+    int frameW = 600 / 10; // 10列
+    int frameH = 290 / 4;  // 4行
+    int dir = playerDir;   // 0:左 1:下 2:上 3:右
+    int col = 0;
+    if (playerState == "idle")
+        col = 0 + (playerAnim % 2);
+    else if (playerState == "walk")
+        col = 2 + (playerAnim % 4);
+    else if (playerState == "attack")
+        col = 6 + (playerAnim % 4);
+
+    QRect srcRect(col * frameW, dir * frameH, frameW, frameH);
+
+    int px = playerPos.x() * blockSize + blockSize * 3 / 8;
+    int py = playerPos.y() * blockSize + blockSize * 3 / 8;
+    int size = blockSize / 2; // 玩家显示大小
+
+    painter.drawPixmap(QRect(px, py, size, size), playerSprite, srcRect);
+
+    // 添加渐变遮罩
+    painter.restore();
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    QRadialGradient grad(rect().center(), rect().width() / 2, rect().center());
+    grad.setColorAt(0, QColor(255, 255, 255, 0));
+    grad.setColorAt(1, QColor(0, 0, 0, 150));
+    painter.setBrush(grad);
+    painter.drawRect(rect());
 }
 
 void MainWindow::onSolveMazeClicked()

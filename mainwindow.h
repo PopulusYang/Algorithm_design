@@ -11,6 +11,7 @@
 #include <QTimer>
 #include <QKeyEvent>
 #include <QInputMethodEvent>
+#include <QPixmap>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -49,7 +50,7 @@ private:
     int blockSize;
     QPushButton *solveButton;
     std::vector<point> solvedPath;
-
+    int animFrameCounter = 0;
     // 玩家相关
     QPointF playerPos;     // 玩家当前位置（浮点，便于惯性）
     QPointF playerVel;     // 玩家速度
@@ -58,5 +59,10 @@ private:
     QSet<int> pressedKeys; // 当前按下的键
     float inertia;         // 惯性系数
     float moveSpeed;       // 基础速度
+
+    QPixmap playerSprite;
+    int playerDir = 2;            // 0:左 1:下 2:上 3:右
+    int playerAnim = 0;           // 动画帧索引
+    QString playerState = "idle"; // idle, walk, attack
 };
 #endif // MAINWINDOW_H
