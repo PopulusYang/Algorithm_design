@@ -19,11 +19,12 @@ class MazeGenerator : virtual public gamemain
 {
 public:
     int mazesize;
-    std::pair<int, int> start; // 起点坐标
+    std::pair<int, int> start_m; // 起点坐标
     std::pair<int, int> exit;  // 终点坐标
     std::pair<int, int> boss;  // BOSS坐标
     std::pair<int, int> locker; // 机关坐标
     std::pair<int, int> clue;  // 线索坐标
+    std::unordered_map<point,int> sourse_value; //资源价值
 
     // 构造函数，初始化迷宫尺寸和随机数生成器
     MazeGenerator(int size) : gamemain(size)
@@ -249,7 +250,7 @@ public:
 
     // 获取起点坐标
     std::pair<int, int> getStart() const {
-        return start;
+        return start_m;
     }   
 
     // 获取终点坐标
@@ -369,7 +370,7 @@ private:
         maze[pos.first][pos.second] = static_cast<int>(feature);
         switch(feature) {
             case MAZE::START:
-                start = pos;
+                start_m = pos;
                 break;
             case MAZE::EXIT:
                 exit = pos;
@@ -383,6 +384,13 @@ private:
             case MAZE::CLUE:
                 clue = pos;
                 break;
+            case MAZE::SOURCE:
+                point temp_point;
+                temp_point.x=pos.first;
+                temp_point.y=pos.second;
+                std::uniform_int_distribution<int> ranvalue(0, 100);
+                int val=ranvalue(rng);
+                sourse_value.insert({temp_point,val});
             default:
                 break;
         }

@@ -2,6 +2,7 @@
 #define GAMEMAIN_H
 
 #include <unordered_set>
+#include <unordered_map>
 
 #define MAXSIZE 51 // 最大支持51x51的迷宫
 
@@ -15,7 +16,8 @@ enum class MAZE
     WAY,
     EXIT,
     SOURCE,
-    LOCKER
+    LOCKER,
+    CLUE
 };
 
 class point

@@ -66,21 +66,21 @@ std::pair<int,int> getpos() {
 };
 
 
-int main() {
-    int size = 15; // 迷宫尺寸
-    MazeGenerator generator(size); // 创建生成器实例
-    generator.generate();          // 生成迷宫结构
-    generator.placeFeatures();     // 随机放置物件
-    generator.print();             // 打印迷宫（可选）
+// int main() {
+//     int size = 15; // 迷宫尺寸
+//     MazeGenerator generator(size); // 创建生成器实例
+//     generator.generate();          // 生成迷宫结构
+//     generator.placeFeatures();     // 随机放置物件
+//     generator.print();             // 打印迷宫（可选）
 
-    // 获取迷宫数组指针
-    int (*maze)[MAXSIZE] = generator.getmaze();
-    int size_of_maze = generator.getsize();
-    // 例如访问某个格子的类型
-    clue_finder finder(size_of_maze, maze, generator.getLocker());
-    finder.init_visited(); // 初始化访问标记数组
-    finder.find_clue(generator.getLocker().first, generator.getLocker().second); // 从机关位置(或者其他位置)开始查找线索，不管金币，陷阱这些玩意的收益，因为线索必须找到
-    std::pair<int, int> pos = finder.getpos(); // 获取最后查找位置
-    std::cout<< "查找线索结束，最后位置: (" << pos.first << ", " << pos.second << ")" << std::endl;
-    return 0;
-}
+//     // 获取迷宫数组指针
+//     int (*maze)[MAXSIZE] = generator.getmaze();
+//     int size_of_maze = generator.getsize();
+//     // 例如访问某个格子的类型
+//     clue_finder finder(size_of_maze, maze, generator.getLocker());
+//     finder.init_visited(); // 初始化访问标记数组
+//     finder.find_clue(generator.getLocker().first, generator.getLocker().second); // 从机关位置(或者其他位置)开始查找线索，不管金币，陷阱这些玩意的收益，因为线索必须找到
+//     std::pair<int, int> pos = finder.getpos(); // 获取最后查找位置
+//     std::cout<< "查找线索结束，最后位置: (" << pos.first << ", " << pos.second << ")" << std::endl;
+//     return 0;
+// }

@@ -18,10 +18,6 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         mapbuild.h
-        dp.cpp
-        dp.h
-        collect_coin.cpp
-        collect_coin.h
         backtrack_find_clue.cpp
         dp.h
         dp.cpp
