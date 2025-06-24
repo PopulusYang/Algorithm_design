@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     int height = gameController->getSize() * blockSize;
     this->setFixedSize(width, height);
 
-    solveButton = new QPushButton("解密迷宫", this);
+    solveButton = new QPushButton("一键开挂", this);
     solveButton->setGeometry(10, 10, 100, 30);
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::onSolveMazeClicked);
 
