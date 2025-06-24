@@ -8,6 +8,9 @@
 #include <QPaintEvent> // 包含 QPaintEvent
 #include <QPushButton>
 #include <vector>
+#include <QTimer>
+#include <QKeyEvent>
+#include <QInputMethodEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -31,17 +34,29 @@ public:
     ~MainWindow();
 
 protected:
-    // 重写 paintEvent 来绘制迷宫
     void paintEvent(QPaintEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    bool event(QEvent *event) override; // 用于关闭输入法
 
 private slots:
     void onSolveMazeClicked();
+    void onPlayerMove();
 
 private:
     Ui::MainWindow *ui;
-    GameController *gameController; // 游戏控制器实例
-    int blockSize;                  // 每个迷宫区块的像素大小
+    GameController *gameController;
+    int blockSize;
     QPushButton *solveButton;
     std::vector<point> solvedPath;
+
+    // 玩家相关
+    QPointF playerPos;     // 玩家当前位置（浮点，便于惯性）
+    QPointF playerVel;     // 玩家速度
+    QPointF playerAcc;     // 玩家加速度
+    QTimer *playerTimer;   // 控制玩家移动的定时器
+    QSet<int> pressedKeys; // 当前按下的键
+    float inertia;         // 惯性系数
+    float moveSpeed;       // 基础速度
 };
 #endif // MAINWINDOW_H

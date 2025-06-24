@@ -2,6 +2,8 @@
 #include "./ui_mainwindow.h"
 #include <QInputDialog>
 #include <algorithm>
+#include <QTimer>
+#include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -37,12 +39,81 @@ MainWindow::MainWindow(QWidget *parent)
     solveButton = new QPushButton("解密迷宫", this);
     solveButton->setGeometry(10, 10, 100, 30);
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::onSolveMazeClicked);
+
+    // 玩家初始位置在起点
+    playerPos = QPointF(gameController->start.y, gameController->start.x);
+    playerVel = QPointF(0, 0);
+    playerAcc = QPointF(0, 0);
+    inertia = 0.85f;
+    moveSpeed = 0.18f;
+    playerTimer = new QTimer(this);
+    connect(playerTimer, &QTimer::timeout, this, &MainWindow::onPlayerMove);
+    playerTimer->start(16); // ~60fps
+    setFocusPolicy(Qt::StrongFocus);
+    setAttribute(Qt::WA_InputMethodEnabled, false); // 禁用输入法
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete gameController; // 释放内存
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    pressedKeys.insert(event->key());
+    event->accept();
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    pressedKeys.remove(event->key());
+    event->accept();
+}
+
+bool MainWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::InputMethod)
+        return true; // 屏蔽输入法
+    return QMainWindow::event(event);
+}
+
+void MainWindow::onPlayerMove()
+{
+    // 计算加速度
+    playerAcc = QPointF(0, 0);
+    if (pressedKeys.contains(Qt::Key_W))
+        playerAcc.ry() -= moveSpeed;
+    if (pressedKeys.contains(Qt::Key_S))
+        playerAcc.ry() += moveSpeed;
+    if (pressedKeys.contains(Qt::Key_A))
+        playerAcc.rx() -= moveSpeed;
+    if (pressedKeys.contains(Qt::Key_D))
+        playerAcc.rx() += moveSpeed;
+
+    // 更新速度（惯性）
+    playerVel = inertia * playerVel + (1 - inertia) * playerAcc;
+
+    // 预测新位置
+    QPointF nextPos = playerPos + playerVel;
+
+    // 边界和障碍检测
+    int nx = qRound(nextPos.y());
+    int ny = qRound(nextPos.x());
+    if (gameController && gameController->inBounds(nx, ny))
+    {
+        MAZE cell = static_cast<MAZE>(gameController->getMaze()[nx][ny]);
+        if (cell != MAZE::WALL)
+        {
+            playerPos = nextPos;
+        }
+        else
+        {
+            playerVel = QPointF(0, 0); // 撞墙停下
+        }
+    }
+
+    update();
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
@@ -144,6 +215,14 @@ void MainWindow::paintEvent(QPaintEvent *event)
             painter.drawRect(pathRect);
         }
     }
+
+    // 绘制玩家
+    painter.setBrush(QBrush(Qt::red));
+    painter.setPen(Qt::NoPen);
+    int px = playerPos.x() * blockSize + blockSize / 4;
+    int py = playerPos.y() * blockSize + blockSize / 4;
+    int size = blockSize / 2;
+    painter.drawEllipse(QRect(px, py, size, size));
 }
 
 void MainWindow::onSolveMazeClicked()
