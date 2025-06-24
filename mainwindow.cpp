@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     setAttribute(Qt::WA_InputMethodEnabled, false); // 禁用输入法
 
     // 加载精灵图
-    playerSprite.load("../player.png"); // 确保player.png在资源文件或同目录下
+    playerSprite.load("./player.png"); // 确保player.png在资源文件或同目录下
 }
 
 MainWindow::~MainWindow()
@@ -144,8 +144,8 @@ void MainWindow::onPlayerMove()
     QPointF nextPos = playerPos + playerVel;
 
     // 边界和障碍检测
-    int nx = qRound(nextPos.y()+0.15);
-    int ny = qRound(nextPos.x()+0.1);
+    int nx = qRound(nextPos.y() + 0.15);
+    int ny = qRound(nextPos.x() + 0.1);
     if (gameController && gameController->inBounds(nx, ny))
     {
         MAZE cell = static_cast<MAZE>(gameController->getMaze()[nx][ny]);
@@ -243,8 +243,43 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
                 if (!featureText.isEmpty())
                 {
-                    painter.setPen(Qt::black);
-                    painter.drawText(centerSubRect, Qt::AlignCenter, featureText);
+                    if (featureText == "S")
+                    {
+                        QPixmap startPixmap("../start.png"); // 路径根据实际情况调整
+                        if (!startPixmap.isNull())
+                        {
+                            // 缩放到中心子块大小
+                            QPixmap scaledPixmap = startPixmap.scaled(centerSubRect.size() * 2, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                            // 计算居中位置
+                            int x = centerSubRect.x() + (centerSubRect.width() - scaledPixmap.width()) / 2;
+                            int y = centerSubRect.y() + (centerSubRect.height() - scaledPixmap.height()) / 2;
+                            painter.drawPixmap(x, y, scaledPixmap);
+                        }
+                    }
+                    else if (featureText == "B")
+                    {
+                        QPixmap monsterPixmap("../monster.png"); // 路径根据实际情况调整
+                        if (!monsterPixmap.isNull())
+                        {
+                            // 精灵图一行8列，bossAnim决定当前帧
+                            int frameW = 5120 / 8;
+                            int frameH = 640;
+                            int frameIdx = bossAnim % 8; // 0~7
+                            QRect srcRect(frameIdx * frameW, 0, frameW, frameH);
+                            QPixmap monsterFrame = monsterPixmap.copy(srcRect);
+                            QPixmap scaledMonster = monsterFrame.scaled(centerSubRect.size() * 2, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                            int x = centerSubRect.x() + (centerSubRect.width() - scaledMonster.width()) / 2;
+                            int y = centerSubRect.y() + (centerSubRect.height() - scaledMonster.height()) / 2;
+                            painter.drawPixmap(x, y, scaledMonster);
+                        }
+                        painter.setPen(Qt::black);
+                        painter.drawText(centerSubRect, Qt::AlignCenter, featureText);
+                    }
+                    else
+                    {
+                        painter.setPen(Qt::black);
+                        painter.drawText(centerSubRect, Qt::AlignCenter, featureText);
+                    }
                 }
             }
         }
@@ -297,11 +332,19 @@ void MainWindow::paintEvent(QPaintEvent *event)
     // 添加渐变遮罩
     painter.restore();
     painter.setRenderHint(QPainter::Antialiasing, true);
-    QRadialGradient grad(rect().center(), rect().width() / 2, rect().center());
-    grad.setColorAt(0, QColor(255, 255, 255, 0));
-    grad.setColorAt(1, QColor(0, 0, 0, 150));
-    painter.setBrush(grad);
-    painter.drawRect(rect());
+
+    bossAnimFrameCounter++;
+    if (bossAnimFrameCounter >= 8)
+    { // 每8帧切换一次动画帧
+        bossAnim = (bossAnim + 1) % 8;
+        bossAnimFrameCounter = 0;
+    }
+
+        QRadialGradient grad(rect().center(), rect().width() / 2, rect().center());
+        grad.setColorAt(0, QColor(255, 255, 255, 0));
+        grad.setColorAt(1, QColor(0, 0, 0, 150));
+        painter.setBrush(grad);
+        painter.drawRect(rect());
 }
 
 void MainWindow::onSolveMazeClicked()

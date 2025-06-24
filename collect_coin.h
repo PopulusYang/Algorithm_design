@@ -1,7 +1,7 @@
 #ifndef COLLECT_COIN_H
 #define COLLECT_COIN_H
 #include <vector>
-
+using namespace std;
 enum class MAZE
 {
     START,
@@ -20,15 +20,13 @@ typedef struct point{
 } point;
 
 class coin_collecter
-{
-private:
-    MAZE **informations;
-    std::vector<point> path;
-
+{   
 public:
-    coin_collecter(MAZE **informations):informations(informations){}
-    std::vector<point> get_path(MAZE **newinformation = nullptr);
-    void wait() {};
+   coin_collecter(int**map,int size);
+   ~coin_collecter();
+
+   int**map;
+   int size;
 };
 
 #endif
