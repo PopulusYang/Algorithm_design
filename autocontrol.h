@@ -1,5 +1,6 @@
 #pragma once
 #include "player.h"
+#include <stdlib.h>
 
 class autocontroller
 {
@@ -15,7 +16,7 @@ public:
     autocontroller() : currentstate(state::stop) {}
     void control(state newstate);
     void stopautocontrol();
-
+    void moveforoneblock(state vec);
     void thread_auto_run(player &p);
 
     std::mutex mtx; // 互斥锁
@@ -24,6 +25,12 @@ private:
     state currentstate;
     bool autorun = true; // 可作为线程退出开关
 };
+
+inline void autocontroller::moveforoneblock(state vec)
+{
+    currentstate = vec;
+    
+}
 
 inline void autocontroller::control(autocontroller::state newstate)
 {
