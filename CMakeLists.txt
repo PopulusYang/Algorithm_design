@@ -30,6 +30,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         collect_coin.cpp
         collect_coin.h gamemain.h
+        boss.h boss.cpp boss.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET AlgorithmDesign APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
