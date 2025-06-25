@@ -8,7 +8,7 @@
 MonsterRenderThread::MonsterRenderThread(QObject *parent)
     : QThread(parent)
 {
-    monsterSheet.load("../monster.png");
+    monsterSheet.load("../img/monster.png");
 }
 
 void MonsterRenderThread::requestFrame(int anim_, const QRect &srcRect_, const QSize &targetSize_)
@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent)
     setAttribute(Qt::WA_InputMethodEnabled, false); // 禁用输入法
     gameController->print();
     // 加载精灵图
-    Player.playerSprite.load("../player.png"); // 确保player.png在资源文件或同目录下
+    Player.playerSprite.load("../img/player.png"); // 确保player.png在资源文件或同目录下
 
     monsterThread = new MonsterRenderThread(this);
     connect(monsterThread, &MonsterRenderThread::frameReady, this, [this]()
@@ -186,7 +186,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
     int mazeSize = gameController->getSize();
     const int (*maze)[MAXSIZE] = gameController->getMaze();
     const int subBlockSize = blockSize / 3;
-    QPixmap wallpixmap("../wall.png");
+    QPixmap wallpixmap("../img/wall.png");
 
     for (int i = 0; i < mazeSize; ++i)
     {
@@ -259,7 +259,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 {
                     if (featureText == "S")
                     {
-                        QPixmap startPixmap("../start.png"); // 路径根据实际情况调整
+                        QPixmap startPixmap("../img/start.png"); // 路径根据实际情况调整
                         if (!startPixmap.isNull())
                         {
                             // 缩放到中心子块大小
@@ -289,7 +289,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "E"){
-                        QPixmap exitPixmap("../exit.png"); // 路径根据实际情况调整
+                        QPixmap exitPixmap("../img/exit.png"); // 路径根据实际情况调整
                         if (!exitPixmap.isNull()){
                             QPixmap scaledexit = exitPixmap.scaled(centerSubRect.size()*1.618, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledexit.width()) / 2;
@@ -298,7 +298,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "G"){
-                         QPixmap goldPixmap("../gold.png"); // 路径根据实际情况调整
+                         QPixmap goldPixmap("../img/gold.png"); // 路径根据实际情况调整
                         if (!goldPixmap.isNull()){
                             QPixmap scaledgold = goldPixmap.scaled(centerSubRect.size()*2.5, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledgold.width()) / 2;
@@ -307,7 +307,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "L"){
-                         QPixmap lockerPixmap("../locker.png"); // 路径根据实际情况调整
+                         QPixmap lockerPixmap("../img/locker.png"); // 路径根据实际情况调整
                         if (!lockerPixmap.isNull()){
                             QPixmap scaledlocker = lockerPixmap.scaled(centerSubRect.size()*1.618, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledlocker.width()) / 2;
@@ -316,7 +316,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "C"){
-                         QPixmap cluePixmap("../clue.png"); // 路径根据实际情况调整
+                         QPixmap cluePixmap("../img/clue.png"); // 路径根据实际情况调整
                         if (!cluePixmap.isNull()){
                             QPixmap scaledclue = cluePixmap.scaled(centerSubRect.size()*2, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledclue.width()) / 2;
@@ -325,7 +325,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "T"){
-                         QPixmap trapPixmap("../trap.png"); // 路径根据实际情况调整
+                         QPixmap trapPixmap("../img/trap.png"); // 路径根据实际情况调整
                         if (!trapPixmap.isNull()){
                             QPixmap scaledtrap = trapPixmap.scaled(centerSubRect.size()*3, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledtrap.width()) / 2;
