@@ -12,29 +12,30 @@
 
 #include "gamemain.h"
 
-// 为了符合题目要求，定义一个固定的MAXSIZE，但内部使用动态的std::vector<std::string>
-// 这样做更灵活且是C++的最佳实践。
+// ????????????????MAXSIZE?????????std::vector<std::string>
+// ????????C++??????
 
 class MazeGenerator : virtual public gamemain
 {
 public:
     int mazesize;
-    std::pair<int, int> start_m; // 起点坐标
-    std::pair<int, int> exit;  // 终点坐标
-    std::pair<int, int> boss;  // BOSS坐标
-    std::pair<int, int> locker; // 机关坐标
-    std::pair<int, int> clue;  // 线索坐标
-    std::unordered_map<point,int> sourse_value; //资源价值
+    std::pair<int, int> start_m; // ????
+    std::pair<int, int> exit;  // ????
+    std::pair<int, int> boss;  // BOSS??
+    std::pair<int, int> locker; // ????
+    std::pair<int, int> clue;  // ????
+    std::unordered_map<point,int> sourse_value; //????
 
-    // 构造函数，初始化迷宫尺寸和随机数生成器
+    // ???????????????????
     MazeGenerator(int size) : gamemain(size)
-    {
-        // 确保迷宫尺寸是奇数，这对算法至关重要
+    {   
+        mazesize=size;
+        // ??????????????????
         if (size % 2 == 0)
         {
             size++;
         }
-        // 确保尺寸不小于最小限制7
+        // ???????????7
         if (size < 7)
         {
             size = 7;
@@ -49,9 +50,9 @@ public:
         }
 
         this->dimension = size;
-        this->rng.seed(std::time(nullptr)); // 使用当前时间作为随机数种子
+        this->rng.seed(std::time(nullptr)); // ?????????????
 
-        // 初始化迷宫网格，四周是墙(WALL)，内部是通路(WAY)
+        // ????????????(WALL)??????(WAY)
         for (int i = 0; i < MAXSIZE; ++i)
         {
             for (int j = 0; j < MAXSIZE; ++j)
@@ -68,13 +69,13 @@ public:
         }
     }
 
-    // 生成迷宫主函数
+    // ???????
     void generate()
     {
         divide(1, 1, dimension - 2, dimension - 2);
     }
 
-    // 放置各种物件
+    // ??????
     void placeFeatures()
     {
         int gold_count = 0;
@@ -97,7 +98,7 @@ public:
             locker_count = 1;
         }
 
-        // 固定起点在左上角(1,1)，终点在右下角(dim-2, dim-2)
+        // ????????(1,1)???????(dim-2, dim-2)
         start = {1, 1};
         maze[start.x][start.y] = static_cast<int>(MAZE::START);
         end = {dimension - 2, dimension - 2};
@@ -137,7 +138,7 @@ public:
         }
     }
 
-    // 打印迷宫到控制台
+    // ????????
     void print() const
     {
         for (int i = 0; i < dimension; ++i)
@@ -194,7 +195,7 @@ public:
         }
     }
 
-    // 如果需要将结果存入 std::string maze[MAXSIZE][MAXSIZE]，可以调用此函数
+    // ????????? std::string maze[MAXSIZE][MAXSIZE]????????
     void exportToLegacyArray(std::string arr[MAXSIZE][MAXSIZE]) const
     {
         for (int r = 0; r < dimension; ++r)
@@ -238,65 +239,65 @@ public:
         }
     }
 
-    // 获取迷宫尺寸
+    // ??????
     int getsize(){
         return mazesize;
     }
 
-    //获取迷宫数组
+    //??????
     int (*getmaze())[MAXSIZE] {
         return maze;
     }
 
-    // 获取起点坐标
+    // ??????
     std::pair<int, int> getStart() const {
         return start_m;
     }   
 
-    // 获取终点坐标
+    // ??????
     std::pair<int, int> getExit() const {
         return exit;
     }       
 
-    // 获取BOSS坐标     
+    // ??BOSS??     
     std::pair<int, int> getBoss() const {
         return boss;
     }
 
-    // 获取机关坐标
+    // ??????
     std::pair<int, int> getLocker() const {     
         return locker;
     }
 
-    // 获取线索坐标
+    // ??????
     std::pair<int, int> getClue() const {   
         return clue;
     }
 
 private:
-    std::mt19937 rng; // Mersenne Twister 随机数引擎
+    std::mt19937 rng; // Mersenne Twister ?????
 
-    // 分治法核心递归函数
+    // ?????????
     void divide(int r, int c, int h, int w)
     {
-        // 基准情况：如果区域太小，无法再分割，则返回
+        // ?????????????????????
         if (h < 3 || w < 3)
         {
             return;
         }
 
-        // 决定分割方向：如果宽度大于高度，则垂直分割，否则水平分割
+        // ????????????????????????????
         bool horizontal = (h > w);
         if (h == w)
-        { // 如果是正方形，随机选择方向
+        { // ?????????????
             std::uniform_int_distribution<int> dist(0, 1);
             horizontal = dist(rng) == 0;
         }
 
         if (horizontal)
         {
-            // 水平分割
-            // 1. 选择一个偶数行来建造墙壁
+            // ????
+            // 1. ????????????
             std::uniform_int_distribution<int> wall_dist(r + 1, r + h - 2);
             int wall_r = wall_dist(rng);
             if (wall_r % 2 != 0)
@@ -304,15 +305,15 @@ private:
             if (wall_r >= r + h - 1)
                 wall_r -= 2;
 
-            // 2. 选择一个奇数行来打开通道
+            // 2. ????????????
             std::uniform_int_distribution<int> passage_dist(c, c + w - 1);
             int passage_c = passage_dist(rng);
             if (passage_c % 2 == 0)
-                passage_c++; // 确保是奇数列
+                passage_c++; // ??????
             if (passage_c >= c + w)
                 passage_c -= 2;
 
-            // 3. 建造墙壁并打开通道
+            // 3. ?????????
             for (int i = c; i < c + w; ++i)
             {
                 if (i != passage_c)
@@ -321,14 +322,14 @@ private:
                 }
             }
 
-            // 4. 递归处理上下两个子区域
+            // 4. ???????????
             divide(r, c, wall_r - r, w);
             divide(wall_r + 1, c, r + h - (wall_r + 1), w);
         }
         else
         {
-            // 垂直分割
-            // 1. 选择一个偶数列来建造墙壁
+            // ????
+            // 1. ????????????
             std::uniform_int_distribution<int> wall_dist(c + 1, c + w - 2);
             int wall_c = wall_dist(rng);
             if (wall_c % 2 != 0)
@@ -336,7 +337,7 @@ private:
             if (wall_c >= c + w - 1)
                 wall_c -= 2;
 
-            // 2. 选择一个奇数行来打开通道
+            // 2. ????????????
             std::uniform_int_distribution<int> passage_dist(r, r + h - 1);
             int passage_r = passage_dist(rng);
             if (passage_r % 2 == 0)
@@ -344,7 +345,7 @@ private:
             if (passage_r >= r + h)
                 passage_r -= 2;
 
-            // 3. 建造墙壁并打开通道
+            // 3. ?????????
             for (int i = r; i < r + h; ++i)
             {
                 if (i != passage_r)
@@ -352,7 +353,7 @@ private:
                     maze[i][wall_c] = static_cast<int>(MAZE::WALL);
                 }
             }
-            // 4. 递归处理左右两个子区域
+            // 4. ???????????
             divide(r, c, h, wall_c - c);
             divide(r, wall_c + 1, h, c + w - (wall_c + 1));
         }
@@ -385,12 +386,17 @@ private:
                 clue = pos;
                 break;
             case MAZE::SOURCE:
-                point temp_point;
-                temp_point.x=pos.first;
-                temp_point.y=pos.second;
-                std::uniform_int_distribution<int> ranvalue(0, 100);
-                int val=ranvalue(rng);
-                sourse_value.insert({temp_point,val});
+                {
+                    point temp_point;
+                    temp_point.x = pos.first;
+                    temp_point.y = pos.second;
+                    std::uniform_int_distribution<int> ranvalue(0, 100);
+                    int val = ranvalue(rng);
+                    sourse_value.insert({temp_point, val});
+                    break;
+                }
+            default:
+                break;
         }
     }
 };
@@ -398,26 +404,26 @@ private:
 // int call_mapbuild_example() {
 // //int main() {
 //     int size;
-//     std::cout << "请输入迷宫的尺寸 (推荐奇数, 最小为7): ";
+//     std::cout << "???????? (????, ???7): ";
 //     std::cin >> size;
 
-//     std::cout << "\n正在生成 " << size << "x" << size << " (或调整后的尺寸) 的迷宫...\n" << std::endl;
+//     std::cout << "\n???? " << size << "x" << size << " (???????) ???...\n" << std::endl;
 
-//     // 创建生成器实例
+//     // ???????
 //     MazeGenerator generator(size);
 
-//     // 生成迷宫结构
+//     // ??????
 //     generator.generate();
     
-//     // 随机放置各种物件
+//     // ????????
 //     generator.placeFeatures();
 
-//     //获取迷宫数组,打印maze[0][0]
+//     //??????,??maze[0][0]
 //     std::cout<<generator.getmaze()[0][0];
 
-//     // 打印最终的迷宫
-//     std::cout << "迷宫生成完毕:" << std::endl;
-//     std::cout << "S: 起点, E: 终点, #: 墙壁, G: 金币, T: 陷阱, L: 机关, B: BOSS" << std::endl;
+//     // ???????
+//     std::cout << "??????:" << std::endl;
+//     std::cout << "S: ??, E: ??, #: ??, G: ??, T: ??, L: ??, B: BOSS" << std::endl;
 //     std::cout << "-------------------------------------------------" << std::endl;
 //     generator.print();
 //     std::cout << "-------------------------------------------------" << std::endl;
