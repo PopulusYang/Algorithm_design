@@ -5,6 +5,68 @@
 #include <QTimer>
 #include <QKeyEvent>
 
+MonsterRenderThread::MonsterRenderThread(QObject *parent)
+    : QThread(parent)
+{
+    monsterSheet.load("../img/monster.png");
+}
+
+void MonsterRenderThread::requestFrame(int anim_, const QRect &srcRect_, const QSize &targetSize_)
+{
+    QMutexLocker locker(&mutex);
+    anim = anim_;
+    srcRect = srcRect_;
+    targetSize = targetSize_;
+    frameRequested = true;
+    cond.wakeOne();
+}
+
+QPixmap MonsterRenderThread::getResult()
+{
+    QMutexLocker locker(&mutex);
+    return result;
+}
+
+void MonsterRenderThread::run()
+{
+    while (running)
+    {
+        mutex.lock();
+        if (!frameRequested)
+            cond.wait(&mutex);
+        if (!running)
+        {
+            mutex.unlock();
+            break;
+        }
+        QRect r = srcRect;
+        QSize sz = targetSize;
+        frameRequested = false;
+        mutex.unlock();
+
+        QPixmap frame = monsterSheet.copy(r);
+        QPixmap scaled = frame.scaled(sz, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+        mutex.lock();
+        result = scaled;
+        mutex.unlock();
+        emit frameReady();
+    }
+}
+
+void MonsterRenderThread::stop()
+{
+    QMutexLocker locker(&mutex);
+    running = false;
+    cond.wakeOne();
+}
+
+void MainWindow::ontimeout()
+{
+    emit needMove(gameController);
+}
+
+// MainWindow 构造函数中初始化
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -39,38 +101,64 @@ MainWindow::MainWindow(QWidget *parent)
     solveButton = new QPushButton("一键开挂", this);
     solveButton->setGeometry(10, 10, 100, 30);
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::onSolveMazeClicked);
-
+    connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
     // 玩家初始位置在起点
-    playerPos = QPointF(gameController->start.y, gameController->start.x);
-    playerVel = QPointF(0, 0);
-    playerAcc = QPointF(0, 0);
-    inertia = 0.85f;
-    moveSpeed = 0.18f;
-    playerTimer = new QTimer(this);
-    connect(playerTimer, &QTimer::timeout, this, &MainWindow::onPlayerMove);
-    playerTimer->start(16); // ~60fps
+    Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
+    Player.playerVel = QPointF(0, 0);
+    Player.playerAcc = QPointF(0, 0);
+    Player.inertia = 0.85f;
+    Player.moveSpeed = 0.18f;
+    Player.playerTimer = new QTimer(this);
+    connect(Player.playerTimer, &QTimer::timeout, this, &MainWindow::ontimeout);
+    connect(&Player, &player::needUpdate,
+            this, QOverload<>::of(&QWidget::update));
+    Player.playerTimer->start(16); // ~60fps
     setFocusPolicy(Qt::StrongFocus);
     setAttribute(Qt::WA_InputMethodEnabled, false); // 禁用输入法
-
+    gameController->print();
     // 加载精灵图
-    playerSprite.load("./player.png"); // 确保player.png在资源文件或同目录下
+    Player.playerSprite.load("../img/player.png"); // 确保player.png在资源文件或同目录下
+
+    monsterThread = new MonsterRenderThread(this);
+    connect(monsterThread, &MonsterRenderThread::frameReady, this, [this]()
+            {
+        QMutexLocker locker(&monsterFrameMutex);
+        monsterFrameReady = monsterThread->getResult();
+        update(); });
+    monsterThread->start();
+
+    solveButton = new QPushButton("打开控制面板", this);
+    solveButton->setGeometry(10, 50, 150, 30);
+    connect(solveButton, &QPushButton::clicked, this, &MainWindow::createAutoControlPanel);
+
+    autoThread = new std::thread([this]()
+                                 { autoCtrl.thread_auto_run(Player); });
 }
 
 MainWindow::~MainWindow()
 {
+    monsterThread->stop();
+    monsterThread->wait();
+    delete monsterThread;
+
     delete ui;
     delete gameController; // 释放内存
+    autoCtrl.stopautocontrol();
+    if (autoThread && autoThread->joinable())
+        autoThread->join();
+    delete autoThread;
+    delete autoPanel;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    pressedKeys.insert(event->key());
+    Player.pressedKeys.insert(event->key());
     event->accept();
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
-    pressedKeys.remove(event->key());
+    Player.pressedKeys.remove(event->key());
     event->accept();
 }
 
@@ -79,87 +167,6 @@ bool MainWindow::event(QEvent *event)
     if (event->type() == QEvent::InputMethod)
         return true; // 屏蔽输入法
     return QMainWindow::event(event);
-}
-
-void MainWindow::onPlayerMove()
-{
-    // 计算加速度
-    playerAcc = QPointF(0, 0);
-    bool moving = false;
-    if (pressedKeys.contains(Qt::Key_W))
-    {
-        playerAcc.ry() -= moveSpeed;
-        playerDir = 2;
-        moving = true;
-    }
-    if (pressedKeys.contains(Qt::Key_S))
-    {
-        playerAcc.ry() += moveSpeed;
-        playerDir = 1;
-        moving = true;
-    }
-    if (pressedKeys.contains(Qt::Key_A))
-    {
-        playerAcc.rx() -= moveSpeed;
-        playerDir = 0;
-        moving = true;
-    }
-    if (pressedKeys.contains(Qt::Key_D))
-    {
-        playerAcc.rx() += moveSpeed;
-        playerDir = 3;
-        moving = true;
-    }
-
-    // 更新状态
-    if (moving)
-    {
-        playerState = "walk";
-        animFrameCounter++;
-        if (animFrameCounter >= 6)
-        { // 每6帧才切换一次动画帧，数值越大动画越慢
-            playerAnim = (playerAnim + 1) % 4;
-            animFrameCounter = 0;
-        }
-    }
-    else
-    {
-        playerState = "idle";
-        playerAnim = 0;
-        animFrameCounter = 0;
-    }
-
-    // 更新速度（惯性）
-    playerVel = inertia * playerVel + (1 - inertia) * playerAcc;
-
-    // 限制最大速度
-    const float maxSpeed = 0.025f;
-    if (std::hypot(playerVel.x(), playerVel.y()) > maxSpeed)
-    {
-        float scale = maxSpeed / std::hypot(playerVel.x(), playerVel.y());
-        playerVel *= scale;
-    }
-
-    // 预测新位置
-    QPointF nextPos = playerPos + playerVel;
-
-    // 边界和障碍检测
-    int nx = qRound(nextPos.y() + 0.15);
-    int ny = qRound(nextPos.x() + 0.1);
-    if (gameController && gameController->inBounds(nx, ny))
-    {
-        MAZE cell = static_cast<MAZE>(gameController->getMaze()[nx][ny]);
-        if (cell != MAZE::WALL)
-        {
-            playerPos = nextPos;
-        }
-        else
-        {
-            playerVel = QPointF(0, 0); // 撞墙停下
-        }
-    }
-
-    update();
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
@@ -172,14 +179,14 @@ void MainWindow::paintEvent(QPaintEvent *event)
     // --> 将摄像机中心移动到玩家附近
     painter.save();
     painter.scale(1.5, 1.5); // 将显示区域放大
-    float camX = playerPos.x() * blockSize - width() / 3.0f;
-    float camY = playerPos.y() * blockSize - height() / 3.0f;
+    float camX = Player.playerPos.x() * blockSize - width() / 3.0f;
+    float camY = Player.playerPos.y() * blockSize - height() / 3.0f;
     painter.translate(-camX, -camY);
 
     int mazeSize = gameController->getSize();
     const int (*maze)[MAXSIZE] = gameController->getMaze();
     const int subBlockSize = blockSize / 3;
-    QPixmap wallpixmap("../wall.png");
+    QPixmap wallpixmap("../img/wall.png");
 
     for (int i = 0; i < mazeSize; ++i)
     {
@@ -252,7 +259,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 {
                     if (featureText == "S")
                     {
-                        QPixmap startPixmap("../start.png"); // 路径根据实际情况调整
+                        QPixmap startPixmap("../img/start.png"); // 路径根据实际情况调整
                         if (!startPixmap.isNull())
                         {
                             // 缩放到中心子块大小
@@ -265,25 +272,24 @@ void MainWindow::paintEvent(QPaintEvent *event)
                     }
                     else if (featureText == "B")
                     {
-                        QPixmap monsterPixmap("../monster.png"); // 路径根据实际情况调整
-                        if (!monsterPixmap.isNull())
+                        int frameW = 5120 / 8;
+                        int frameH = 640;
+                        int frameIdx = bossAnim % 8;
+                        QRect srcRect(frameIdx * frameW, 0, frameW, frameH);
+                        QSize targetSize(centerSubRect.size() * 2);
+
+                        monsterThread->requestFrame(bossAnim, srcRect, targetSize);
+
+                        QMutexLocker locker(&monsterFrameMutex);
+                        if (!monsterFrameReady.isNull())
                         {
-                            // 精灵图一行8列，bossAnim决定当前帧
-                            int frameW = 5120 / 8;
-                            int frameH = 640;
-                            int frameIdx = bossAnim % 8; // 0~7
-                            QRect srcRect(frameIdx * frameW, 0, frameW, frameH);
-                            QPixmap monsterFrame = monsterPixmap.copy(srcRect);
-                            QPixmap scaledMonster = monsterFrame.scaled(centerSubRect.size() * 2, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                            int x = centerSubRect.x() + (centerSubRect.width() - scaledMonster.width()) / 2;
-                            int y = centerSubRect.y() + (centerSubRect.height() - scaledMonster.height()) / 2;
-                            painter.drawPixmap(x, y, scaledMonster);
+                            int x = centerSubRect.x() + (centerSubRect.width() - monsterFrameReady.width()) / 2;
+                            int y = centerSubRect.y() + (centerSubRect.height() - monsterFrameReady.height()) / 2;
+                            painter.drawPixmap(x, y, monsterFrameReady);
                         }
-                        painter.setPen(Qt::black);
-                        painter.drawText(centerSubRect, Qt::AlignCenter, featureText);
                     }
                     else if(featureText == "E"){
-                        QPixmap exitPixmap("../exit.png"); // 路径根据实际情况调整
+                        QPixmap exitPixmap("../img/exit.png"); // 路径根据实际情况调整
                         if (!exitPixmap.isNull()){
                             QPixmap scaledexit = exitPixmap.scaled(centerSubRect.size()*1.618, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledexit.width()) / 2;
@@ -292,7 +298,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "G"){
-                         QPixmap goldPixmap("../gold.png"); // 路径根据实际情况调整
+                         QPixmap goldPixmap("../img/gold.png"); // 路径根据实际情况调整
                         if (!goldPixmap.isNull()){
                             QPixmap scaledgold = goldPixmap.scaled(centerSubRect.size()*2.5, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledgold.width()) / 2;
@@ -301,7 +307,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "L"){
-                         QPixmap lockerPixmap("../locker.png"); // 路径根据实际情况调整
+                         QPixmap lockerPixmap("../img/locker.png"); // 路径根据实际情况调整
                         if (!lockerPixmap.isNull()){
                             QPixmap scaledlocker = lockerPixmap.scaled(centerSubRect.size()*1.618, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledlocker.width()) / 2;
@@ -310,7 +316,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "C"){
-                         QPixmap cluePixmap("../clue.png"); // 路径根据实际情况调整
+                         QPixmap cluePixmap("../img/clue.png"); // 路径根据实际情况调整
                         if (!cluePixmap.isNull()){
                             QPixmap scaledclue = cluePixmap.scaled(centerSubRect.size()*2, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledclue.width()) / 2;
@@ -319,7 +325,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                         }
                     }
                     else if(featureText == "T"){
-                         QPixmap trapPixmap("../trap.png"); // 路径根据实际情况调整
+                         QPixmap trapPixmap("../img/trap.png"); // 路径根据实际情况调整
                         if (!trapPixmap.isNull()){
                             QPixmap scaledtrap = trapPixmap.scaled(centerSubRect.size()*3, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                             int x = centerSubRect.x() + (centerSubRect.width() - scaledtrap.width()) / 2;
@@ -362,41 +368,41 @@ void MainWindow::paintEvent(QPaintEvent *event)
     // painter.drawEllipse(QRect(px, py, size, size));
 
     // 使用精灵图绘制玩家
-    int frameW = 600 / 10; // 10列
-    int frameH = 290 / 4;  // 4行
-    int dir = playerDir;   // 0:左 1:下 2:上 3:右
+    int frameW = 600 / 10;      // 10列
+    int frameH = 290 / 4;       // 4行
+    int dir = Player.playerDir; // 0:左 1:下 2:上 3:右
     int col = 0;
-    if (playerState == "idle")
-        col = 0 + (playerAnim % 2);
-    else if (playerState == "walk")
-        col = 2 + (playerAnim % 4);
-    else if (playerState == "attack")
-        col = 6 + (playerAnim % 4);
+    if (Player.playerState == "idle")
+        col = 0 + (Player.playerAnim % 2);
+    else if (Player.playerState == "walk")
+        col = 2 + (Player.playerAnim % 4);
+    else if (Player.playerState == "attack")
+        col = 6 + (Player.playerAnim % 4);
 
     QRect srcRect(col * frameW, dir * frameH, frameW, frameH);
 
-    int px = playerPos.x() * blockSize + blockSize * 3 / 8;
-    int py = playerPos.y() * blockSize + blockSize * 3 / 8;
+    int px = Player.playerPos.x() * blockSize + blockSize * 3 / 8;
+    int py = Player.playerPos.y() * blockSize + blockSize * 3 / 8;
     int size = blockSize / 2; // 玩家显示大小
 
-    painter.drawPixmap(QRect(px, py, size, size), playerSprite, srcRect);
+    painter.drawPixmap(QRect(px, py, size, size), Player.playerSprite, srcRect);
 
     // 添加渐变遮罩
     painter.restore();
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     bossAnimFrameCounter++;
-    if (bossAnimFrameCounter >= 8)
+    if (bossAnimFrameCounter >= 16)
     { // 每8帧切换一次动画帧
         bossAnim = (bossAnim + 1) % 8;
         bossAnimFrameCounter = 0;
     }
 
-        QRadialGradient grad(rect().center(), rect().width() / 2, rect().center());
-        grad.setColorAt(0, QColor(255, 255, 255, 0));
-        grad.setColorAt(1, QColor(0, 0, 0, 150));
-        painter.setBrush(grad);
-        painter.drawRect(rect());
+    QRadialGradient grad(rect().center(), rect().width() / 2, rect().center());
+    grad.setColorAt(0, QColor(255, 255, 255, 0));
+    grad.setColorAt(1, QColor(0, 0, 0, 150));
+    painter.setBrush(grad);
+    painter.drawRect(rect());
 }
 
 void MainWindow::onSolveMazeClicked()
@@ -406,4 +412,11 @@ void MainWindow::onSolveMazeClicked()
         solvedPath = gameController->findBestPath();
         update(); // 触发重绘以显示路径
     }
+}
+
+void MainWindow::createAutoControlPanel()
+{
+    autoPanel = new AutoControlPanel(&autoCtrl);
+    autoPanel->setAttribute(Qt::WA_DeleteOnClose); // 窗口关闭时自动销毁
+    autoPanel->show();                             // 显示非模态窗口
 }
