@@ -66,6 +66,7 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
     bool event(QEvent *event) override; // 用于关闭输入法
     void createAutoControlPanel();
+    void drawCluePath();
 
 private slots:
     void onSolveMazeClicked();
@@ -78,6 +79,7 @@ private:
     int blockSize;
     QPushButton *solveButton;
     std::vector<point> solvedPath;
+    std::vector<std::vector<std::pair<int, int>>> cluePath;
 
     player Player;
 

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "backtrack_find_clue.h"
 #include <QInputDialog>
 #include <algorithm>
 #include <QTimer>
@@ -128,8 +129,12 @@ MainWindow::MainWindow(QWidget *parent)
     monsterThread->start();
 
     solveButton = new QPushButton("打开控制面板", this);
-    solveButton->setGeometry(10, 50, 150, 30);
+    solveButton->setGeometry(10, 50, 100, 30);
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::createAutoControlPanel);
+    
+    solveButton = new QPushButton("带我去找线索", this);
+    solveButton->setGeometry(10, 90, 200, 30);
+    connect(solveButton, &QPushButton::clicked, this, &MainWindow::drawCluePath);
 
     autoThread = new std::thread([this]()
                                  { autoCtrl.thread_auto_run(Player); });
@@ -359,6 +364,20 @@ void MainWindow::paintEvent(QPaintEvent *event)
         }
     }
 
+    // 绘制玩家到三条线索的路径
+    if(!cluePath.empty()){
+        painter.setBrush(QBrush(QColor(0, 200, 255, 128))); // 半透明蓝色
+        painter.setPen(Qt::NoPen);
+        for(const auto& path : cluePath){
+            for(const auto& p : path){
+                QRect pathRect(p.second * blockSize + subBlockSize,
+                               p.first * blockSize + subBlockSize,
+                               subBlockSize, subBlockSize);
+                painter.drawRect(pathRect);
+            }
+        }
+    }
+
     // 绘制玩家
     // painter.setBrush(QBrush(Qt::red));
     // painter.setPen(Qt::NoPen);
@@ -419,4 +438,13 @@ void MainWindow::createAutoControlPanel()
     autoPanel = new AutoControlPanel(&autoCtrl);
     autoPanel->setAttribute(Qt::WA_DeleteOnClose); // 窗口关闭时自动销毁
     autoPanel->show();                             // 显示非模态窗口
+}
+
+void MainWindow::drawCluePath(){
+    std::pair<int,int> player_current_pos;
+    player_current_pos.first=Player.playerPos.y()+1;
+    player_current_pos.second=Player.playerPos.x()+1;
+    clue_finder finder(gameController->getSize(), gameController->getmaze(), player_current_pos, 3);
+    cluePath = finder.find_all_clue_paths();
+    update(); // 触发重绘以显示路径   
 }
