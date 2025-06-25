@@ -64,5 +64,12 @@ private:
     int playerDir = 2;            // 0:左 1:下 2:上 3:右
     int playerAnim = 0;           // 动画帧索引
     QString playerState = "idle"; // idle, walk, attack
+
+    // Boss 相关
+    QPointF bossPos;
+    QPixmap bossSprite;
+    int bossDir = 2;
+    int bossAnim = 0;
+    int bossAnimFrameCounter = 0;
 };
 #endif // MAINWINDOW_H

@@ -18,7 +18,7 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         mapbuild.h
-        backtrack_find_clue.cpp
+        backtrack_find_clue.h
         dp.h
         dp.cpp
 

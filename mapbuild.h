@@ -28,7 +28,8 @@ public:
 
     // 构造函数，初始化迷宫尺寸和随机数生成器
     MazeGenerator(int size) : gamemain(size)
-    {
+    {   
+        mazesize=size;
         // 确保迷宫尺寸是奇数，这对算法至关重要
         if (size % 2 == 0)
         {
@@ -385,12 +386,15 @@ private:
                 clue = pos;
                 break;
             case MAZE::SOURCE:
-                point temp_point;
-                temp_point.x=pos.first;
-                temp_point.y=pos.second;
-                std::uniform_int_distribution<int> ranvalue(0, 100);
-                int val=ranvalue(rng);
-                sourse_value.insert({temp_point,val});
+                {
+                    point temp_point;
+                    temp_point.x = pos.first;
+                    temp_point.y = pos.second;
+                    std::uniform_int_distribution<int> ranvalue(0, 100);
+                    int val = ranvalue(rng);
+                    sourse_value.insert({temp_point, val});
+                    break;
+                }
             default:
                 break;
         }
