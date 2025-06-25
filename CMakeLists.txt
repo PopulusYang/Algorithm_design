@@ -18,10 +18,14 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         mapbuild.h
-        backtrack_find_clue.cpp
+        gamemain.h
         dp.h
         dp.cpp
-
+        player.h
+        player.cpp
+        autowindow.cpp
+        autowindow.h
+        autocontrol.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

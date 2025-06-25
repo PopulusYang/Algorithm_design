@@ -12,29 +12,29 @@
 
 #include "gamemain.h"
 
-// ÎªÁË·ûºÏÌâÄ¿ÒªÇó£¬¶¨ÒåÒ»¸ö¹Ì¶¨µÄMAXSIZE£¬µ«ÄÚ²¿Ê¹ÓÃ¶¯Ì¬µÄstd::vector<std::string>
-// ÕâÑù×ö¸üÁé»îÇÒÊÇC++µÄ×î¼ÑÊµ¼ù¡£
+// ä¸ºäº†ç¬¦åˆé¢˜ç›®è¦æ±‚ï¼Œå®šä¹‰ä¸€ä¸ªå›ºå®šçš„MAXSIZEï¼Œä½†å†…éƒ¨ä½¿ç”¨åŠ¨æ€çš„std::vector<std::string>
+// è¿™æ ·åšæ›´çµæ´»ä¸”æ˜¯C++çš„æœ€ä½³å®è·µã€‚
 
 class MazeGenerator : virtual public gamemain
 {
 public:
     int mazesize;
-    std::pair<int, int> start_m; // Æğµã×ø±ê
-    std::pair<int, int> exit;  // ÖÕµã×ø±ê
-    std::pair<int, int> boss;  // BOSS×ø±ê
-    std::pair<int, int> locker; // »ú¹Ø×ø±ê
-    std::pair<int, int> clue;  // ÏßË÷×ø±ê
-    std::unordered_map<point,int> sourse_value; //×ÊÔ´¼ÛÖµ
+    std::pair<int, int> start_m; // èµ·ç‚¹åæ ‡
+    std::pair<int, int> exit;  // ç»ˆç‚¹åæ ‡
+    std::pair<int, int> boss;  // BOSSåæ ‡
+    std::pair<int, int> locker; // æœºå…³åæ ‡
+    std::pair<int, int> clue;  // çº¿ç´¢åæ ‡
+    std::unordered_map<point,int> sourse_value; //èµ„æºä»·å€¼
 
-    // ¹¹Ôìº¯Êı£¬³õÊ¼»¯ÃÔ¹¬³ß´çºÍËæ»úÊıÉú³ÉÆ÷
+    // æ„é€ å‡½æ•°ï¼Œåˆå§‹åŒ–è¿·å®«å°ºå¯¸å’Œéšæœºæ•°ç”Ÿæˆå™¨
     MazeGenerator(int size) : gamemain(size)
     {
-        // È·±£ÃÔ¹¬³ß´çÊÇÆæÊı£¬Õâ¶ÔËã·¨ÖÁ¹ØÖØÒª
+        // ç¡®ä¿è¿·å®«å°ºå¯¸æ˜¯å¥‡æ•°ï¼Œè¿™å¯¹ç®—æ³•è‡³å…³é‡è¦
         if (size % 2 == 0)
         {
             size++;
         }
-        // È·±£³ß´ç²»Ğ¡ÓÚ×îĞ¡ÏŞÖÆ7
+        // ç¡®ä¿å°ºå¯¸ä¸å°äºæœ€å°é™åˆ¶7
         if (size < 7)
         {
             size = 7;
@@ -49,9 +49,9 @@ public:
         }
 
         this->dimension = size;
-        this->rng.seed(std::time(nullptr)); // Ê¹ÓÃµ±Ç°Ê±¼ä×÷ÎªËæ»úÊıÖÖ×Ó
+        this->rng.seed(std::time(nullptr)); // ä½¿ç”¨å½“å‰æ—¶é—´ä½œä¸ºéšæœºæ•°ç§å­
 
-        // ³õÊ¼»¯ÃÔ¹¬Íø¸ñ£¬ËÄÖÜÊÇÇ½(WALL)£¬ÄÚ²¿ÊÇÍ¨Â·(WAY)
+        // åˆå§‹åŒ–è¿·å®«ç½‘æ ¼ï¼Œå››å‘¨æ˜¯å¢™(WALL)ï¼Œå†…éƒ¨æ˜¯é€šè·¯(WAY)
         for (int i = 0; i < MAXSIZE; ++i)
         {
             for (int j = 0; j < MAXSIZE; ++j)
@@ -68,13 +68,13 @@ public:
         }
     }
 
-    // Éú³ÉÃÔ¹¬Ö÷º¯Êı
+    // ç”Ÿæˆè¿·å®«ä¸»å‡½æ•°
     void generate()
     {
         divide(1, 1, dimension - 2, dimension - 2);
     }
 
-    // ·ÅÖÃ¸÷ÖÖÎï¼ş
+    // æ”¾ç½®å„ç§ç‰©ä»¶
     void placeFeatures()
     {
         int gold_count = 0;
@@ -83,7 +83,7 @@ public:
         int clue_count = 3;
         bool has_boss = false;
 
-        if (dimension >= 15)
+        if (dimension >= 9)
         {
             gold_count = 12;
             trap_count = 6;
@@ -97,7 +97,7 @@ public:
             locker_count = 1;
         }
 
-        // ¹Ì¶¨ÆğµãÔÚ×óÉÏ½Ç(1,1)£¬ÖÕµãÔÚÓÒÏÂ½Ç(dim-2, dim-2)
+        // å›ºå®šèµ·ç‚¹åœ¨å·¦ä¸Šè§’(1,1)ï¼Œç»ˆç‚¹åœ¨å³ä¸‹è§’(dim-2, dim-2)
         start = {1, 1};
         maze[start.x][start.y] = static_cast<int>(MAZE::START);
         end = {dimension - 2, dimension - 2};
@@ -137,7 +137,7 @@ public:
         }
     }
 
-    // ´òÓ¡ÃÔ¹¬µ½¿ØÖÆÌ¨
+    // æ‰“å°è¿·å®«åˆ°æ§åˆ¶å°
     void print() const
     {
         for (int i = 0; i < dimension; ++i)
@@ -194,7 +194,7 @@ public:
         }
     }
 
-    // Èç¹ûĞèÒª½«½á¹û´æÈë std::string maze[MAXSIZE][MAXSIZE]£¬¿ÉÒÔµ÷ÓÃ´Ëº¯Êı
+    // å¦‚æœéœ€è¦å°†ç»“æœå­˜å…¥ std::string maze[MAXSIZE][MAXSIZE]ï¼Œå¯ä»¥è°ƒç”¨æ­¤å‡½æ•°
     void exportToLegacyArray(std::string arr[MAXSIZE][MAXSIZE]) const
     {
         for (int r = 0; r < dimension; ++r)
@@ -238,65 +238,65 @@ public:
         }
     }
 
-    // »ñÈ¡ÃÔ¹¬³ß´ç
+    // è·å–è¿·å®«å°ºå¯¸
     int getsize(){
         return mazesize;
     }
 
-    //»ñÈ¡ÃÔ¹¬Êı×é
+    //è·å–è¿·å®«æ•°ç»„
     int (*getmaze())[MAXSIZE] {
         return maze;
     }
 
-    // »ñÈ¡Æğµã×ø±ê
+    // è·å–èµ·ç‚¹åæ ‡
     std::pair<int, int> getStart() const {
         return start_m;
     }   
 
-    // »ñÈ¡ÖÕµã×ø±ê
+    // è·å–ç»ˆç‚¹åæ ‡
     std::pair<int, int> getExit() const {
         return exit;
     }       
 
-    // »ñÈ¡BOSS×ø±ê     
+    // è·å–BOSSåæ ‡     
     std::pair<int, int> getBoss() const {
         return boss;
     }
 
-    // »ñÈ¡»ú¹Ø×ø±ê
+    // è·å–æœºå…³åæ ‡
     std::pair<int, int> getLocker() const {     
         return locker;
     }
 
-    // »ñÈ¡ÏßË÷×ø±ê
+    // è·å–çº¿ç´¢åæ ‡
     std::pair<int, int> getClue() const {   
         return clue;
     }
 
 private:
-    std::mt19937 rng; // Mersenne Twister Ëæ»úÊıÒıÇæ
+    std::mt19937 rng; // Mersenne Twister éšæœºæ•°å¼•æ“
 
-    // ·ÖÖÎ·¨ºËĞÄµİ¹éº¯Êı
+    // åˆ†æ²»æ³•æ ¸å¿ƒé€’å½’å‡½æ•°
     void divide(int r, int c, int h, int w)
     {
-        // »ù×¼Çé¿ö£ºÈç¹ûÇøÓòÌ«Ğ¡£¬ÎŞ·¨ÔÙ·Ö¸î£¬Ôò·µ»Ø
+        // åŸºå‡†æƒ…å†µï¼šå¦‚æœåŒºåŸŸå¤ªå°ï¼Œæ— æ³•å†åˆ†å‰²ï¼Œåˆ™è¿”å›
         if (h < 3 || w < 3)
         {
             return;
         }
 
-        // ¾ö¶¨·Ö¸î·½Ïò£ºÈç¹û¿í¶È´óÓÚ¸ß¶È£¬Ôò´¹Ö±·Ö¸î£¬·ñÔòË®Æ½·Ö¸î
+        // å†³å®šåˆ†å‰²æ–¹å‘ï¼šå¦‚æœå®½åº¦å¤§äºé«˜åº¦ï¼Œåˆ™å‚ç›´åˆ†å‰²ï¼Œå¦åˆ™æ°´å¹³åˆ†å‰²
         bool horizontal = (h > w);
         if (h == w)
-        { // Èç¹ûÊÇÕı·½ĞÎ£¬Ëæ»úÑ¡Ôñ·½Ïò
+        { // å¦‚æœæ˜¯æ­£æ–¹å½¢ï¼Œéšæœºé€‰æ‹©æ–¹å‘
             std::uniform_int_distribution<int> dist(0, 1);
             horizontal = dist(rng) == 0;
         }
 
         if (horizontal)
         {
-            // Ë®Æ½·Ö¸î
-            // 1. Ñ¡ÔñÒ»¸öÅ¼ÊıĞĞÀ´½¨ÔìÇ½±Ú
+            // æ°´å¹³åˆ†å‰²
+            // 1. é€‰æ‹©ä¸€ä¸ªå¶æ•°è¡Œæ¥å»ºé€ å¢™å£
             std::uniform_int_distribution<int> wall_dist(r + 1, r + h - 2);
             int wall_r = wall_dist(rng);
             if (wall_r % 2 != 0)
@@ -304,15 +304,15 @@ private:
             if (wall_r >= r + h - 1)
                 wall_r -= 2;
 
-            // 2. Ñ¡ÔñÒ»¸öÆæÊıĞĞÀ´´ò¿ªÍ¨µÀ
+            // 2. é€‰æ‹©ä¸€ä¸ªå¥‡æ•°è¡Œæ¥æ‰“å¼€é€šé“
             std::uniform_int_distribution<int> passage_dist(c, c + w - 1);
             int passage_c = passage_dist(rng);
             if (passage_c % 2 == 0)
-                passage_c++; // È·±£ÊÇÆæÊıÁĞ
+                passage_c++; // ç¡®ä¿æ˜¯å¥‡æ•°åˆ—
             if (passage_c >= c + w)
                 passage_c -= 2;
 
-            // 3. ½¨ÔìÇ½±Ú²¢´ò¿ªÍ¨µÀ
+            // 3. å»ºé€ å¢™å£å¹¶æ‰“å¼€é€šé“
             for (int i = c; i < c + w; ++i)
             {
                 if (i != passage_c)
@@ -321,14 +321,14 @@ private:
                 }
             }
 
-            // 4. µİ¹é´¦ÀíÉÏÏÂÁ½¸ö×ÓÇøÓò
+            // 4. é€’å½’å¤„ç†ä¸Šä¸‹ä¸¤ä¸ªå­åŒºåŸŸ
             divide(r, c, wall_r - r, w);
             divide(wall_r + 1, c, r + h - (wall_r + 1), w);
         }
         else
         {
-            // ´¹Ö±·Ö¸î
-            // 1. Ñ¡ÔñÒ»¸öÅ¼ÊıÁĞÀ´½¨ÔìÇ½±Ú
+            // å‚ç›´åˆ†å‰²
+            // 1. é€‰æ‹©ä¸€ä¸ªå¶æ•°åˆ—æ¥å»ºé€ å¢™å£
             std::uniform_int_distribution<int> wall_dist(c + 1, c + w - 2);
             int wall_c = wall_dist(rng);
             if (wall_c % 2 != 0)
@@ -336,7 +336,7 @@ private:
             if (wall_c >= c + w - 1)
                 wall_c -= 2;
 
-            // 2. Ñ¡ÔñÒ»¸öÆæÊıĞĞÀ´´ò¿ªÍ¨µÀ
+            // 2. é€‰æ‹©ä¸€ä¸ªå¥‡æ•°è¡Œæ¥æ‰“å¼€é€šé“
             std::uniform_int_distribution<int> passage_dist(r, r + h - 1);
             int passage_r = passage_dist(rng);
             if (passage_r % 2 == 0)
@@ -344,7 +344,7 @@ private:
             if (passage_r >= r + h)
                 passage_r -= 2;
 
-            // 3. ½¨ÔìÇ½±Ú²¢´ò¿ªÍ¨µÀ
+            // 3. å»ºé€ å¢™å£å¹¶æ‰“å¼€é€šé“
             for (int i = r; i < r + h; ++i)
             {
                 if (i != passage_r)
@@ -352,7 +352,7 @@ private:
                     maze[i][wall_c] = static_cast<int>(MAZE::WALL);
                 }
             }
-            // 4. µİ¹é´¦Àí×óÓÒÁ½¸ö×ÓÇøÓò
+            // 4. é€’å½’å¤„ç†å·¦å³ä¸¤ä¸ªå­åŒºåŸŸ
             divide(r, c, h, wall_c - c);
             divide(r, wall_c + 1, h, c + w - (wall_c + 1));
         }
@@ -391,8 +391,6 @@ private:
                 std::uniform_int_distribution<int> ranvalue(0, 100);
                 int val=ranvalue(rng);
                 sourse_value.insert({temp_point,val});
-            default:
-                break;
         }
     }
 };
@@ -400,26 +398,26 @@ private:
 // int call_mapbuild_example() {
 // //int main() {
 //     int size;
-//     std::cout << "ÇëÊäÈëÃÔ¹¬µÄ³ß´ç (ÍÆ¼öÆæÊı, ×îĞ¡Îª7): ";
+//     std::cout << "è¯·è¾“å…¥è¿·å®«çš„å°ºå¯¸ (æ¨èå¥‡æ•°, æœ€å°ä¸º7): ";
 //     std::cin >> size;
 
-//     std::cout << "\nÕıÔÚÉú³É " << size << "x" << size << " (»òµ÷ÕûºóµÄ³ß´ç) µÄÃÔ¹¬...\n" << std::endl;
+//     std::cout << "\næ­£åœ¨ç”Ÿæˆ " << size << "x" << size << " (æˆ–è°ƒæ•´åçš„å°ºå¯¸) çš„è¿·å®«...\n" << std::endl;
 
-//     // ´´½¨Éú³ÉÆ÷ÊµÀı
+//     // åˆ›å»ºç”Ÿæˆå™¨å®ä¾‹
 //     MazeGenerator generator(size);
 
-//     // Éú³ÉÃÔ¹¬½á¹¹
+//     // ç”Ÿæˆè¿·å®«ç»“æ„
 //     generator.generate();
     
-//     // Ëæ»ú·ÅÖÃ¸÷ÖÖÎï¼ş
+//     // éšæœºæ”¾ç½®å„ç§ç‰©ä»¶
 //     generator.placeFeatures();
 
-//     //»ñÈ¡ÃÔ¹¬Êı×é,´òÓ¡maze[0][0]
+//     //è·å–è¿·å®«æ•°ç»„,æ‰“å°maze[0][0]
 //     std::cout<<generator.getmaze()[0][0];
 
-//     // ´òÓ¡×îÖÕµÄÃÔ¹¬
-//     std::cout << "ÃÔ¹¬Éú³ÉÍê±Ï:" << std::endl;
-//     std::cout << "S: Æğµã, E: ÖÕµã, #: Ç½±Ú, G: ½ğ±Ò, T: ÏİÚå, L: »ú¹Ø, B: BOSS" << std::endl;
+//     // æ‰“å°æœ€ç»ˆçš„è¿·å®«
+//     std::cout << "è¿·å®«ç”Ÿæˆå®Œæ¯•:" << std::endl;
+//     std::cout << "S: èµ·ç‚¹, E: ç»ˆç‚¹, #: å¢™å£, G: é‡‘å¸, T: é™·é˜±, L: æœºå…³, B: BOSS" << std::endl;
 //     std::cout << "-------------------------------------------------" << std::endl;
 //     generator.print();
 //     std::cout << "-------------------------------------------------" << std::endl;

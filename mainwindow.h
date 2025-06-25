@@ -2,8 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "mapbuild.h" // 包含地图生成器
-#include "dp.h"
 #include <QPainter>    // 包含 QPainter
 #include <QPaintEvent> // 包含 QPaintEvent
 #include <QPushButton>
@@ -12,6 +10,15 @@
 #include <QKeyEvent>
 #include <QInputMethodEvent>
 #include <QPixmap>
+#include <QMutex>
+#include <QThread>
+#include <QImage>
+#include <QWaitCondition>
+#include "player.h"
+#include "gamecontrol.h"
+#include "autowindow.h"
+#include "autocontrol.h"
+#include <thread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -20,10 +27,29 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
-class GameController : public MazeGenerator, public dp
+class MonsterRenderThread : public QThread
 {
+    Q_OBJECT
 public:
-    GameController(int size) : gamemain(size), MazeGenerator(size), dp(size) {}
+    MonsterRenderThread(QObject *parent = nullptr);
+    void requestFrame(int anim, const QRect &srcRect, const QSize &targetSize);
+    QPixmap getResult();
+    void run() override;
+    void stop();
+
+signals:
+    void frameReady(); // 添加这一行
+
+private:
+    QMutex mutex;
+    QWaitCondition cond;
+    bool running = true;
+    int anim = 0;
+    QRect srcRect;
+    QSize targetSize;
+    QPixmap result;
+    bool frameRequested = false;
+    QPixmap monsterSheet;
 };
 
 class MainWindow : public QMainWindow
@@ -39,10 +65,12 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     bool event(QEvent *event) override; // 用于关闭输入法
+    void createAutoControlPanel();
 
 private slots:
     void onSolveMazeClicked();
-    void onPlayerMove();
+
+    void ontimeout();
 
 private:
     Ui::MainWindow *ui;
@@ -50,20 +78,8 @@ private:
     int blockSize;
     QPushButton *solveButton;
     std::vector<point> solvedPath;
-    int animFrameCounter = 0;
-    // 玩家相关
-    QPointF playerPos;     // 玩家当前位置（浮点，便于惯性）
-    QPointF playerVel;     // 玩家速度
-    QPointF playerAcc;     // 玩家加速度
-    QTimer *playerTimer;   // 控制玩家移动的定时器
-    QSet<int> pressedKeys; // 当前按下的键
-    float inertia;         // 惯性系数
-    float moveSpeed;       // 基础速度
 
-    QPixmap playerSprite;
-    int playerDir = 2;            // 0:左 1:下 2:上 3:右
-    int playerAnim = 0;           // 动画帧索引
-    QString playerState = "idle"; // idle, walk, attack
+    player Player;
 
     // Boss 相关
     QPointF bossPos;
@@ -71,5 +87,16 @@ private:
     int bossDir = 2;
     int bossAnim = 0;
     int bossAnimFrameCounter = 0;
+
+    MonsterRenderThread *monsterThread;
+    QPixmap monsterFrameReady;
+    QMutex monsterFrameMutex;
+
+    autocontroller autoCtrl;
+    std::thread *autoThread = nullptr;
+    AutoControlPanel *autoPanel = nullptr;
+
+signals:
+    void needMove(GameController *gameController);
 };
 #endif // MAINWINDOW_H
