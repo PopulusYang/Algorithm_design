@@ -18,7 +18,6 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         mapbuild.h
-        backtrack_find_clue.h
         dp.h
         dp.cpp
 
@@ -31,6 +30,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         collect_coin.cpp
         collect_coin.h gamemain.h
         boss.h boss.cpp boss.ui
+        collect_coin.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET AlgorithmDesign APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
