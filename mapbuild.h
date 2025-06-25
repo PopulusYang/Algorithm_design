@@ -15,17 +15,28 @@
 // 为了符合题目要求，定义一个固定的MAXSIZE，但内部使用动态的std::vector<std::string>
 // 这样做更灵活且是C++的最佳实践。
 
+
+
 class MazeGenerator : virtual public gamemain
 {
 public:
     int mazesize;
+    int gen_order=0;
+
+    struct clue_content{
+        int gen_order_index;      
+        int password_dig_val;
+    };
+
     std::pair<int, int> start_m; // 起点坐标
     std::pair<int, int> exit;  // 终点坐标
     std::pair<int, int> boss;  // BOSS坐标
     std::pair<int, int> locker; // 机关坐标
     std::pair<int, int> clue;  // 线索坐标
     std::unordered_map<point,int> sourse_value; //资源价值
-
+    //线索内容，到达线索对应的坐标时，利用坐标作为参数，读取这个线索指示出的密码位和密码值（例如密码：456，访问这个线索之后，可以知道4是密码值，1是密码位，即密码的第一位是4）
+    std::unordered_map<point,clue_content> clue_set; 
+    clue_content clue_arr[4];
     // 构造函数，初始化迷宫尺寸和随机数生成器
     MazeGenerator(int size) : gamemain(size)
     {   
@@ -274,6 +285,35 @@ public:
         return clue;
     }
 
+    // 生成完地图之后，利用这个函数就可以得到密码锁密码的值
+    int getpassword() const{
+        int password=0;
+        for(int i=1;i<=3;i++){
+            int temp;
+            temp=clue_arr[i].password_dig_val;
+            password*=10;
+            password+=temp;
+        }
+        return password;
+    }
+
+    // 遇到线索时，调用这两个函数获取线索，集齐三个线索，就可以得到密码的值，与getpassword()的返回值比较，即可判断密码是否正确
+    int getclue_index(point clue_point){
+        auto it = clue_set.find(clue_point);
+        if (it != clue_set.end()) {
+            return it->second.gen_order_index;
+        }
+        return -1; // 或者其他适当的错误值
+    }
+
+    int getclue_val(point clue_point){
+        auto it = clue_set.find(clue_point);
+        if (it != clue_set.end()) {
+            return it->second.password_dig_val;
+        }
+        return -1; // 或者其他适当的错误值
+    }
+
 private:
     std::mt19937 rng; // Mersenne Twister 随机数引擎
 
@@ -383,8 +423,19 @@ private:
                 locker = pos;
                 break;
             case MAZE::CLUE:
+                {
+                gen_order++;
+                point temp_point;
+                clue_content temp_content;
+                temp_content.gen_order_index=gen_order;
+                temp_content.password_dig_val=(pos.first*pos.second*0xBEEF)%10;
+                clue_arr[gen_order] = temp_content;
+                clue_set.insert({temp_point,temp_content});
+                temp_point.x = pos.first;
+                temp_point.y = pos.second;
                 clue = pos;
-                break;
+                break;                      
+                }             
             case MAZE::SOURCE:
                 {
                     point temp_point;
