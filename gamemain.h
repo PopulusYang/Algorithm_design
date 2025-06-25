@@ -37,16 +37,16 @@ public:
 };
 
 //玩家信息
-typedef struct player
-{
-    point playerpoint;//玩家位置
-    int playerblood;//血量
-    int playersource;//资源量
-    int commtech;//普通招式
-    int commhurt;//普通伤害
-    int bigtech;//大招
-    int bighurt;//大招伤害
-}gameplayer;
+// typedef struct player
+// {
+//     point playerpoint;//玩家位置
+//     int playerblood;//血量
+//     int playersource;//资源量
+//     int commtech;//普通招式
+//     int commhurt;//普通伤害
+//     int bigtech;//大招
+//     int bighurt;//大招伤害
+// }gameplayer;
 // 为 point 特化 std::hash
 namespace std
 {
@@ -92,7 +92,6 @@ public:
 protected:
     int dimension;
     int maze[MAXSIZE][MAXSIZE];
-    gameplayer player;
 };
 
 #endif
