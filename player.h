@@ -28,6 +28,18 @@ public:
     float inertia;         // 惯性系数
     float moveSpeed;       // 基础速度
 
+    point playerpoint;//玩家位置
+    int playerblood;//血量
+    int playersource;//资源量
+    int commtech;//普通招式
+    int commhurt;//普通伤害
+    int bigtech;//大招
+    int bighurt;//大招伤害
+
+
+
+
+
     QPixmap playerSprite;
     int playerDir = 2;            // 0:左 1:下 2:上 3:右
     int playerAnim = 0;           // 动画帧索引

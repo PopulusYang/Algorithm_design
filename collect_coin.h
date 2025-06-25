@@ -5,6 +5,7 @@
 #include<unordered_map>
 #include<array>
 #include"gamemain.h"
+#include"player.h"
 using namespace std;
 typedef struct goldcoin
 {
@@ -16,11 +17,10 @@ typedef struct goldcoin
 }goldcoin;
 
 
-
 class coin_collecter:virtual public gamemain
 {   
 public:
-    coin_collecter() : gamemain(){}
+    coin_collecter() : gamemain(),player(){}
     coin_collecter(int **map, int size);
     ~coin_collecter();
    bool ifsourvaild();
@@ -28,6 +28,7 @@ public:
    void oneview(int index,point viewpoint);
     unordered_map<point, int> sourse_value;
     array<goldcoin, 8> view;
+    player player;
    // point nextpoint;
 };
 
