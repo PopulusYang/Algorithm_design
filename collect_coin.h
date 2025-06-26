@@ -5,24 +5,31 @@
 #include<unordered_map>
 #include<array>
 #include"gamemain.h"
+#include"player.h"
 using namespace std;
 typedef struct goldcoin
 {
     point coinpoint;
-    bool collected;
-    int valud;
+    bool accessible;//某个位置是否是可以去的
+    int value;
+    MAZE type;
+    double valueff;//性价比
 }goldcoin;
+
 
 class coin_collecter:virtual public gamemain
 {   
 public:
-    coin_collecter() : gamemain(){}
+    coin_collecter() : gamemain(),player(){}
     coin_collecter(int **map, int size);
     ~coin_collecter();
-    point findway(point currpoint);
+   bool ifsourvaild();
+    point findway();
+   void oneview(int index,point viewpoint);
     unordered_map<point, int> sourse_value;
     array<goldcoin, 8> view;
-    point nextpoint;
+    player player;
+   // point nextpoint;
 };
 
 #endif

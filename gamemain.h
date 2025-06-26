@@ -21,6 +21,7 @@ enum class MAZE
     CLUE
 };
 
+
 class point
 {
 public:
@@ -36,6 +37,17 @@ public:
 
 };
 
+//玩家信息
+// typedef struct player
+// {
+//     point playerpoint;//玩家位置
+//     int playerblood;//血量
+//     int playersource;//资源量
+//     int commtech;//普通招式
+//     int commhurt;//普通伤害
+//     int bigtech;//大招
+//     int bighurt;//大招伤害
+// }gameplayer;
 // 为 point 特化 std::hash
 namespace std
 {
@@ -54,6 +66,7 @@ class gamemain
 {
 public:
     gamemain(int size):mazesize(size){}
+    gamemain(){}
     // gamemain() = default;
     int mazesize;
     bool is_near_locker;
@@ -67,7 +80,7 @@ public:
     point end;
 
     std::unordered_set<point> sourse;
-
+    std::unordered_map<point,int>sourcemap;
 
     int getSize()
     {
