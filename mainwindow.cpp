@@ -86,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent)
     gameController->generate();
     gameController->placeFeatures();
 
+    autoCtrl.mazeinformation = gameController;
+
     // 动态计算blockSize以适应1920*1080的屏幕
     const int maxWidth = 1280;
     const int maxHeight = 720;
@@ -132,7 +134,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::createAutoControlPanel);
 
     autoThread = new std::thread([this]()
-                                 { autoCtrl.thread_auto_run(Player); });
+                                 { autoCtrl.thread_auto_run(); });
+    
 }
 
 MainWindow::~MainWindow()

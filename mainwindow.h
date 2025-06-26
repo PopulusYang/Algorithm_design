@@ -92,8 +92,9 @@ private:
     QPixmap monsterFrameReady;
     QMutex monsterFrameMutex;
 
-    autocontroller autoCtrl;
+    autocontroller autoCtrl = autocontroller(&Player);
     std::thread *autoThread = nullptr;
+    std::thread *panelThread = nullptr;
     AutoControlPanel *autoPanel = nullptr;
 
 signals:
