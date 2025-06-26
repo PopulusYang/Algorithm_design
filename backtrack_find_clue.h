@@ -2,23 +2,23 @@
 #define BACKTRACK_FIND_CLUE_H
 #include "mapbuild.h" 
 /*
-*@brief ¹¹ÔìÂ·¾¶Éú³ÉÆ÷¶ÔÏóºó£¬Ê¹ÓÃ»ØËİ·¨Éú³É´ÓÆğÊ¼×ø±êµ½ËùÓĞÏßË÷µÄÂ·¾¶
-*@param ÃÔ¹¬ĞÅÏ¢
-*@param ÆğÊ¼×ø±ê£¨´ÓÕâ¸ö×ø±ê¿ªÊ¼Ñ°ÕÒËùÓĞÏßË÷£©
-*@param ÏßË÷ÊıÁ¿
-*@return ´ÓÆğÊ¼×ø±êµ½ËùÓĞÏßË÷µÄÂ·¾¶£¨ÆğÊ¼µã->µÚÒ»ÌõÏßË÷->µÚ¶şÌõÏßË÷->.....£©Ã¿Ò»¶Î·Ö±ğ±£´æÔÚvectorÊı×éÖĞ
+*@brief æ„é€ è·¯å¾„ç”Ÿæˆå™¨å¯¹è±¡åï¼Œä½¿ç”¨å›æº¯æ³•ç”Ÿæˆä»èµ·å§‹åæ ‡åˆ°æ‰€æœ‰çº¿ç´¢çš„è·¯å¾„
+*@param è¿·å®«ä¿¡æ¯
+*@param èµ·å§‹åæ ‡ï¼ˆä»è¿™ä¸ªåæ ‡å¼€å§‹å¯»æ‰¾æ‰€æœ‰çº¿ç´¢ï¼‰
+*@param çº¿ç´¢æ•°é‡
+*@return ä»èµ·å§‹åæ ‡åˆ°æ‰€æœ‰çº¿ç´¢çš„è·¯å¾„ï¼ˆèµ·å§‹ç‚¹->ç¬¬ä¸€æ¡çº¿ç´¢->ç¬¬äºŒæ¡çº¿ç´¢->.....ï¼‰æ¯ä¸€æ®µåˆ†åˆ«ä¿å­˜åœ¨vectoræ•°ç»„ä¸­
 */
 class clue_finder {
 public:
-    int clue_left_total; // ÃÔ¹¬ÖĞÏßË÷µÄ×ÜÊı
-    int size;             // ÃÔ¹¬³ß´ç
-    int (*maze)[MAXSIZE]; // ÃÔ¹¬Êı×éÖ¸Õë
-    std::pair<int, int> locker;     // ³õÊ¼»ú¹Ø×ø±ê
+    int clue_left_total; // è¿·å®«ä¸­çº¿ç´¢çš„æ€»æ•°
+    int size;             // è¿·å®«å°ºå¯¸
+    int (*maze)[MAXSIZE]; // è¿·å®«æ•°ç»„æŒ‡é’ˆ
+    std::pair<int, int> locker;     // åˆå§‹æœºå…³åæ ‡
 
 private:
-    int isvisited[MAXSIZE][MAXSIZE]; // ·ÃÎÊ±ê¼ÇÊı×é
+    int isvisited[MAXSIZE][MAXSIZE]; // è®¿é—®æ ‡è®°æ•°ç»„
 
-    // ÄÚ²¿º¯Êı£º³õÊ¼»¯·ÃÎÊ±ê¼Ç
+    // å†…éƒ¨å‡½æ•°ï¼šåˆå§‹åŒ–è®¿é—®æ ‡è®°
     void init_visited() {
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; ++j) {
@@ -27,7 +27,7 @@ private:
         }
     }
 
-    // ºËĞÄ»ØËİº¯Êı£¨ÉèÎªË½ÓĞ£¬×÷ÎªÄÚ²¿ÊµÏÖÏ¸½Ú£©
+    // æ ¸å¿ƒå›æº¯å‡½æ•°ï¼ˆè®¾ä¸ºç§æœ‰ï¼Œä½œä¸ºå†…éƒ¨å®ç°ç»†èŠ‚ï¼‰
     bool find_clue_recursive(int x, int y, std::vector<std::pair<int, int>>& path) {
         if (x < 0 || x >= size || y < 0 || y >= size || isvisited[x][y] || maze[x][y] == static_cast<int>(MAZE::WALL)) {
             return false;
@@ -50,7 +50,7 @@ private:
     }
 
 public:
-    // ¹¹Ôìº¯Êı
+    // æ„é€ å‡½æ•°
     clue_finder(int size, int (*maze)[MAXSIZE], std::pair<int, int> locker, int total_clues) {
         this->size = size;
         this->maze = maze;
@@ -58,9 +58,9 @@ public:
         this->clue_left_total = total_clues;
     }
 
-    // --- ĞÂµÄ¹«¹²½Ó¿Úº¯Êı ---
-    // µ÷ÓÃ´Ëº¯ÊıÀ´Ñ°ÕÒËùÓĞÏßË÷µÄÍêÕûÂ·¾¶
-    // ·µ»ØÖµ: Ò»¸öÏòÁ¿£¬ÆäÖĞÃ¿¸öÔªËØÊÇÁíÒ»Ìõ´ÓÒ»¸öµãµ½ÏÂÒ»¸öÏßË÷µÄÂ·¾¶
+    // --- æ–°çš„å…¬å…±æ¥å£å‡½æ•° ---
+    // è°ƒç”¨æ­¤å‡½æ•°æ¥å¯»æ‰¾æ‰€æœ‰çº¿ç´¢çš„å®Œæ•´è·¯å¾„
+    // è¿”å›å€¼: ä¸€ä¸ªå‘é‡ï¼Œå…¶ä¸­æ¯ä¸ªå…ƒç´ æ˜¯å¦ä¸€æ¡ä»ä¸€ä¸ªç‚¹åˆ°ä¸‹ä¸€ä¸ªçº¿ç´¢çš„è·¯å¾„
     std::vector<std::vector<std::pair<int, int>>> find_all_clue_paths() {
         std::vector<std::vector<std::pair<int, int>>> all_paths;
         std::pair<int, int> current_start_pos = this->locker;
@@ -68,30 +68,30 @@ public:
         int clues_to_find = this->clue_left_total;
 
         while (clues_to_find > 0) {
-            init_visited(); // ÎªÏÂÒ»´ÎËÑË÷ÖØÖÃ·ÃÎÊÊı×é
-            std::vector<std::pair<int, int>> path_segment; // ´æ´¢µ±Ç°Â·¾¶¶Î
+            init_visited(); // ä¸ºä¸‹ä¸€æ¬¡æœç´¢é‡ç½®è®¿é—®æ•°ç»„
+            std::vector<std::pair<int, int>> path_segment; // å­˜å‚¨å½“å‰è·¯å¾„æ®µ
             
-            // µ÷ÓÃÄÚ²¿»ØËİº¯ÊıÑ°ÕÒ´Óµ±Ç°Æğµãµ½ÏÂÒ»¸öÏßË÷µÄÂ·¾¶
+            // è°ƒç”¨å†…éƒ¨å›æº¯å‡½æ•°å¯»æ‰¾ä»å½“å‰èµ·ç‚¹åˆ°ä¸‹ä¸€ä¸ªçº¿ç´¢çš„è·¯å¾„
             if (find_clue_recursive(current_start_pos.first, current_start_pos.second, path_segment)) {
-                // ÕÒµ½ÁËÒ»¸öÏßË÷
-                all_paths.push_back(path_segment); // ½«ÕÒµ½µÄÂ·¾¶¶Î´æÈë×ÜÂ·¾¶ÈİÆ÷
+                // æ‰¾åˆ°äº†ä¸€ä¸ªçº¿ç´¢
+                all_paths.push_back(path_segment); // å°†æ‰¾åˆ°çš„è·¯å¾„æ®µå­˜å…¥æ€»è·¯å¾„å®¹å™¨
 
-                // ¸üĞÂÏÂÒ»¸öËÑË÷µÄÆğµãÎª¸Õ¸ÕÕÒµ½µÄÏßË÷Î»ÖÃ
+                // æ›´æ–°ä¸‹ä¸€ä¸ªæœç´¢çš„èµ·ç‚¹ä¸ºåˆšåˆšæ‰¾åˆ°çš„çº¿ç´¢ä½ç½®
                 current_start_pos = path_segment.back();
                 
-                // ½«ÒÑÕÒµ½µÄÏßË÷ÔÚÃÔ¹¬ÖĞ±ê¼ÇÎªÆÕÍ¨Â·¾¶£¬ÒÔÃâÖØ¸´²éÕÒ
-                // ×¢Òâ£ºÕâ»áĞŞ¸Ä´«ÈëµÄÃÔ¹¬Êı×é
+                // å°†å·²æ‰¾åˆ°çš„çº¿ç´¢åœ¨è¿·å®«ä¸­æ ‡è®°ä¸ºæ™®é€šè·¯å¾„ï¼Œä»¥å…é‡å¤æŸ¥æ‰¾
+                // æ³¨æ„ï¼šè¿™ä¼šä¿®æ”¹ä¼ å…¥çš„è¿·å®«æ•°ç»„
                 maze[current_start_pos.first][current_start_pos.second] = static_cast<int>(MAZE::WAY);
                 
                 clues_to_find--;
             } else {
-                // Èç¹ûÕÒ²»µ½¸ü¶àÏßË÷£¬ËµÃ÷Ê£ÓàÏßË÷²»¿É´ï£¬ÍË³öÑ­»·
-                std::cout << "¾¯¸æ: ÎŞ·¨ÕÒµ½ËùÓĞ " << clue_left_total << " ¸öÏßË÷£¬¿ÉÄÜÓĞ²¿·Ö±»¸ôÀë¡£" << std::endl;
+                // å¦‚æœæ‰¾ä¸åˆ°æ›´å¤šçº¿ç´¢ï¼Œè¯´æ˜å‰©ä½™çº¿ç´¢ä¸å¯è¾¾ï¼Œé€€å‡ºå¾ªç¯
+                std::cout << "è­¦å‘Š: æ— æ³•æ‰¾åˆ°æ‰€æœ‰ " << clue_left_total << " ä¸ªçº¿ç´¢ï¼Œå¯èƒ½æœ‰éƒ¨åˆ†è¢«éš”ç¦»ã€‚" << std::endl;
                 break;
             }
         }
         
-        // »Ö¸´±»ĞŞ¸ÄµÄÏßË÷¸ñ£¬ÒÔ±ãÍâ²¿¿ÉÒÔÔÙ´ÎÊ¹ÓÃÔ­Ê¼ÃÔ¹¬×´Ì¬£¨¿ÉÑ¡£©
+        // æ¢å¤è¢«ä¿®æ”¹çš„çº¿ç´¢æ ¼ï¼Œä»¥ä¾¿å¤–éƒ¨å¯ä»¥å†æ¬¡ä½¿ç”¨åŸå§‹è¿·å®«çŠ¶æ€ï¼ˆå¯é€‰ï¼‰
         for(const auto& path_seg : all_paths) {
             if (!path_seg.empty()) {
                 const auto& clue_pos = path_seg.back();
@@ -110,27 +110,27 @@ int call_finder_example() {
     MazeGenerator generator(size);
     generator.generate();
     generator.placeFeatures();
-    std::cout << "--- ³õÊ¼ÃÔ¹¬ ---" << std::endl;
+    std::cout << "--- åˆå§‹è¿·å®« ---" << std::endl;
     generator.print();
 
     int (*maze)[MAXSIZE] = generator.getmaze();
     int size_of_maze = generator.getsize();
-    int total_clues = 3; // ¼ÙÉèÓĞ3¸öÏßË÷
+    int total_clues = 3; // å‡è®¾æœ‰3ä¸ªçº¿ç´¢
 
-    // ´´½¨ finder ÊµÀı
-    clue_finder finder(size_of_maze, maze, generator.getLocker(), total_clues);//ÔÚ´Ë´¦ÊäÈë¿ªÊ¼×ø±ê£¬¿ªÊ¼Ñ°ÕÒÈı¸öÏßË÷
+    // åˆ›å»º finder å®ä¾‹
+    clue_finder finder(size_of_maze, maze, generator.getLocker(), total_clues);//åœ¨æ­¤å¤„è¾“å…¥å¼€å§‹åæ ‡ï¼Œå¼€å§‹å¯»æ‰¾ä¸‰ä¸ªçº¿ç´¢
 
-    // --- Ö»Ğèµ÷ÓÃÒ»¸öº¯Êı¼´¿É»ñÈ¡ËùÓĞÂ·¾¶ ---
-    std::cout << "\n--- ¿ªÊ¼Ñ°ÕÒËùÓĞÏßË÷µÄÂ·¾¶ ---" << std::endl;
-    auto all_clue_paths = finder.find_all_clue_paths();//·µ»ØµÄÊÇ´ÓÄãÊäÈëµÄ×ø±ê£¬Í¾¾¶Èı¸öÏßË÷µÄÂ·Ïß
+    // --- åªéœ€è°ƒç”¨ä¸€ä¸ªå‡½æ•°å³å¯è·å–æ‰€æœ‰è·¯å¾„ ---
+    std::cout << "\n--- å¼€å§‹å¯»æ‰¾æ‰€æœ‰çº¿ç´¢çš„è·¯å¾„ ---" << std::endl;
+    auto all_clue_paths = finder.find_all_clue_paths();//è¿”å›çš„æ˜¯ä»ä½ è¾“å…¥çš„åæ ‡ï¼Œé€”å¾„ä¸‰ä¸ªçº¿ç´¢çš„è·¯çº¿
 
-    // --- ´òÓ¡½á¹û ---
+    // --- æ‰“å°ç»“æœ ---
     if (all_clue_paths.empty()) {
-        std::cout << "Î´ÄÜÕÒµ½ÈÎºÎ´Ó»ú¹Øµ½ÏßË÷µÄÂ·¾¶¡£" << std::endl;
+        std::cout << "æœªèƒ½æ‰¾åˆ°ä»»ä½•ä»æœºå…³åˆ°çº¿ç´¢çš„è·¯å¾„ã€‚" << std::endl;
     } else {
-        std::cout << "³É¹¦ÕÒµ½ " << all_clue_paths.size() << " ÌõÂ·¾¶¶Î£¡" << std::endl;
+        std::cout << "æˆåŠŸæ‰¾åˆ° " << all_clue_paths.size() << " æ¡è·¯å¾„æ®µï¼" << std::endl;
         for (size_t i = 0; i < all_clue_paths.size(); ++i) {
-            std::cout << "\n--- Â·¾¶¶Î " << i + 1 << " ---" << std::endl;
+            std::cout << "\n--- è·¯å¾„æ®µ " << i + 1 << " ---" << std::endl;
             const auto& path = all_clue_paths[i];
             for (size_t j = 0; j < path.size(); ++j) {
                 std::cout << "(" << path[j].first << ", " << path[j].second << ")";
@@ -138,11 +138,11 @@ int call_finder_example() {
                     std::cout << " -> ";
                 }
             }
-            std::cout << " (ÕÒµ½ÏßË÷!)" << std::endl;
+            std::cout << " (æ‰¾åˆ°çº¿ç´¢!)" << std::endl;
         }
     }
 
-    std::cout << "\n--- ²éÕÒ½áÊø ---" << std::endl;
+    std::cout << "\n--- æŸ¥æ‰¾ç»“æŸ ---" << std::endl;
 
     return 0;
 }
