@@ -3,6 +3,7 @@
 
 #include <unordered_set>
 #include <unordered_map>
+#include <vector>
 
 #define MAXSIZE 51 // 最大支持51x51的迷宫
 
@@ -55,10 +56,18 @@ public:
     gamemain(int size):mazesize(size){}
     // gamemain() = default;
     int mazesize;
+    bool is_near_locker;
+    struct clue_content{
+        point clue_position;
+        int gen_order_index;      
+        int password_dig_val;
+    };
+    std::vector<clue_content> received_clue;
     point start;
     point end;
 
     std::unordered_set<point> sourse;
+
 
     int getSize()
     {
