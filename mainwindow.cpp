@@ -158,6 +158,10 @@ MainWindow::MainWindow(QWidget *parent)
     solveButton->setGeometry(10, 170, 100, 30);
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::locker_status);
 
+    QPushButton *resetButton = new QPushButton("重置迷宫", this);
+    resetButton->setGeometry(10, 210, 100, 30);
+    connect(resetButton, &QPushButton::clicked, this, &MainWindow::onResetGameClicked);
+
     autoThread = new std::thread([this]()
                                  { autoCtrl.thread_auto_run(); });
 }
@@ -702,4 +706,49 @@ bool MainWindow::locker_status()
         QMessageBox::information(this, "错误", "请前往密码锁处开锁。");
         return false; // 不在附近，自然无法成功打开
     }
+}
+
+void MainWindow::onResetGameClicked()
+{
+    if (runalongThread)
+    {
+        if (runalongThread->joinable())
+        {
+            QMessageBox::warning(this, "警告", "正在自动寻路，请等待完成后再重置。");
+            return;
+        }
+        delete runalongThread;
+        runalongThread = nullptr;
+    }
+
+    solvedPath.clear();
+    cluePath.clear();
+
+    bool ok;
+    int mazeSize = QInputDialog::getInt(this, "选择迷宫大小",
+                                        "大小 (7-51, 建议为奇数):", 11, 7, 51, 1, &ok);
+    if (!ok)
+    {
+        return; // 用户取消
+    }
+
+    delete gameController;
+    gameController = new GameController(mazeSize);
+    gameController->generate();
+    gameController->placeFeatures();
+
+    autoCtrl.mazeinformation = gameController;
+
+    const int maxWidth = 1280;
+    const int maxHeight = 720;
+    blockSize = std::min(maxWidth / gameController->getSize(), maxHeight / gameController->getSize());
+    blockSize -= (blockSize % 3);
+
+    this->setFixedSize(gameController->getSize() * blockSize, gameController->getSize() * blockSize);
+
+    Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
+    Player.playerVel = QPointF(0, 0);
+    Player.playerAcc = QPointF(0, 0);
+
+    update();
 }

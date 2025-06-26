@@ -79,7 +79,7 @@ protected:
 
 private slots:
     void onSolveMazeClicked();
-
+    void onResetGameClicked();
     void ontimeout();
 
 private:
