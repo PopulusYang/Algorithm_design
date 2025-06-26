@@ -46,7 +46,6 @@ public:
     QString playerState = "idle"; // idle, walk, attack
 
     player(QObject *parent = nullptr) : QObject(parent) {}
-
     int animFrameCounter = 0;
 
 public slots:

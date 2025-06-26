@@ -23,11 +23,6 @@ public:
     int mazesize;
     int gen_order=0;
 
-    struct clue_content{
-        int gen_order_index;      
-        int password_dig_val;
-    };
-
     std::pair<int, int> start_m; // 起点坐标
     std::pair<int, int> exit;  // 终点坐标
     std::pair<int, int> boss;  // BOSS坐标
@@ -430,10 +425,15 @@ private:
                 gen_order++;
                 point temp_point;
                 clue_content temp_content;
+                temp_point.x=pos.first;
+                temp_point.y=pos.second;
                 temp_content.gen_order_index=gen_order;
                 temp_content.password_dig_val=(pos.first*pos.second*0xBEEF)%10;
+                temp_content.clue_position.x=pos.first;
+                temp_content.clue_position.y=pos.second;
                 clue_arr[gen_order] = temp_content;
                 clue_set.insert({temp_point,temp_content});
+                std::cout<<"insert password to hash: "<<temp_content.gen_order_index<<std::endl;
                 temp_point.x = pos.first;
                 temp_point.y = pos.second;
                 clue = pos;

@@ -1,9 +1,18 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "backtrack_find_clue.h"
 #include <QInputDialog>
 #include <algorithm>
 #include <QTimer>
 #include <QKeyEvent>
+#include <QMessageBox>
+#include <QTextEdit>
+#include <QVBoxLayout>
+#include <QTableWidget>     // 新增：用于创建表格
+#include <QHeaderView>      // 新增：用于美化表头
+#include <QCryptographicHash> // 新增：用于计算 SHA256
+#include <QLabel>           // 修复：用于QLabel类型
+#include <windows.h>
 
 MonsterRenderThread::MonsterRenderThread(QObject *parent)
     : QThread(parent)
@@ -109,7 +118,7 @@ MainWindow::MainWindow(QWidget *parent)
     Player.playerVel = QPointF(0, 0);
     Player.playerAcc = QPointF(0, 0);
     Player.inertia = 0.85f;
-    Player.moveSpeed = 0.18f;
+    Player.moveSpeed = 0.38f;
     Player.playerTimer = new QTimer(this);
     connect(Player.playerTimer, &QTimer::timeout, this, &MainWindow::ontimeout);
     connect(&Player, &player::needUpdate,
@@ -130,8 +139,24 @@ MainWindow::MainWindow(QWidget *parent)
     monsterThread->start();
 
     solveButton = new QPushButton("打开控制面板", this);
-    solveButton->setGeometry(10, 50, 150, 30);
+    solveButton->setGeometry(10, 50, 100, 30);
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::createAutoControlPanel);
+    
+    solveButton = new QPushButton("带我去找线索", this);
+    solveButton->setGeometry(10, 90, 100, 30);
+    connect(solveButton, &QPushButton::clicked, this, &MainWindow::drawCluePath);
+
+    //写一个按钮：按下弹出一个窗口，展示在当前识别进度下（根据receive_clue中的数据和数据个数决定）搜索出来的密码
+    //如有一个线索，就剩100种可能，两个线索，就10种可能，三个线索，就一种可能。
+    //根据当前的线索把所有可能的密码显示出来
+    //访问receive_clue：用gamecontroller->receive_clue访问。
+    solveButton = new QPushButton("破解密码", this);
+    solveButton->setGeometry(10, 130, 100, 30);
+    connect(solveButton, &QPushButton::clicked, this, &MainWindow::crackPassword);
+
+    solveButton = new QPushButton("输入密码", this);
+    solveButton->setGeometry(10, 170, 100, 30);
+    connect(solveButton, &QPushButton::clicked, this, &MainWindow::locker_status);
 
     autoThread = new std::thread([this]()
                                  { autoCtrl.thread_auto_run(); });
@@ -361,6 +386,20 @@ void MainWindow::paintEvent(QPaintEvent *event)
         }
     }
 
+    // 绘制玩家到三条线索的路径
+    if(!cluePath.empty()){
+        painter.setBrush(QBrush(QColor(0, 200, 255, 128))); // 半透明蓝色
+        painter.setPen(Qt::NoPen);
+        for(const auto& path : cluePath){
+            for(const auto& p : path){
+                QRect pathRect(p.second * blockSize + subBlockSize,
+                               p.first * blockSize + subBlockSize,
+                               subBlockSize, subBlockSize);
+                painter.drawRect(pathRect);
+            }
+        }
+    }
+
     // 绘制玩家
     // painter.setBrush(QBrush(Qt::red));
     // painter.setPen(Qt::NoPen);
@@ -421,4 +460,211 @@ void MainWindow::createAutoControlPanel()
     autoPanel = new AutoControlPanel(&autoCtrl);
     autoPanel->setAttribute(Qt::WA_DeleteOnClose); // 窗口关闭时自动销毁
     autoPanel->show();                             // 显示非模态窗口
+}
+
+void MainWindow::drawCluePath(){
+    std::pair<int,int> player_current_pos;
+    player_current_pos.first=Player.playerPos.y()+1;
+    player_current_pos.second=Player.playerPos.x()+1;
+    clue_finder finder(gameController->getSize(), gameController->getmaze(), player_current_pos, 3);
+    cluePath = finder.find_all_clue_paths();
+    update(); // 触发重绘以显示路径   
+}
+
+void MainWindow::generatePasswords_Backtracking(
+    const int totalDigits,
+    const std::map<int, int>& known_digits,
+    QList<QPair<QString, QString>>& passwordHashes,
+    QString currentPassword)
+{
+    // --- 基础情况：密码已达到所需长度 ---
+    if (currentPassword.length() == totalDigits) {
+        // 将密码字符串转换为字节数组以进行哈希计算
+        QByteArray dataToHash = currentPassword.toUtf8();
+        // 计算 SHA256 哈希值，并转换为十六进制字符串
+        QString hash = QCryptographicHash::hash(dataToHash, QCryptographicHash::Sha256).toHex();
+        // 将密码和哈希值添加到结果列表
+        passwordHashes.append({currentPassword, hash});
+        return;
+    }
+
+    // --- 递归步骤：构建密码的下一位 ---
+    int next_pos_index = currentPassword.length() + 1; // 密码位置从1开始
+
+    // 检查当前位置是否有已知数字
+    auto it = known_digits.find(next_pos_index);
+    if (it != known_digits.end()) {
+        // 如果该位数字已知，则直接使用该数字继续递归
+        int known_digit = it->second;
+        generatePasswords_Backtracking(totalDigits, known_digits, passwordHashes, currentPassword + QString::number(known_digit));
+    } else {
+        // 如果该位数字未知，则尝试所有可能的数字 (0-9)
+        for (int i = 0; i < 10; ++i) {
+            generatePasswords_Backtracking(totalDigits, known_digits, passwordHashes, currentPassword + QString::number(i));
+        }
+    }
+}
+
+void MainWindow::crackPassword()
+{
+    if (gameController->received_clue.empty())
+    {
+        QMessageBox::information(this, "提示", "没有线索可供破解密码");
+        return;
+    }
+
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("破解结果");
+    msgBox.setIcon(QMessageBox::Information);
+
+    QString clueMsg = "已获得线索：\n";
+    int idx = 1;
+    std::map<int, int> known_digits;
+    for(const auto& clue : gameController->received_clue) {
+        clueMsg += QString("%1. 密码第%2位 = %3\n").arg(idx++).arg(clue.gen_order_index).arg(clue.password_dig_val);
+        known_digits[clue.gen_order_index] = clue.password_dig_val;
+    }
+    msgBox.setText(clueMsg);
+
+    msgBox.addButton("关闭", QMessageBox::RejectRole);
+    QPushButton *showPossibleButton = msgBox.addButton("查看所有可能性", QMessageBox::ActionRole);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == showPossibleButton)
+    {
+        // --- 从这里开始是主要修改 ---
+
+        // 5. 生成可能的密码及其 SHA256 哈希值
+        // 使用一个列表来存储密码和哈希值的配对
+        QList<QPair<QString, QString>> passwordHashes;
+        
+        const int totalDigits = 3; 
+
+        // ===================================================================
+        // 使用回溯法代替穷举法
+        // ===================================================================
+        generatePasswords_Backtracking(totalDigits, known_digits, passwordHashes, "");
+        // ===================================================================
+
+
+        // 6. 在一个新的带表格的窗口中显示结果
+        QDialog *possibleDialog = new QDialog(this);
+        possibleDialog->setWindowTitle("可能的密码及SHA256值 (回溯法)");
+        possibleDialog->setMinimumSize(550, 500); // 调整窗口大小以容纳表格
+
+        // 创建表格控件
+        QTableWidget *tableWidget = new QTableWidget(passwordHashes.size(), 2, possibleDialog);
+        tableWidget->setHorizontalHeaderLabels({"密码 (Password)", "SHA256 哈希值 (Hash)"});
+        tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); // 设置为只读
+        tableWidget->verticalHeader()->setVisible(false); // 隐藏行号
+
+        // 填充表格数据
+        int row = 0;
+        for(const auto& pair : passwordHashes) {
+            QTableWidgetItem *passwordItem = new QTableWidgetItem(pair.first);
+            QTableWidgetItem *hashItem = new QTableWidgetItem(pair.second);
+            
+            // 居中显示，增加可读性
+            passwordItem->setTextAlignment(Qt::AlignCenter);
+            hashItem->setTextAlignment(Qt::AlignCenter);
+
+            tableWidget->setItem(row, 0, passwordItem);
+            tableWidget->setItem(row, 1, hashItem);
+            row++;
+        }
+
+        // 让列宽自动适应内容
+        tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive); // 第一列可手动调整
+        tableWidget->resizeColumnsToContents();
+        
+        // 布局管理
+        QVBoxLayout *layout = new QVBoxLayout(possibleDialog);
+        layout->addWidget(tableWidget);
+        
+        QPushButton *closeButton = new QPushButton("关闭", possibleDialog);
+        connect(closeButton, &QPushButton::clicked, possibleDialog, &QDialog::accept);
+        layout->addWidget(closeButton);
+
+        possibleDialog->setLayout(layout);
+        possibleDialog->exec();
+        
+        delete possibleDialog;
+    }
+}
+
+bool MainWindow::locker_status() {
+    // 1. 判断是否在储物柜附近
+    if (gameController->is_near_locker) {
+        // 立刻重置状态，避免重复触发
+        gameController->is_near_locker = false;
+
+        // 2. 获取正确密码并计算其SHA256哈希值
+        int ans_password = gameController->getpassword();
+        
+        // 将int密码格式化为三位数的字符串（例如 42 -> "042"），以确保哈希值一致性
+        QString passwordStr = QString("%1").arg(ans_password, 3, 10, QChar('0'));
+        QByteArray dataToHash = passwordStr.toUtf8();
+        QString sha256_hash = QCryptographicHash::hash(dataToHash, QCryptographicHash::Sha256).toHex();
+
+        // 3. 创建一个自定义对话框作为弹窗
+        QDialog dialog(this);
+        dialog.setWindowTitle("储物柜密码");
+
+        // 创建布局和控件
+        QVBoxLayout *layout = new QVBoxLayout(&dialog);
+
+        // 用于显示哈希值和提示信息的标签
+        QLabel *infoLabel = new QLabel(&dialog);
+        infoLabel->setText(QString("目标储物柜密码 (SHA256):\n%1\n\n请输入你猜测的3位密码:").arg(sha256_hash));
+        infoLabel->setWordWrap(true); // 允许文本换行
+
+        // 用于输入密码的行编辑器
+        QLineEdit *passwordInput = new QLineEdit(&dialog);
+        passwordInput->setPlaceholderText("例如: 123");
+        // 使用验证器，只允许用户输入0-999之间的整数
+        passwordInput->setValidator(new QIntValidator(0, 999, &dialog));
+        passwordInput->setMaxLength(3); // 限制最大长度为3
+
+        // 创建标准的 "OK" 和 "Cancel" 按钮
+        QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+        connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept); // 连接OK按钮到accept槽
+        connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // 连接Cancel按钮到reject槽
+
+        // 将控件添加到布局中
+        layout->addWidget(infoLabel);
+        layout->addWidget(passwordInput);
+        layout->addWidget(buttonBox);
+        dialog.setLayout(layout);
+
+        // 4. 显示对话框，并等待用户操作。代码会在此处暂停，直到对话框关闭。
+        // dialog.exec() 返回 QDialog::Accepted (用户按了OK) 或 QDialog::Rejected (用户按了Cancel)
+        if (dialog.exec() == QDialog::Accepted) {
+            // 如果用户点击了 "OK"
+            QString guessStr = passwordInput->text();
+
+            // 将输入的字符串转换为整数
+            bool conversion_ok;
+            int guess_password = guessStr.toInt(&conversion_ok);
+
+            // 5. 判断密码是否正确
+            if (conversion_ok && guess_password == ans_password) {
+                QMessageBox::information(this, "成功", "密码正确！储物柜已打开。");
+                return true; // 密码正确，返回 true
+            } else {
+                QMessageBox::warning(this, "失败", "密码错误！");
+                return false; // 密码错误，返回 false
+            }
+        } else {
+            // 如果用户点击了 "Cancel" 或关闭了窗口
+            return false; // 用户取消操作，返回 false
+        }
+    } 
+    else {
+        // 如果不在储物柜附近（虽然代码里已经有这个，但为了逻辑完整性保留）
+        gameController->is_near_locker = false;
+         QMessageBox::information(this, "错误", "请前往密码锁处开锁。");
+        return false; // 不在附近，自然无法成功打开
+    }
 }
