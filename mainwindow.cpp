@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 添加一个选择地图大小的功能
     bool ok;
     int mazeSize = QInputDialog::getInt(this, "选择迷宫大小",
-                                        "大小 (7-51, 建议为奇数):", 11, 7, 51, 1, &ok);
+                                        "大小 (7-15, 建议为奇数):", 11, 7, 15, 1, &ok);
     if (!ok)
     {
         mazeSize = 11; // 用户取消时的默认值
@@ -118,7 +118,7 @@ MainWindow::MainWindow(QWidget *parent)
     Player.playerVel = QPointF(0, 0);
     Player.playerAcc = QPointF(0, 0);
     Player.inertia = 0.85f;
-    Player.moveSpeed = 0.38f;
+    Player.moveSpeed = 0.5f;
     Player.playerTimer = new QTimer(this);
     connect(Player.playerTimer, &QTimer::timeout, this, &MainWindow::ontimeout);
     connect(&Player, &player::needUpdate,
