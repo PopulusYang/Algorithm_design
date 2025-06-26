@@ -148,7 +148,7 @@ djstruct dp::Dijkstra(point S, point E)
 
 std::vector<point> dp::findBestPath()
 {
-    int k = mazesize;
+    int k = sourse.size();
     std::vector<point> R(sourse.begin(), sourse.end());//拍平成vector
     int V = k + 2;
     //预处理dist
