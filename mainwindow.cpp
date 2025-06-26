@@ -175,7 +175,6 @@ MainWindow::~MainWindow()
     if (autoThread && autoThread->joinable())
         autoThread->join();
     delete autoThread;
-    delete autoPanel;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

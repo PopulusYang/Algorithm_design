@@ -28,7 +28,7 @@ public:
     std::pair<int, int> boss;  // BOSS坐标
     std::pair<int, int> locker; // 机关坐标
     std::pair<int, int> clue;  // 线索坐标
-    std::unordered_map<point,int> sourse_value; //资源价值
+    
     //线索内容，到达线索对应的坐标时，利用坐标作为参数，读取这个线索指示出的密码位和密码值（例如密码：456，访问这个线索之后，可以知道4是密码值，1是密码位，即密码的第一位是4）
     std::unordered_map<point,clue_content> clue_set; 
     clue_content clue_arr[4];
@@ -417,6 +417,9 @@ private:
             case MAZE::LOCKER:
                 locker = pos;
                 break;
+            case MAZE::TRAP:
+                traps.insert({point(pos.first,pos.second), false});
+                break;
             case MAZE::CLUE:
                 {
                 gen_order++;
@@ -444,6 +447,7 @@ private:
                     std::uniform_int_distribution<int> ranvalue(0, 100);
                     int val = ranvalue(rng);
                     sourse_value.insert({temp_point, val});
+                    sourse.insert(temp_point);
                     break;
                 }
             default:

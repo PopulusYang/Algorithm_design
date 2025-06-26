@@ -80,7 +80,8 @@ public:
     point end;
 
     std::unordered_set<point> sourse;
-    std::unordered_map<point,int>sourcemap;
+    std::unordered_map<point, int> sourse_value; // 资源价值
+    std::unordered_map<point, bool> traps;
 
     int getSize()
     {
