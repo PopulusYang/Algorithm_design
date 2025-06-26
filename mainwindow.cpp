@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 添加一个选择地图大小的功能
     bool ok;
     int mazeSize = QInputDialog::getInt(this, "选择迷宫大小",
-                                        "大小 (7-15, 建议为奇数):", 11, 7, 15, 1, &ok);
+                                        "大小 (7-51, 建议为奇数):", 11, 7, 51, 1, &ok);
     if (!ok)
     {
         mazeSize = 11; // 用户取消时的默认值
@@ -552,7 +552,7 @@ void MainWindow::crackPassword()
         // 6. 在一个新的带表格的窗口中显示结果
         QDialog *possibleDialog = new QDialog(this);
         possibleDialog->setWindowTitle("可能的密码及SHA256值 (回溯法)");
-        possibleDialog->setMinimumSize(550, 500); // 调整窗口大小以容纳表格
+        possibleDialog->setMinimumSize(650, 600); // 调整窗口大小以容纳表格
 
         // 创建表格控件
         QTableWidget *tableWidget = new QTableWidget(passwordHashes.size(), 2, possibleDialog);
