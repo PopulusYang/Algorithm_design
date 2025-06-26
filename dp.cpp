@@ -63,7 +63,7 @@ void dp::isWorth(djstruct& input)
     if(worth<=0.5)
     {
         input.lenght = INF;
-        std::cout << "该路径可收获" << cost << "，代价" << gain << "worth:" << worth << std::endl;
+        std::cout << "该路径可收获" << gain << "，代价" << cost << ",worth:" << worth << std::endl;
     }
 }
 
@@ -72,7 +72,7 @@ void dp::full_the_path(std::vector<point> &input)
     std::pair<point, point> road;
     std::vector<point> output = input;
     int size = (int)input.size();
-    for (int i = size - 1; i >= 0; i--)//插入完整路径
+    for (int i = size - 2; i >= 0; i--)//插入完整路径
     {
         road.first = *(input.begin() + i);
         road.second= *(input.begin() + i + 1);

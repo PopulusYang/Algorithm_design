@@ -106,6 +106,7 @@ private:
     autocontroller autoCtrl = autocontroller(&Player);
     std::thread *autoThread = nullptr;
     std::thread *panelThread = nullptr;
+    std::thread *runalongThread = nullptr;
     AutoControlPanel *autoPanel = nullptr;
 
 signals:

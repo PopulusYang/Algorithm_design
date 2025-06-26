@@ -175,6 +175,9 @@ MainWindow::~MainWindow()
     if (autoThread && autoThread->joinable())
         autoThread->join();
     delete autoThread;
+    if(runalongThread&& autoThread->joinable())
+        runalongThread->join();
+    delete runalongThread;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -448,11 +451,16 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
 void MainWindow::onSolveMazeClicked()
 {
+    if(runalongThread)
+        return;
     if (gameController)
     {
         solvedPath = gameController->findBestPath();
         update(); // 触发重绘以显示路径
     }
+    //开始自动走
+    runalongThread = new std::thread([this]()
+                                 { autoCtrl.runalongthePath(solvedPath); });
 }
 
 void MainWindow::createAutoControlPanel()

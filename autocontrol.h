@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 #include <thread>
+#include <string>
 
 class autocontroller
 {
@@ -15,7 +16,13 @@ public:
         right,
         left
     };
-    autocontroller(player *p, GameController *mazeinformation = nullptr) : currentstate(state::stop), p(p), mazeinformation(mazeinformation) {}
+
+    friend std::ostream &operator<<(std::ostream &os, const state &s);
+
+    autocontroller(player *p, GameController *mazeinformation = nullptr) :
+                currentstate(state::stop), p(p), mazeinformation(mazeinformation)
+                {
+                }
     ~autocontroller()
     {
         if (auto_call_stop != nullptr)
@@ -31,6 +38,7 @@ public:
     void stopautocontrol();
     void moveforoneblock();
     void thread_auto_run();
+    void runalongthePath(std::vector<point> path);
 
     std::thread *auto_call_stop = nullptr;
 
@@ -46,6 +54,30 @@ private:
     bool threadrunning = false;
 };
 
+inline std::ostream &operator<<(std::ostream &os, const autocontroller::state &s)
+{
+    std::string out;
+    switch(s)
+    {
+    case autocontroller::state::up:
+        out = "上";
+        break;
+    case autocontroller::state::down:
+        out = "下";
+        break;
+    case autocontroller::state::left:
+        out = "左";
+        break;
+    case autocontroller::state::right:
+        out = "右";
+        break;
+    case autocontroller::state::stop:
+        out = "停";
+    }
+    os << out;
+    return os;
+}
+
 inline void autocontroller::moveforoneblock()
 {
     bool released = false;
@@ -55,7 +87,7 @@ inline void autocontroller::moveforoneblock()
         double dx = p->playerPos.x() - lastpos.x();
         double dy = p->playerPos.y() - lastpos.y();
         double distance = std::hypot(dx, dy); // √(dx² + dy²)
-        if (distance >= 0.825)
+        if (distance >= 0.95)
             released = true;
     }
     currentstate = state::stop;
@@ -159,4 +191,47 @@ inline void autocontroller::thread_auto_run()
         std::this_thread::sleep_for(std::chrono::milliseconds(50)); // 等待50毫秒
     }
     std::cout << "自动控制即将关闭" << std::endl;
+}
+
+inline void autocontroller::runalongthePath(std::vector<point> path)
+{
+    //先把vector拍成queue
+    std::deque<point> temp_pathq = std::deque<point>(path.begin(), path.end());
+    std::queue<point> pathq(temp_pathq);
+    state newstate;
+    while(!pathq.empty())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if (threadrunning)
+        {
+            continue;
+        }
+        auto nextpos = pathq.front();
+        pathq.pop();
+        int player_pos_x = static_cast<int>(std::round(p->playerPos.x()));
+        int player_pos_y = static_cast<int>(std::round(p->playerPos.y()));
+        int dx = nextpos.x - player_pos_y;
+        int dy = nextpos.y - player_pos_x;
+        if(!dx&&!dy)
+            newstate = state::stop;
+        else if(!dx)
+        {
+            if(dy > 0)
+                newstate = state::right;
+            else
+                newstate = state::left;
+        }
+        else
+        {
+            if(dx > 0)
+                newstate = state::down;
+            else
+                newstate = state::up;
+        }
+        
+        std::cout << "现在的行走方向:" << newstate << std::endl;
+        control(newstate);
+
+    }
+    std::cout << "自动控制结束" << std::endl;
 }
