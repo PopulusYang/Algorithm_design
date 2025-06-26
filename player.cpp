@@ -88,7 +88,7 @@ void player::onPlayerMove(GameController *gameController)
     playerVel = inertia * playerVel + (1 - inertia) * playerAcc;
 
     // 限制最大速度
-    const float maxSpeed = 0.025f;
+    const float maxSpeed = 0.05f;
     if (std::hypot(playerVel.x(), playerVel.y()) > maxSpeed)
     {
         float scale = maxSpeed / std::hypot(playerVel.x(), playerVel.y());

@@ -71,16 +71,15 @@ protected:
     bool locker_status();
     void generatePasswords_Backtracking(
         const int totalDigits,
-        const std::map<int, int>& known_digits,
-        QList<QPair<QString, QString>>& passwordHashes,
-        QString currentPassword
-    );
-
+        const std::map<int, int> &known_digits,
+        QList<QPair<QString, QString>> &passwordHashes,
+        QString currentPassword);
 
 private slots:
     void onSolveMazeClicked();
     void onResetGameClicked();
     void ontimeout();
+    void onGenerationStep();
 
 private:
     Ui::MainWindow *ui;
@@ -89,6 +88,7 @@ private:
     QPushButton *solveButton;
     std::vector<point> solvedPath;
     std::vector<std::vector<std::pair<int, int>>> cluePath;
+    QTimer *generationTimer = nullptr;
 
     player Player;
 

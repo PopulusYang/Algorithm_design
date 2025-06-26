@@ -92,8 +92,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 初始化并生成迷宫
     gameController = new GameController(mazeSize);
-    gameController->generate();
-    gameController->placeFeatures();
+    // gameController->generate(); // Replaced with animation
+    // gameController->placeFeatures();
 
     autoCtrl.mazeinformation = gameController;
 
@@ -109,12 +109,18 @@ MainWindow::MainWindow(QWidget *parent)
     int height = gameController->getSize() * blockSize;
     this->setFixedSize(width, height);
 
+    // Animate maze generation
+    generationTimer = new QTimer(this);
+    connect(generationTimer, &QTimer::timeout, this, &MainWindow::onGenerationStep);
+    gameController->generate_init();
+    generationTimer->start(5); // 5ms per step, adjust for speed
+
     solveButton = new QPushButton("一键开挂", this);
     solveButton->setGeometry(10, 10, 100, 30);
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::onSolveMazeClicked);
     connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
     // 玩家初始位置在起点
-    Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
+    // Player.playerPos = QPointF(gameController->start.y, gameController->start.x); // This is now set in onGenerationStep
     Player.playerVel = QPointF(0, 0);
     Player.playerAcc = QPointF(0, 0);
     Player.inertia = 0.85f;
@@ -168,6 +174,11 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if (generationTimer)
+    {
+        generationTimer->stop();
+        delete generationTimer;
+    }
     monsterThread->stop();
     monsterThread->wait();
     delete monsterThread;
@@ -209,12 +220,16 @@ void MainWindow::paintEvent(QPaintEvent *event)
     if (!gameController)
         return;
 
-    // --> 将摄像机中心移动到玩家附近
-    painter.save();
-    painter.scale(1.5, 1.5); // 将显示区域放大
-    float camX = Player.playerPos.x() * blockSize - width() / 3.0f;
-    float camY = Player.playerPos.y() * blockSize - height() / 3.0f;
-    painter.translate(-camX, -camY);
+    // During generation, show the full maze. Otherwise, zoom on player.
+    if (!generationTimer)
+    {
+        // --> 将摄像机中心移动到玩家附近
+        painter.save();
+        painter.scale(1.5, 1.5); // 将显示区域放大
+        float camX = Player.playerPos.x() * blockSize - width() / 3.0f;
+        float camY = Player.playerPos.y() * blockSize - height() / 3.0f;
+        painter.translate(-camX, -camY);
+    }
 
     int mazeSize = gameController->getSize();
     const int (*maze)[MAXSIZE] = gameController->getMaze();
@@ -447,7 +462,10 @@ void MainWindow::paintEvent(QPaintEvent *event)
     painter.drawPixmap(QRect(px, py, size, size), Player.playerSprite, srcRect);
 
     // 添加渐变遮罩
-    painter.restore();
+    if (!generationTimer)
+    {
+        painter.restore();
+    }
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     bossAnimFrameCounter++;
@@ -721,6 +739,13 @@ void MainWindow::onResetGameClicked()
         runalongThread = nullptr;
     }
 
+    if (generationTimer)
+    {
+        generationTimer->stop();
+        delete generationTimer;
+        generationTimer = nullptr;
+    }
+
     solvedPath.clear();
     cluePath.clear();
 
@@ -734,8 +759,8 @@ void MainWindow::onResetGameClicked()
 
     delete gameController;
     gameController = new GameController(mazeSize);
-    gameController->generate();
-    gameController->placeFeatures();
+    // gameController->generate(); // Replaced with animation
+    // gameController->placeFeatures();
 
     autoCtrl.mazeinformation = gameController;
 
@@ -746,9 +771,38 @@ void MainWindow::onResetGameClicked()
 
     this->setFixedSize(gameController->getSize() * blockSize, gameController->getSize() * blockSize);
 
-    Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
+    // Player.playerPos = QPointF(gameController->start.y, gameController->start.x); // This is now set in onGenerationStep
     Player.playerVel = QPointF(0, 0);
     Player.playerAcc = QPointF(0, 0);
 
-    update();
+    // Start animated generation for the new maze
+    generationTimer = new QTimer(this);
+    connect(generationTimer, &QTimer::timeout, this, &MainWindow::onGenerationStep);
+    gameController->generate_init();
+    generationTimer->start(5);
+}
+
+void MainWindow::onGenerationStep()
+{
+    if (gameController && gameController->generateStep())
+    {
+        update(); // Request a repaint to show the new wall
+    }
+    else
+    {
+        if (generationTimer)
+        {
+            generationTimer->stop();
+            delete generationTimer;
+            generationTimer = nullptr;
+        }
+
+        if (gameController)
+        {
+            gameController->placeFeatures(); // Place features after generation is complete
+            // 在确定起点后设置玩家位置
+            Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
+        }
+        update(); // Final repaint with features
+    }
 }
