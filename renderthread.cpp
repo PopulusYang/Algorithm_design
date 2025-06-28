@@ -4,15 +4,15 @@ RenderThread::RenderThread(QObject *parent)
     : QThread(parent)
 {
     // 在构造函数中预加载所有图像资源
-    m_playerSprite.load("../img/player.png");
-    m_monsterSheet.load("../img/monster.png");
-    m_wallPixmap.load("../img/wall.png");
-    m_startPixmap.load("../img/start.png");
-    m_exitPixmap.load("../img/exit.png");
-    m_goldPixmap.load("../img/gold.png");
-    m_lockerPixmap.load("../img/locker.png");
-    m_cluePixmap.load("../img/clue.png");
-    m_trapPixmap.load("../img/trap.png");
+    m_playerSprite.load("./img/player.png");
+    m_monsterSheet.load("./img/monster.png");
+    m_wallPixmap.load("./img/wall.png");
+    m_startPixmap.load("./img/start.png");
+    m_exitPixmap.load("./img/exit.png");
+    m_goldPixmap.load("./img/gold.png");
+    m_lockerPixmap.load("./img/locker.png");
+    m_cluePixmap.load("./img/clue.png");
+    m_trapPixmap.load("./img/trap.png");
 }
 
 RenderThread::~RenderThread()

@@ -29,8 +29,6 @@ public:
             maze[x][y] = static_cast<int>(type);
         }
     }
-
-    
 };
 
 #endif
