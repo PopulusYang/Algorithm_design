@@ -1,6 +1,6 @@
 #include "player.h"
 
-void player::onPlayerMove(GameController *gameController)
+void Player::onPlayerMove(GameController *gameController)
 {
     // 计算加速度
     playerAcc = QPointF(0, 0);

@@ -78,7 +78,17 @@ std::vector<point> dp::findBestPath()
             std::cerr << "路径太长，可能死循环，强制退出\n";
             return {};
         }
-        
+        while(collecter.ifsourvaild(cur))
+        {
+            stack<point>backway;
+            point nextpoint=collecter.findway(cur);
+            if(nextpoint!=cur)
+            {
+                backway.push(nextpoint);
+                path.push_back(nextpoint);
+            }
+            
+        }
         for (auto [dx, dy] : dirs)//扫描上下左右各个点
         {
             //更新点坐标

@@ -5,9 +5,9 @@
 #include <vector>
 #include <queue>
 #include <iostream>
-
+#include<stack>
 #include "gamemain.h"
-
+#include"collect_coin.h"
 
 struct State
 {
@@ -27,11 +27,11 @@ private:
     int weight(point dest, point current) const;
     int getCellWeight(MAZE cellType) const;
     void printDPTable(const std::vector<std::vector<int>> &maxWeight) const;
-public : 
-    explicit dp(int size):gamemain(size){}
-
+public :
+    explicit dp(int size):gamemain(size),collecter(){}
+  //  ~dp(){};
     std::vector<point> findBestPath();
-
+    coin_collecter collecter;
 };
 
 

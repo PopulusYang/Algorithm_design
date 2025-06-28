@@ -11,11 +11,17 @@
 #include <mutex>
 #include <thread>
 #include <chrono>
-
 #include "gamemain.h"
 #include "gamecontrol.h"
 
-class player : public QObject
+
+enum class Technique
+{
+    normalTech,
+    bigTech
+};
+
+class Player : public QObject
 {
     Q_OBJECT
 public:
@@ -28,24 +34,21 @@ public:
     float inertia;         // 惯性系数
     float moveSpeed;       // 基础速度
 
-    point playerpoint;//玩家位置
-    int playerblood;//血量
-    int playersource;//资源量
-    int commtech;//普通招式
+    point currentpoint;//玩家位置
+    int playerHP;//血量
+    int playerSource;//资源量
+    int commsour;//普通招式消耗资源
     int commhurt;//普通伤害
-    int bigtech;//大招
+    int bigsour;//大招消耗资源
     int bighurt;//大招伤害
-
-
-
-
+    int bossDamage;
 
     QPixmap playerSprite;
     int playerDir = 2;            // 0:左 1:下 2:上 3:右
     int playerAnim = 0;           // 动画帧索引
     QString playerState = "idle"; // idle, walk, attack
 
-    player(QObject *parent = nullptr) : QObject(parent) {}
+    Player(QObject *parent = nullptr) : QObject(parent) {}
 
     int animFrameCounter = 0;
 
