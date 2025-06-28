@@ -19,10 +19,9 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const state &s);
 
-    autocontroller(player *p, GameController *mazeinformation = nullptr) :
-                currentstate(state::stop), p(p), mazeinformation(mazeinformation)
-                {
-                }
+    autocontroller(player *p, GameController *mazeinformation = nullptr) : currentstate(state::stop), p(p), mazeinformation(mazeinformation)
+    {
+    }
     ~autocontroller()
     {
         if (auto_call_stop != nullptr)
@@ -45,6 +44,7 @@ public:
     std::mutex mtx, mtx2; // 互斥锁
 
     GameController *mazeinformation;
+    bool rundone = false; // 用于标记是否已经完成自动控制
 
 private:
     state currentstate;
@@ -57,7 +57,7 @@ private:
 inline std::ostream &operator<<(std::ostream &os, const autocontroller::state &s)
 {
     std::string out;
-    switch(s)
+    switch (s)
     {
     case autocontroller::state::up:
         out = "上";
@@ -87,9 +87,36 @@ inline void autocontroller::moveforoneblock()
         double dx = p->playerPos.x() - lastpos.x();
         double dy = p->playerPos.y() - lastpos.y();
         double distance = std::hypot(dx, dy); // √(dx² + dy²)
-        if (distance >= 0.95)
+        if (distance >= 1.0)                  // 适配无惯性
             released = true;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // 减少CPU占用
     }
+
+    // 移动结束后，将玩家精确地对齐到目标网格点
+    QPointF targetPos = lastpos;
+    switch (currentstate)
+    {
+    case state::up:
+        targetPos.setY(round(lastpos.y()) - 1.0);
+        targetPos.setX(round(lastpos.x()));
+        break;
+    case state::down:
+        targetPos.setY(round(lastpos.y()) + 1.0);
+        targetPos.setX(round(lastpos.x()));
+        break;
+    case state::left:
+        targetPos.setX(round(lastpos.x()) - 1.0);
+        targetPos.setY(round(lastpos.y()));
+        break;
+    case state::right:
+        targetPos.setX(round(lastpos.x()) + 1.0);
+        targetPos.setY(round(lastpos.y()));
+        break;
+    default:
+        break; // 其他情况不做处理
+    }
+    p->playerPos = targetPos; // 强制校准位置
+
     currentstate = state::stop;
     threadrunning = false;
 }
@@ -195,11 +222,12 @@ inline void autocontroller::thread_auto_run()
 
 inline void autocontroller::runalongthePath(std::vector<point> path)
 {
-    //先把vector拍成queue
+    rundone = false; // 重置标记
+    // 先把vector拍成queue
     std::deque<point> temp_pathq = std::deque<point>(path.begin(), path.end());
     std::queue<point> pathq(temp_pathq);
     state newstate;
-    while(!pathq.empty())
+    while (!pathq.empty())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         if (threadrunning)
@@ -212,26 +240,26 @@ inline void autocontroller::runalongthePath(std::vector<point> path)
         int player_pos_y = static_cast<int>(std::round(p->playerPos.y()));
         int dx = nextpos.x - player_pos_y;
         int dy = nextpos.y - player_pos_x;
-        if(!dx&&!dy)
+        if (!dx && !dy)
             newstate = state::stop;
-        else if(!dx)
+        else if (!dx)
         {
-            if(dy > 0)
+            if (dy > 0)
                 newstate = state::right;
             else
                 newstate = state::left;
         }
         else
         {
-            if(dx > 0)
+            if (dx > 0)
                 newstate = state::down;
             else
                 newstate = state::up;
         }
-        
+
         std::cout << "现在的行走方向:" << newstate << std::endl;
         control(newstate);
-
     }
     std::cout << "自动控制结束" << std::endl;
+    rundone = true; // 标记自动控制已完成
 }

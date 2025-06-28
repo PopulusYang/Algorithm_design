@@ -8,6 +8,7 @@
 #include <ctime>
 #include <algorithm>
 #include <utility>
+#include <windows.h> // åŒ…å«windows.hä»¥ä½¿ç”¨SetConsoleOutputCP
 
 #include "gamemain.h"
 
@@ -17,7 +18,6 @@
 class MazeGenerator : virtual public gamemain
 {
 public:
-    int mazesize;
     int gen_order = 0;
     struct Division
     {
@@ -25,16 +25,16 @@ public:
     };
     std::vector<Division> division_stack;
 
-    std::pair<int, int> start_m; // Æğµã×ø±ê
-    std::pair<int, int> exit;    // ÖÕµã×ø±ê
-    std::pair<int, int> boss;    // BOSS×ø±ê
-    std::pair<int, int> locker;  // »ú¹Ø×ø±ê
-    std::pair<int, int> clue;    // ÏßË÷×ø±ê
+    std::pair<int, int> start_m; // èµ·ç‚¹åæ ‡
+    std::pair<int, int> exit;    // ç»ˆç‚¹åæ ‡
+    std::pair<int, int> boss;    // BOSSåæ ‡
+    std::pair<int, int> locker;  // æœºå…³åæ ‡
+    std::pair<int, int> clue;    // çº¿ç´¢åæ ‡
 
-    // ÏßË÷ÄÚÈİ£¬µ½´ïÏßË÷¶ÔÓ¦µÄ×ø±êÊ±£¬ÀûÓÃ×ø±ê×÷Îª²ÎÊı£¬¶ÁÈ¡Õâ¸öÏßË÷Ö¸Ê¾³öµÄÃÜÂëÎ»ºÍÃÜÂëÖµ£¨ÀıÈçÃÜÂë£º456£¬·ÃÎÊÕâ¸öÏßË÷Ö®ºó£¬¿ÉÒÔÖªµÀ4ÊÇÃÜÂëÖµ£¬1ÊÇÃÜÂëÎ»£¬¼´ÃÜÂëµÄµÚÒ»Î»ÊÇ4£©
+    // çº¿ç´¢å†…å®¹ï¼Œåˆ°è¾¾çº¿ç´¢å¯¹åº”çš„åæ ‡æ—¶ï¼Œåˆ©ç”¨åæ ‡ä½œä¸ºå‚æ•°ï¼Œè¯»å–è¿™ä¸ªçº¿ç´¢æŒ‡ç¤ºå‡ºçš„å¯†ç ä½å’Œå¯†ç å€¼ï¼ˆä¾‹å¦‚å¯†ç ï¼š456ï¼Œè®¿é—®è¿™ä¸ªçº¿ç´¢ä¹‹åï¼Œå¯ä»¥çŸ¥é“4æ˜¯å¯†ç å€¼ï¼Œ1æ˜¯å¯†ç ä½ï¼Œå³å¯†ç çš„ç¬¬ä¸€ä½æ˜¯4ï¼‰
     std::unordered_map<point, clue_content> clue_set;
     clue_content clue_arr[4];
-    // ¹¹Ôìº¯Êı£¬³õÊ¼»¯ÃÔ¹¬³ß´çºÍËæ»úÊıÉú³ÉÆ÷
+    // æ„é€ å‡½æ•°ï¼Œåˆå§‹åŒ–è¿·å®«å°ºå¯¸å’Œéšæœºæ•°ç”Ÿæˆå™¨
     MazeGenerator(int size) : gamemain(size)
     {
         mazesize = size;
@@ -95,7 +95,7 @@ public:
     {
         if (division_stack.empty())
         {
-            return false; // Éú³ÉÍê³É
+            return false; // ç”Ÿæˆå®Œæˆ
         }
 
         Division current = division_stack.back();
@@ -182,23 +182,34 @@ public:
         int trap_count = 0;
         int locker_count = 0;
         int clue_count = 3;
-        bool has_boss = false;
 
+        gold_count = 4 * dimension - 24;
+        trap_count = dimension - 6;
+
+        // ä¸º gold_count æ·»åŠ ä¸€ä¸ªä¸Šé™ï¼Œé˜²æ­¢DPç®—æ³•å› èµ„æºè¿‡å¤šè€Œå´©æºƒ
+        if (gold_count > 14)
+        {
+            gold_count = 14;//é¿å…é‡‘å¸æ•°é‡å¤ªå¤šå¯¼è‡´dpå´©æºƒ
+        }
+        if(trap_count > 20)
+        {
+            trap_count = 20;
+        }
+
+        if (gold_count < 0)
+            gold_count = 0;
+        if (trap_count < 0)
+            trap_count = 0;
+
+        // ä»…åœ¨è¾ƒå¤§çš„åœ°å›¾ä¸Šæ”¾ç½®BOSSå’Œæœºå…³
         if (dimension >= 9)
         {
-            gold_count = 12;
-            trap_count = 6;
             locker_count = 1;
-            has_boss = true;
         }
         else if (dimension >= 7)
         {
-            gold_count = 4;
-            trap_count = 4;
             locker_count = 1;
         }
-
-        // ????????(1,1)???????(dim-2, dim-2)
         start = {1, 1};
         maze[start.x][start.y] = static_cast<int>(MAZE::START);
         end = {dimension - 2, dimension - 2};
@@ -217,10 +228,6 @@ public:
         }
         std::shuffle(empty_cells.begin(), empty_cells.end(), rng);
 
-        if (has_boss)
-        {
-            placeFeature(empty_cells, MAZE::BOSS);
-        }
         for (int i = 0; i < gold_count; ++i)
         {
             placeFeature(empty_cells, MAZE::SOURCE);
@@ -239,7 +246,6 @@ public:
         }
     }
 
-    // ????????
     void print() const
     {
         for (int i = 0; i < dimension; ++i)
@@ -386,7 +392,7 @@ public:
         return clue;
     }
 
-    // Éú³ÉÍêµØÍ¼Ö®ºó£¬ÀûÓÃÕâ¸öº¯Êı¾Í¿ÉÒÔµÃµ½ÃÜÂëËøÃÜÂëµÄÖµ
+    // ç”Ÿæˆå®Œåœ°å›¾ä¹‹åï¼Œåˆ©ç”¨è¿™ä¸ªå‡½æ•°å°±å¯ä»¥å¾—åˆ°å¯†ç é”å¯†ç çš„å€¼
     int getpassword() const
     {
         int password = 0;
@@ -400,7 +406,7 @@ public:
         return password;
     }
 
-    // Óöµ½ÏßË÷Ê±£¬µ÷ÓÃÕâÁ½¸öº¯Êı»ñÈ¡ÏßË÷£¬¼¯ÆëÈı¸öÏßË÷£¬¾Í¿ÉÒÔµÃµ½ÃÜÂëµÄÖµ£¬Óëgetpassword()µÄ·µ»ØÖµ±È½Ï£¬¼´¿ÉÅĞ¶ÏÃÜÂëÊÇ·ñÕıÈ·
+    // é‡åˆ°çº¿ç´¢æ—¶ï¼Œè°ƒç”¨è¿™ä¸¤ä¸ªå‡½æ•°è·å–çº¿ç´¢ï¼Œé›†é½ä¸‰ä¸ªçº¿ç´¢ï¼Œå°±å¯ä»¥å¾—åˆ°å¯†ç çš„å€¼ï¼Œä¸getpassword()çš„è¿”å›å€¼æ¯”è¾ƒï¼Œå³å¯åˆ¤æ–­å¯†ç æ˜¯å¦æ­£ç¡®
     int getclue_index(point clue_point)
     {
         auto it = clue_set.find(clue_point);
@@ -408,7 +414,7 @@ public:
         {
             return it->second.gen_order_index;
         }
-        return -1; // »òÕßÆäËûÊÊµ±µÄ´íÎóÖµ
+        return -1; // æˆ–è€…å…¶ä»–é€‚å½“çš„é”™è¯¯å€¼
     }
 
     int getclue_val(point clue_point)
@@ -418,14 +424,14 @@ public:
         {
             return it->second.password_dig_val;
         }
-        return -1; // »òÕßÆäËûÊÊµ±µÄ´íÎóÖµ
+        return -1; // æˆ–è€…å…¶ä»–é€‚å½“çš„é”™è¯¯å€¼
     }
 
 private:
     std::mt19937 rng; // Mersenne Twister ?????
 
     // ?????????
-    // void divide(int r, int c, int h, int w) // ´Ëº¯ÊıÒÑ±» generateStep Ìæ´ú
+    // void divide(int r, int c, int h, int w) // æ­¤å‡½æ•°å·²è¢« generateStep æ›¿ä»£
     // {
     //     // ?????????????????????
     //     if (h < 3 || w < 3)

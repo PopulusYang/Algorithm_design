@@ -30,14 +30,41 @@ public:
 
     point playerpoint;//玩家位置
     int playerblood;//血量
-    int playersource;//资源量
+    int playersource = 0;//资源量
     int commtech;//普通招式
     int commhurt;//普通伤害
     int bigtech;//大招
     int bighurt;//大招伤害
 
 
+    player& operator=(const player &rhs)
+    {
+        if (this != &rhs) {
+            playerPos = rhs.playerPos;
+            playerVel = rhs.playerVel;
+            playerAcc = rhs.playerAcc;
+            playerTimer = rhs.playerTimer;
+            pressedKeys = rhs.pressedKeys;
+            inertia = rhs.inertia;
+            moveSpeed = rhs.moveSpeed;
+            playerpoint = rhs.playerpoint;
+            playerblood = rhs.playerblood;
+            playersource = rhs.playersource;
+            commtech = rhs.commtech;
+            commhurt = rhs.commhurt;
+            bigtech = rhs.bigtech;
+            bighurt = rhs.bighurt;
+        }
+        return *this;
+    }
 
+    player(const player &rhs)
+        : playerPos(rhs.playerPos), playerVel(rhs.playerVel), playerAcc(rhs.playerAcc),
+          playerTimer(rhs.playerTimer), pressedKeys(rhs.pressedKeys),
+          inertia(rhs.inertia), moveSpeed(rhs.moveSpeed),
+          playerpoint(rhs.playerpoint), playerblood(rhs.playerblood),
+          playersource(rhs.playersource), commtech(rhs.commtech),
+          commhurt(rhs.commhurt), bigtech(rhs.bigtech), bighurt(rhs.bighurt) {}
 
 
     QPixmap playerSprite;
@@ -53,6 +80,7 @@ public slots:
 
 signals:
     void needUpdate();
+    void trapTriggered(const QPointF &pos);
 };
 
 

@@ -37,12 +37,11 @@ private:
 
 public:
     explicit dp(int size) : gamemain(size)
-    {
-    }
+    {}
 
     djstruct Dijkstra(point S, point E);
 
-    std::vector<point> findBestPath();
+    std::vector<point> findBestPath(point playerstart);
 };
 
 #endif // DP_H

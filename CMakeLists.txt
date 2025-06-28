@@ -23,8 +23,6 @@ set(PROJECT_SOURCES
         dp.cpp
         player.h
         player.cpp
-        autowindow.cpp
-        autowindow.h
         autocontrol.h
         gamemain.h
         boss.h
@@ -33,6 +31,8 @@ set(PROJECT_SOURCES
         collect_coin.cpp
         collect_coin.h
         backtrack_find_clue.h
+        renderthread.h
+        renderthread.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

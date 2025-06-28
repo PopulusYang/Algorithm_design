@@ -61,6 +61,7 @@ void dp::isWorth(djstruct& input)
     }
     float worth = gain / cost;
     if(worth<=0.5)
+    
     {
         input.lenght = INF;
         std::cout << "该路径可收获" << gain << "，代价" << cost << ",worth:" << worth << std::endl;
@@ -146,7 +147,7 @@ djstruct dp::Dijkstra(point S, point E)
     return {}; // 无解
 }
 
-std::vector<point> dp::findBestPath()
+std::vector<point> dp::findBestPath(point playerstart)
 {
     int k = sourse.size();
     std::vector<point> R(sourse.begin(), sourse.end());//拍平成vector
@@ -157,7 +158,7 @@ std::vector<point> dp::findBestPath()
     auto node = [&](int idx) -> point
     {
         if(idx == 0)
-            return start;
+            return playerstart;
         else if(idx == V - 1)
             return end;
         else
@@ -226,7 +227,7 @@ std::vector<point> dp::findBestPath()
     }
     std::reverse(orderR.begin(), orderR.end());
 
-    std::vector<point> fullPath = {start};
+    std::vector<point> fullPath = {playerstart};
     for(int idx: orderR)
         fullPath.push_back(R[idx]);
     fullPath.push_back(end);
