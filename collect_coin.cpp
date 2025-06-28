@@ -77,7 +77,7 @@ void coin_collecter::oneview(int index,point viewpoint)
         {
             view[index].accessible=true;
             view[index].type=MAZE::SOURCE;
-            view[index].value=sourcemap[point(x,y)];
+            view[index].value=sourse_value[point(x,y)];
         }
         else if(maze[x][y]==static_cast<int>(MAZE::WAY))//通路
         {

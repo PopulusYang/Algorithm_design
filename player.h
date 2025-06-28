@@ -34,22 +34,51 @@ public:
     float inertia;         // 惯性系数
     float moveSpeed;       // 基础速度
 
-    point currentpoint;//玩家位置
-    int playerHP;//血量
-    int playerSource;//资源量
-    int commsour;//普通招式消耗资源
+    point playerpoint;//玩家位置
+    int playerblood;//血量
+    int playersource = 0;//资源量
+    int commtech;//普通招式
     int commhurt;//普通伤害
     int bigsour;//大招消耗资源
     int bighurt;//大招伤害
-    int bossDamage;
+
+
+    player& operator=(const player &rhs)
+    {
+        if (this != &rhs) {
+            playerPos = rhs.playerPos;
+            playerVel = rhs.playerVel;
+            playerAcc = rhs.playerAcc;
+            playerTimer = rhs.playerTimer;
+            pressedKeys = rhs.pressedKeys;
+            inertia = rhs.inertia;
+            moveSpeed = rhs.moveSpeed;
+            playerpoint = rhs.playerpoint;
+            playerblood = rhs.playerblood;
+            playersource = rhs.playersource;
+            commtech = rhs.commtech;
+            commhurt = rhs.commhurt;
+            bigtech = rhs.bigtech;
+            bighurt = rhs.bighurt;
+        }
+        return *this;
+    }
+
+    player(const player &rhs)
+        : playerPos(rhs.playerPos), playerVel(rhs.playerVel), playerAcc(rhs.playerAcc),
+          playerTimer(rhs.playerTimer), pressedKeys(rhs.pressedKeys),
+          inertia(rhs.inertia), moveSpeed(rhs.moveSpeed),
+          playerpoint(rhs.playerpoint), playerblood(rhs.playerblood),
+          playersource(rhs.playersource), commtech(rhs.commtech),
+          commhurt(rhs.commhurt), bigtech(rhs.bigtech), bighurt(rhs.bighurt) {}
+
 
     QPixmap playerSprite;
     int playerDir = 2;            // 0:左 1:下 2:上 3:右
     int playerAnim = 0;           // 动画帧索引
     QString playerState = "idle"; // idle, walk, attack
 
-    Player(QObject *parent = nullptr) : QObject(parent) {}
-
+    player(QObject *parent = nullptr) : QObject(parent) {}
     int animFrameCounter = 0;
 
 public slots:
@@ -57,6 +86,7 @@ public slots:
 
 signals:
     void needUpdate();
+    void trapTriggered(const QPointF &pos);
 };
 
 

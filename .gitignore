@@ -4,4 +4,3 @@ build/
 text.md
 test/
 test.cpp
-backtrack_find_clue.h

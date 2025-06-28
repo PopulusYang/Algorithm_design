@@ -6,8 +6,15 @@
 #include <queue>
 #include <iostream>
 #include<stack>
+#include <algorithm>
 #include "gamemain.h"
 #include"collect_coin.h"
+
+struct djstruct
+{
+    int lenght = 0;
+    std::vector<point> path;
+};
 
 struct State
 {
@@ -26,15 +33,16 @@ class dp : virtual public gamemain
 private:
     int weight(point dest, point current) const;
     int getCellWeight(MAZE cellType) const;
-    void printDPTable(const std::vector<std::vector<int>> &maxWeight) const;
-public :
-    explicit dp(int size):gamemain(size),collecter(){}
-  //  ~dp(){};
-    std::vector<point> findBestPath();
-    coin_collecter collecter;
+    void isWorth(djstruct& input);
+    void full_the_path(std::vector<point> &input);
+
+public:
+    explicit dp(int size) : gamemain(size)
+    {}
+
+    djstruct Dijkstra(point S, point E);
+
+    std::vector<point> findBestPath(point playerstart);
 };
-
-
-
 
 #endif // DP_H

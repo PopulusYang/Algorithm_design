@@ -8,39 +8,36 @@
 #include <ctime>
 #include <algorithm>
 #include <utility>
-
+#include <windows.h> // åŒ…å«windows.hä»¥ä½¿ç”¨SetConsoleOutputCP
 
 #include "gamemain.h"
 
 // ????????????????MAXSIZE?????????std::vector<std::string>
 // ????????C++??????
 
-
-
 class MazeGenerator : virtual public gamemain
 {
 public:
-    int mazesize;
-    int gen_order=0;
-
-    struct clue_content{
-        int gen_order_index;      
-        int password_dig_val;
+    int gen_order = 0;
+    struct Division
+    {
+        int r, c, h, w;
     };
+    std::vector<Division> division_stack;
 
-    std::pair<int, int> start_m; // Æğµã×ø±ê
-    std::pair<int, int> exit;  // ÖÕµã×ø±ê
-    std::pair<int, int> boss;  // BOSS×ø±ê
-    std::pair<int, int> locker; // »ú¹Ø×ø±ê
-    std::pair<int, int> clue;  // ÏßË÷×ø±ê
-    std::unordered_map<point,int> sourse_value; //×ÊÔ´¼ÛÖµ
-    //ÏßË÷ÄÚÈİ£¬µ½´ïÏßË÷¶ÔÓ¦µÄ×ø±êÊ±£¬ÀûÓÃ×ø±ê×÷Îª²ÎÊı£¬¶ÁÈ¡Õâ¸öÏßË÷Ö¸Ê¾³öµÄÃÜÂëÎ»ºÍÃÜÂëÖµ£¨ÀıÈçÃÜÂë£º456£¬·ÃÎÊÕâ¸öÏßË÷Ö®ºó£¬¿ÉÒÔÖªµÀ4ÊÇÃÜÂëÖµ£¬1ÊÇÃÜÂëÎ»£¬¼´ÃÜÂëµÄµÚÒ»Î»ÊÇ4£©
-    std::unordered_map<point,clue_content> clue_set; 
+    std::pair<int, int> start_m; // èµ·ç‚¹åæ ‡
+    std::pair<int, int> exit;    // ç»ˆç‚¹åæ ‡
+    std::pair<int, int> boss;    // BOSSåæ ‡
+    std::pair<int, int> locker;  // æœºå…³åæ ‡
+    std::pair<int, int> clue;    // çº¿ç´¢åæ ‡
+
+    // çº¿ç´¢å†…å®¹ï¼Œåˆ°è¾¾çº¿ç´¢å¯¹åº”çš„åæ ‡æ—¶ï¼Œåˆ©ç”¨åæ ‡ä½œä¸ºå‚æ•°ï¼Œè¯»å–è¿™ä¸ªçº¿ç´¢æŒ‡ç¤ºå‡ºçš„å¯†ç ä½å’Œå¯†ç å€¼ï¼ˆä¾‹å¦‚å¯†ç ï¼š456ï¼Œè®¿é—®è¿™ä¸ªçº¿ç´¢ä¹‹åï¼Œå¯ä»¥çŸ¥é“4æ˜¯å¯†ç å€¼ï¼Œ1æ˜¯å¯†ç ä½ï¼Œå³å¯†ç çš„ç¬¬ä¸€ä½æ˜¯4ï¼‰
+    std::unordered_map<point, clue_content> clue_set;
     clue_content clue_arr[4];
-    // ¹¹Ôìº¯Êı£¬³õÊ¼»¯ÃÔ¹¬³ß´çºÍËæ»úÊıÉú³ÉÆ÷
+    // æ„é€ å‡½æ•°ï¼Œåˆå§‹åŒ–è¿·å®«å°ºå¯¸å’Œéšæœºæ•°ç”Ÿæˆå™¨
     MazeGenerator(int size) : gamemain(size)
-    {   
-        mazesize=size;
+    {
+        mazesize = size;
         // ??????????????????
         if (size % 2 == 0)
         {
@@ -83,33 +80,136 @@ public:
     // ???????
     void generate()
     {
-        divide(1, 1, dimension - 2, dimension - 2);
+        generate_init();
+        while (generateStep())
+            ;
     }
 
-    // ??????
+    void generate_init()
+    {
+        division_stack.clear();
+        division_stack.push_back({1, 1, dimension - 2, dimension - 2});
+    }
+
+    bool generateStep()
+    {
+        if (division_stack.empty())
+        {
+            return false; // ç”Ÿæˆå®Œæˆ
+        }
+
+        Division current = division_stack.back();
+        division_stack.pop_back();
+
+        int r = current.r;
+        int c = current.c;
+        int h = current.h;
+        int w = current.w;
+
+        if (h < 3 || w < 3)
+        {
+            return !division_stack.empty();
+        }
+
+        bool horizontal = (h > w);
+        if (h == w)
+        {
+            std::uniform_int_distribution<int> dist(0, 1);
+            horizontal = dist(rng) == 0;
+        }
+
+        if (horizontal)
+        {
+            std::uniform_int_distribution<int> wall_dist(r + 1, r + h - 2);
+            int wall_r = wall_dist(rng);
+            if (wall_r % 2 != 0)
+                wall_r++;
+            if (wall_r >= r + h - 1)
+                wall_r -= 2;
+
+            std::uniform_int_distribution<int> passage_dist(c, c + w - 1);
+            int passage_c = passage_dist(rng);
+            if (passage_c % 2 == 0)
+                passage_c++;
+            if (passage_c >= c + w)
+                passage_c -= 2;
+
+            for (int i = c; i < c + w; ++i)
+            {
+                if (i != passage_c)
+                {
+                    maze[wall_r][i] = static_cast<int>(MAZE::WALL);
+                }
+            }
+
+            division_stack.push_back({r, c, wall_r - r, w});
+            division_stack.push_back({wall_r + 1, c, r + h - (wall_r + 1), w});
+        }
+        else // Vertical
+        {
+            std::uniform_int_distribution<int> wall_dist(c + 1, c + w - 2);
+            int wall_c = wall_dist(rng);
+            if (wall_c % 2 != 0)
+                wall_c++;
+            if (wall_c >= c + w - 1)
+                wall_c -= 2;
+
+            std::uniform_int_distribution<int> passage_dist(r, r + h - 1);
+            int passage_r = passage_dist(rng);
+            if (passage_r % 2 == 0)
+                passage_r++;
+            if (passage_r >= r + h)
+                passage_r -= 2;
+
+            for (int i = r; i < r + h; ++i)
+            {
+                if (i != passage_r)
+                {
+                    maze[i][wall_c] = static_cast<int>(MAZE::WALL);
+                }
+            }
+
+            division_stack.push_back({r, c, h, wall_c - c});
+            division_stack.push_back({r, wall_c + 1, h, c + w - (wall_c + 1)});
+        }
+        return true;
+    }
+
+    // ????????
     void placeFeatures()
     {
         int gold_count = 0;
         int trap_count = 0;
         int locker_count = 0;
         int clue_count = 3;
-        bool has_boss = false;
 
+        gold_count = 4 * dimension - 24;
+        trap_count = dimension - 6;
+
+        // ä¸º gold_count æ·»åŠ ä¸€ä¸ªä¸Šé™ï¼Œé˜²æ­¢DPç®—æ³•å› èµ„æºè¿‡å¤šè€Œå´©æºƒ
+        if (gold_count > 14)
+        {
+            gold_count = 14;//é¿å…é‡‘å¸æ•°é‡å¤ªå¤šå¯¼è‡´dpå´©æºƒ
+        }
+        if(trap_count > 20)
+        {
+            trap_count = 20;
+        }
+
+        if (gold_count < 0)
+            gold_count = 0;
+        if (trap_count < 0)
+            trap_count = 0;
+
+        // ä»…åœ¨è¾ƒå¤§çš„åœ°å›¾ä¸Šæ”¾ç½®BOSSå’Œæœºå…³
         if (dimension >= 9)
         {
-            gold_count = 12;
-            trap_count = 6;
             locker_count = 1;
-            has_boss = true;
         }
         else if (dimension >= 7)
         {
-            gold_count = 4;
-            trap_count = 4;
             locker_count = 1;
         }
-
-        // ????????(1,1)???????(dim-2, dim-2)
         start = {1, 1};
         maze[start.x][start.y] = static_cast<int>(MAZE::START);
         end = {dimension - 2, dimension - 2};
@@ -128,10 +228,6 @@ public:
         }
         std::shuffle(empty_cells.begin(), empty_cells.end(), rng);
 
-        if (has_boss)
-        {
-            placeFeature(empty_cells, MAZE::BOSS);
-        }
         for (int i = 0; i < gold_count; ++i)
         {
             placeFeature(empty_cells, MAZE::SOURCE);
@@ -144,12 +240,12 @@ public:
         {
             placeFeature(empty_cells, MAZE::LOCKER);
         }
-        for (int i = 0; i < clue_count; ++i) {
+        for (int i = 0; i < clue_count; ++i)
+        {
             placeFeature(empty_cells, MAZE::CLUE);
         }
     }
 
-    // ????????
     void print() const
     {
         for (int i = 0; i < dimension; ++i)
@@ -183,7 +279,9 @@ public:
                 case MAZE::BOSS:
                     to_print = 'B';
                     break;
-                    case MAZE::CLUE: to_print = 'C'; break;
+                case MAZE::CLUE:
+                    to_print = 'C';
+                    break;
                 default:
                     to_print = '?';
                     break;
@@ -240,7 +338,9 @@ public:
                 case MAZE::BOSS:
                     ch = 'B';
                     break;
-                    case MAZE::CLUE: ch = 'C'; break;
+                case MAZE::CLUE:
+                    ch = 'C';
+                    break;
                 default:
                     ch = '?';
                     break;
@@ -251,153 +351,166 @@ public:
     }
 
     // ??????
-    int getsize(){
+    int getsize()
+    {
         return mazesize;
     }
 
     //??????
-    int (*getmaze())[MAXSIZE] {
+    int (*getmaze())[MAXSIZE]
+    {
         return maze;
     }
 
     // ??????
-    std::pair<int, int> getStart() const {
+    std::pair<int, int> getStart() const
+    {
         return start_m;
-    }   
+    }
 
     // ??????
-    std::pair<int, int> getExit() const {
+    std::pair<int, int> getExit() const
+    {
         return exit;
-    }       
+    }
 
-    // ??BOSS??     
-    std::pair<int, int> getBoss() const {
+    // ??BOSS??
+    std::pair<int, int> getBoss() const
+    {
         return boss;
     }
 
     // ??????
-    std::pair<int, int> getLocker() const {     
+    std::pair<int, int> getLocker() const
+    {
         return locker;
     }
 
     // ??????
-    std::pair<int, int> getClue() const {   
+    std::pair<int, int> getClue() const
+    {
         return clue;
     }
 
-    // Éú³ÉÍêµØÍ¼Ö®ºó£¬ÀûÓÃÕâ¸öº¯Êı¾Í¿ÉÒÔµÃµ½ÃÜÂëËøÃÜÂëµÄÖµ
-    int getpassword() const{
-        int password=0;
-        for(int i=1;i<=3;i++){
+    // ç”Ÿæˆå®Œåœ°å›¾ä¹‹åï¼Œåˆ©ç”¨è¿™ä¸ªå‡½æ•°å°±å¯ä»¥å¾—åˆ°å¯†ç é”å¯†ç çš„å€¼
+    int getpassword() const
+    {
+        int password = 0;
+        for (int i = 1; i <= 3; i++)
+        {
             int temp;
-            temp=clue_arr[i].password_dig_val;
-            password*=10;
-            password+=temp;
+            temp = clue_arr[i].password_dig_val;
+            password *= 10;
+            password += temp;
         }
         return password;
     }
 
-    // Óöµ½ÏßË÷Ê±£¬µ÷ÓÃÕâÁ½¸öº¯Êı»ñÈ¡ÏßË÷£¬¼¯ÆëÈı¸öÏßË÷£¬¾Í¿ÉÒÔµÃµ½ÃÜÂëµÄÖµ£¬Óëgetpassword()µÄ·µ»ØÖµ±È½Ï£¬¼´¿ÉÅĞ¶ÏÃÜÂëÊÇ·ñÕıÈ·
-    int getclue_index(point clue_point){
+    // é‡åˆ°çº¿ç´¢æ—¶ï¼Œè°ƒç”¨è¿™ä¸¤ä¸ªå‡½æ•°è·å–çº¿ç´¢ï¼Œé›†é½ä¸‰ä¸ªçº¿ç´¢ï¼Œå°±å¯ä»¥å¾—åˆ°å¯†ç çš„å€¼ï¼Œä¸getpassword()çš„è¿”å›å€¼æ¯”è¾ƒï¼Œå³å¯åˆ¤æ–­å¯†ç æ˜¯å¦æ­£ç¡®
+    int getclue_index(point clue_point)
+    {
         auto it = clue_set.find(clue_point);
-        if (it != clue_set.end()) {
+        if (it != clue_set.end())
+        {
             return it->second.gen_order_index;
         }
-        return -1; // »òÕßÆäËûÊÊµ±µÄ´íÎóÖµ
+        return -1; // æˆ–è€…å…¶ä»–é€‚å½“çš„é”™è¯¯å€¼
     }
 
-    int getclue_val(point clue_point){
+    int getclue_val(point clue_point)
+    {
         auto it = clue_set.find(clue_point);
-        if (it != clue_set.end()) {
+        if (it != clue_set.end())
+        {
             return it->second.password_dig_val;
         }
-        return -1; // »òÕßÆäËûÊÊµ±µÄ´íÎóÖµ
+        return -1; // æˆ–è€…å…¶ä»–é€‚å½“çš„é”™è¯¯å€¼
     }
 
 private:
     std::mt19937 rng; // Mersenne Twister ?????
 
     // ?????????
-    void divide(int r, int c, int h, int w)
-    {
-        // ?????????????????????
-        if (h < 3 || w < 3)
-        {
-            return;
-        }
+    // void divide(int r, int c, int h, int w) // æ­¤å‡½æ•°å·²è¢« generateStep æ›¿ä»£
+    // {
+    //     // ?????????????????????
+    //     if (h < 3 || w < 3)
+    //     {
+    //         return;
+    //     }
 
-        // ????????????????????????????
-        bool horizontal = (h > w);
-        if (h == w)
-        { // ?????????????
-            std::uniform_int_distribution<int> dist(0, 1);
-            horizontal = dist(rng) == 0;
-        }
+    //     // ????????????????????????????
+    //     bool horizontal = (h > w);
+    //     if (h == w)
+    //     { // ?????????????
+    //         std::uniform_int_distribution<int> dist(0, 1);
+    //         horizontal = dist(rng) == 0;
+    //     }
 
-        if (horizontal)
-        {
-            // ????
-            // 1. ????????????
-            std::uniform_int_distribution<int> wall_dist(r + 1, r + h - 2);
-            int wall_r = wall_dist(rng);
-            if (wall_r % 2 != 0)
-                wall_r++;
-            if (wall_r >= r + h - 1)
-                wall_r -= 2;
+    //     if (horizontal)
+    //     {
+    //         // ????
+    //         // 1. ????????????
+    //         std::uniform_int_distribution<int> wall_dist(r + 1, r + h - 2);
+    //         int wall_r = wall_dist(rng);
+    //         if (wall_r % 2 != 0)
+    //             wall_r++;
+    //         if (wall_r >= r + h - 1)
+    //             wall_r -= 2;
 
-            // 2. ????????????
-            std::uniform_int_distribution<int> passage_dist(c, c + w - 1);
-            int passage_c = passage_dist(rng);
-            if (passage_c % 2 == 0)
-                passage_c++; // ??????
-            if (passage_c >= c + w)
-                passage_c -= 2;
+    //         // 2. ????????????
+    //         std::uniform_int_distribution<int> passage_dist(c, c + w - 1);
+    //         int passage_c = passage_dist(rng);
+    //         if (passage_c % 2 == 0)
+    //             passage_c++; // ??????
+    //         if (passage_c >= c + w)
+    //             passage_c -= 2;
 
-            // 3. ?????????
-            for (int i = c; i < c + w; ++i)
-            {
-                if (i != passage_c)
-                {
-                    maze[wall_r][i] = static_cast<int>(MAZE::WALL);
-                }
-            }
+    //         // 3. ?????????
+    //         for (int i = c; i < c + w; ++i)
+    //         {
+    //             if (i != passage_c)
+    //             {
+    //                 maze[wall_r][i] = static_cast<int>(MAZE::WALL);
+    //             }
+    //         }
 
-            // 4. ???????????
-            divide(r, c, wall_r - r, w);
-            divide(wall_r + 1, c, r + h - (wall_r + 1), w);
-        }
-        else
-        {
-            // ????
-            // 1. ????????????
-            std::uniform_int_distribution<int> wall_dist(c + 1, c + w - 2);
-            int wall_c = wall_dist(rng);
-            if (wall_c % 2 != 0)
-                wall_c++;
-            if (wall_c >= c + w - 1)
-                wall_c -= 2;
+    //         // 4. ???????????
+    //         divide(r, c, wall_r - r, w);
+    //         divide(wall_r + 1, c, r + h - (wall_r + 1), w);
+    //     }
+    //     else
+    //     {
+    //         // ????
+    //         // 1. ????????????
+    //         std::uniform_int_distribution<int> wall_dist(c + 1, c + w - 2);
+    //         int wall_c = wall_dist(rng);
+    //         if (wall_c % 2 != 0)
+    //             wall_c++;
+    //         if (wall_c >= c + w - 1)
+    //             wall_c -= 2;
 
-            // 2. ????????????
-            std::uniform_int_distribution<int> passage_dist(r, r + h - 1);
-            int passage_r = passage_dist(rng);
-            if (passage_r % 2 == 0)
-                passage_r++;
-            if (passage_r >= r + h)
-                passage_r -= 2;
+    //         // 2. ????????????
+    //         std::uniform_int_distribution<int> passage_dist(r, r + h - 1);
+    //         int passage_r = passage_dist(rng);
+    //         if (passage_r % 2 == 0)
+    //             passage_r++;
+    //         if (passage_r >= r + h)
+    //             passage_r -= 2;
 
-            // 3. ?????????
-            for (int i = r; i < r + h; ++i)
-            {
-                if (i != passage_r)
-                {
-                    maze[i][wall_c] = static_cast<int>(MAZE::WALL);
-                }
-            }
-            // 4. ???????????
-            divide(r, c, h, wall_c - c);
-            divide(r, wall_c + 1, h, c + w - (wall_c + 1));
-        }
-    }
+    //         // 3. ?????????
+    //         for (int i = r; i < r + h; ++i)
+    //         {
+    //             if (i != passage_r)
+    //             {
+    //                 maze[i][wall_c] = static_cast<int>(MAZE::WALL);
+    //             }
+    //         }
+    //         // 4. ???????????
+    //         divide(r, c, h, wall_c - c);
+    //         divide(r, wall_c + 1, h, c + w - (wall_c + 1));
+    //     }
+    // }
     void placeFeature(std::vector<std::pair<int, int>> &cells, MAZE feature)
     {
         if (cells.empty())
@@ -409,45 +522,55 @@ private:
         else if (feature == MAZE::EXIT)
             end = {pos.first, pos.second};
         maze[pos.first][pos.second] = static_cast<int>(feature);
-        switch(feature) {
-            case MAZE::START:
-                start_m = pos;
-                break;
-            case MAZE::EXIT:
-                exit = pos;
-                break;
-            case MAZE::BOSS:
-                boss = pos;
-                break;
-            case MAZE::LOCKER:
-                locker = pos;
-                break;
-            case MAZE::CLUE:
-                {
-                gen_order++;
-                point temp_point;
-                clue_content temp_content;
-                temp_content.gen_order_index=gen_order;
-                temp_content.password_dig_val=(pos.first*pos.second*0xBEEF)%10;
-                clue_arr[gen_order] = temp_content;
-                clue_set.insert({temp_point,temp_content});
-                temp_point.x = pos.first;
-                temp_point.y = pos.second;
-                clue = pos;
-                break;                      
-                }             
-            case MAZE::SOURCE:
-                {
-                    point temp_point;
-                    temp_point.x = pos.first;
-                    temp_point.y = pos.second;
-                    std::uniform_int_distribution<int> ranvalue(0, 100);
-                    int val = ranvalue(rng);
-                    sourse_value.insert({temp_point, val});
-                    break;
-                }
-            default:
-                break;
+        switch (feature)
+        {
+        case MAZE::START:
+            start_m = pos;
+            break;
+        case MAZE::EXIT:
+            exit = pos;
+            break;
+        case MAZE::BOSS:
+            boss = pos;
+            break;
+        case MAZE::LOCKER:
+            locker = pos;
+            break;
+        case MAZE::TRAP:
+            traps.insert({point(pos.first, pos.second), false});
+            break;
+        case MAZE::CLUE:
+        {
+            gen_order++;
+            point temp_point;
+            clue_content temp_content;
+            temp_point.x = pos.first;
+            temp_point.y = pos.second;
+            temp_content.gen_order_index = gen_order;
+            temp_content.password_dig_val = (pos.first * pos.second * 0xBEEF) % 10;
+            temp_content.clue_position.x = pos.first;
+            temp_content.clue_position.y = pos.second;
+            clue_arr[gen_order] = temp_content;
+            clue_set.insert({temp_point, temp_content});
+            std::cout << "insert password to hash: " << temp_content.gen_order_index << std::endl;
+            temp_point.x = pos.first;
+            temp_point.y = pos.second;
+            clue = pos;
+            break;
+        }
+        case MAZE::SOURCE:
+        {
+            point temp_point;
+            temp_point.x = pos.first;
+            temp_point.y = pos.second;
+            std::uniform_int_distribution<int> ranvalue(0, 100);
+            int val = ranvalue(rng);
+            sourse_value.insert({temp_point, val});
+            sourse.insert(temp_point);
+            break;
+        }
+        default:
+            break;
         }
     }
 };
@@ -465,7 +588,7 @@ private:
 
 //     // ??????
 //     generator.generate();
-    
+
 //     // ????????
 //     generator.placeFeatures();
 
