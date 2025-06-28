@@ -43,7 +43,7 @@ void locker_leave(GameController *gameController)
     gameController->is_near_locker = false;
 }
 
-void player::onPlayerMove(GameController *gameController)
+void Player::onPlayerMove(GameController *gameController)
 {
     // 计算加速度
     playerAcc = QPointF(0, 0);

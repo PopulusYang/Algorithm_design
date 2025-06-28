@@ -11,11 +11,17 @@
 #include <mutex>
 #include <thread>
 #include <chrono>
-
 #include "gamemain.h"
 #include "gamecontrol.h"
 
-class player : public QObject
+
+enum class Technique
+{
+    normalTech,
+    bigTech
+};
+
+class Player : public QObject
 {
     Q_OBJECT
 public:
@@ -33,7 +39,7 @@ public:
     int playersource = 0;//资源量
     int commtech;//普通招式
     int commhurt;//普通伤害
-    int bigtech;//大招
+    int bigsour;//大招消耗资源
     int bighurt;//大招伤害
 
 

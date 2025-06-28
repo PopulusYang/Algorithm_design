@@ -5,9 +5,10 @@
 #include <vector>
 #include <queue>
 #include <iostream>
+#include<stack>
 #include <algorithm>
 #include "gamemain.h"
-
+#include"collect_coin.h"
 
 struct djstruct
 {

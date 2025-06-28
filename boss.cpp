@@ -12,3 +12,150 @@ boss::~boss()
 {
     delete ui;
 }
+
+int boss::callowerBound(vector<int>&bosshp,vector<Skill>skills)//计算下界函数
+{
+    int totalremainhp;
+    for(int hp:bosshp)
+    {
+        if(hp>0)totalremainhp+=hp;
+    }
+    if(totalremainhp==0)return 0;
+    double avedamage=0;
+    for(auto&skill:skills)
+    {
+        avedamage+=static_cast<double>(skill.damage)/(skill.cooldown+1);
+    }
+    if(avedamage==0)return numeric_limits<int>::max();
+    return static_cast<int>(ceil(totalremainhp/avedamage));
+}
+
+void boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
+{
+    priority_queue<Node,vector<Node>,greater<Node>>pq;
+    Node startNode;
+    startNode.currturn=1;
+    startNode.bosshp=bosshp;
+    startNode.currbossindex=0;
+    startNode.skicolldown.resize(skills.size(),0);
+    startNode.lowerbound=callowerBound(startNode.bosshp,skills);
+
+    pq.push(startNode);
+    int minturns=numeric_limits<int>::max();
+    vector<pair<int,int>>bestpath;
+    while(!pq.empty())
+    {
+        Node currentNode=pq.top();
+        pq.pop();
+        if(currentNode.lowerbound>=minturns)continue;
+
+        if(currentNode.currbossindex>=currentNode.bosshp.size())
+        {
+            if(currentNode.currturn-1<minturns)
+            {
+                minturns=currentNode.currturn-1;
+                bestpath=currentNode.path;
+            }
+            continue;
+        }
+        bool skillUsed=false;
+        for(int i=0;i<skills.size();i++)
+        {
+            if(currentNode.skicolldown[i]==0)
+            {
+                skillUsed=true;
+                Node nextNode=currentNode;
+                nextNode.currturn=currentNode.currturn+1;
+                for(int j=0;j<nextNode.skicolldown.size();j++)
+                {
+                    if(nextNode.skicolldown[j]>0)nextNode.skicolldown[j]--;
+                }
+                nextNode.skicolldown[i]=skills[i].cooldown;
+                nextNode.bosshp[nextNode.currbossindex]-=skills[i].damage;
+                if(nextNode.bosshp[nextNode.currbossindex]<=0)
+                {
+                    nextNode.currbossindex++;
+                }
+                nextNode.path.push_back({currentNode.currturn,skills[i].id});
+                nextNode.lowerbound=(nextNode.currturn-1)+callowerBound(nextNode.bosshp,skills);
+                if(nextNode.lowerbound<minturns)pq.push(nextNode);//分支限界
+            }
+        }
+        if(!skillUsed)
+        {
+            Node nextNode=currentNode;
+            nextNode.currturn=currentNode.currturn+1;
+            for(int j=0;j<nextNode.skicolldown.size();j++)
+            {
+                if(nextNode.skicolldown[j]>0)nextNode.skicolldown[j]--;
+            }
+            nextNode.path.push_back({currentNode.currturn,-1});
+            nextNode.lowerbound=(nextNode.currturn-1)+callowerBound(nextNode.bosshp,skills);
+            if(nextNode.lowerbound<minturns)
+            {
+                pq.push(nextNode);
+            }
+        }
+    }
+
+
+}
+
+
+vector<int> boss::readAndwrite(QString filename)
+{
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "错误: 无法打开文件" << file.fileName();
+        return {};
+    }
+    QByteArray jsonData = file.readAll();
+    file.close();
+    vector<int>bossHP;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonObject jsonObject = doc.object();
+    if (jsonObject.contains("B") && jsonObject["B"].isArray())
+    {
+        QJsonArray bossArray = jsonObject["B"].toArray();
+        for (const QJsonValue &value : bossArray)
+        {
+            bossHP.push_back(value.toInt());
+        }
+    }
+    vector<Skill>skills;
+    if (jsonObject.contains("PlayerSkills") && jsonObject["PlayerSkills"].isArray())
+    {
+        QJsonArray skillsArray = jsonObject["PlayerSkills"].toArray();
+        int id = 0;
+        for (const QJsonValue &value : skillsArray)
+        {
+            if (value.isArray())
+            {
+                QJsonArray skillData = value.toArray();
+                if (skillData.size() >= 2)
+                {
+                    Skill skill;
+                    skill.id = id++;
+                    skill.damage = skillData[0].toInt();
+                    skill.cooldown = skillData[1].toInt();
+                    skills.push_back(skill);
+                }
+            }
+        }
+    }
+    vector<int>skillid;
+    solveBossRush(bossHP,skills);
+    for(int i=0;i<skills.size();i++)
+    {
+        skillid.push_back(skills[i].id);
+    }
+    return skillid;
+}
+
+
+
+
+
+
+
+

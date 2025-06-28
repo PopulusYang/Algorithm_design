@@ -1,9 +1,9 @@
 #include "collect_coin.h"
 
-bool coin_collecter::ifsourvaild()//判断周围视野中是否有资源
+bool coin_collecter::ifsourvaild(point currentpoint)//判断周围视野中是否有资源
 {
-    int x=player.playerpoint.x;
-    int y=player.playerpoint.y;
+    int x=currentpoint.x;
+    int y=currentpoint.y;
     oneview(0,point(x-1,y-1));
     oneview(1,point(x-1,y));
     oneview(2,point(x-1,y+1));
@@ -21,9 +21,9 @@ bool coin_collecter::ifsourvaild()//判断周围视野中是否有资源
     }
     return false;
 }
-point coin_collecter::findway()//在这个函数里找到下一步的位置
+point coin_collecter::findway(point currentpoint)//在这个函数里找到下一步的位置
 {
-    if(!ifsourvaild())return player.playerpoint;//如果周围没有资源，那么返回玩家现在的位置
+    if(!ifsourvaild(currentpoint))return currentpoint;//如果周围没有资源，那么返回玩家现在的位置
     int maxindex;
     int maxsource=-100;
     for(int i=0;i<=7;i++)
@@ -42,25 +42,25 @@ point coin_collecter::findway()//在这个函数里找到下一步的位置
     if(maxindex==1||maxindex==3||maxindex==4||maxindex==6)return view[maxindex].coinpoint;//距离为一格的情况
     if(maxindex==0)//距离为两格的情况
     {
-        if(view[3].accessible==false&&view[1].accessible==false)return player.playerpoint;
+        if(view[3].accessible==false&&view[1].accessible==false)return currentpoint;
         if(view[3].value>view[1].value)return view[3].coinpoint;
         return view[1].coinpoint;
     }
     else if(maxindex==2)
     {
-        if(view[4].accessible==false&&view[1].accessible==false)return player.playerpoint;
+        if(view[4].accessible==false&&view[1].accessible==false)return currentpoint;
         if(view[4].value>view[1].value)return view[4].coinpoint;
         return view[1].coinpoint;
     }
     else if(maxindex==5)
     {
-        if(view[3].accessible==false&&view[6].accessible==false)return player.playerpoint;
+        if(view[3].accessible==false&&view[6].accessible==false)return currentpoint;
         if(view[6].value>view[3].value)return view[6].coinpoint;
         return view[3].coinpoint;
     }
     else
     {
-        if(view[4].accessible==false&&view[6].accessible==false)return player.playerpoint;
+        if(view[4].accessible==false&&view[6].accessible==false)return currentpoint;
         if(view[6].value>view[4].value)return view[6].coinpoint;
         return view[4].coinpoint;
     }
