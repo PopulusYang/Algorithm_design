@@ -4,3 +4,4 @@ build/
 text.md
 test/
 test.cpp
+CMakeLists.txt.user
