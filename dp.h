@@ -35,13 +35,14 @@ private:
     int getCellWeight(MAZE cellType) const;
     void isWorth(djstruct& input);
     void full_the_path(std::vector<point> &input);
+    int get_path_length(point S, point E);
 
 public:
-    explicit dp(int size) : gamemain(size),collecter(this)
+    explicit dp(int size) : gamemain(size), collecter(this)
     {}
     coin_collecter collecter;
     djstruct Dijkstra(point S, point E);
-    std::vector<point> findBestPath(point playerstart);
+    std::vector<point> findBestPath(point playerstart, std::unordered_set<point> tempsource);
     std::vector<point> simulate(point playerstart);
 };
 

@@ -274,8 +274,7 @@ void MainWindow::onSolveMazeClicked()
         update(); // 触发重绘以显示路径
     }
     // 开始自动走
-    runalongThread = new std::thread([this]()
-                                     { autoCtrl.runalongthePath(solvedPath); });
+    runalongThread = new std::thread([this]() { autoCtrl.runalongthePath(solvedPath); });
 }
 
 void MainWindow::drawCluePath()
