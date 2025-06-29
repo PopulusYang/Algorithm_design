@@ -39,10 +39,10 @@ gamechoose::gamechoose(QWidget *parent)
         "font-family: 'Microsoft YaHei';"
         "background-color: transparent;"
         );
-    promptLabel->adjustSize(); // 根据内容自动调整标签大小
-    int labelWidth2 = promptLabel->width();
-    int labelHeight2 = promptLabel->height();
-    int labelX2 = this->width() * 0.15;      // X 坐标：窗口宽度的 25% 处
+    promptLabel->setAlignment(Qt::AlignCenter);
+    int labelWidth2 = this->width();
+    int labelHeight2 = 80;
+    int labelX2 = 0;     // X 坐标：窗口宽度的 25% 处
     int labelY2 = this->height() / 2 - labelHeight / 2; // Y 坐标：窗口高度的正中间
     promptLabel->setGeometry(labelX2, labelY2, labelWidth2, labelHeight2);
 

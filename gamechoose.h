@@ -15,7 +15,8 @@
 #include<QPushButton>
 #include<QMessageBox>
 #include<QFileDialog>
-#include "mainwindow.h"
+#include"gamemain.h"
+#include"mainwindow.h"
 namespace Ui {
 class gamechoose;
 }
