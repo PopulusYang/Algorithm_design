@@ -14,7 +14,7 @@
 #include <QThread>
 #include <QImage>
 #include <QWaitCondition>
-#include<QDialogButtonBox>
+#include <QDialogButtonBox>
 #include "player.h"
 #include "gamecontrol.h"
 #include "autocontrol.h"
@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    MainWindow(int mazeSize,int model, QWidget *parent = nullptr);
+    MainWindow(int mazeSize,int model, gamemain *informations = nullptr, QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:

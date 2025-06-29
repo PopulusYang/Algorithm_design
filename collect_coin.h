@@ -17,15 +17,15 @@ typedef struct goldcoin
 }goldcoin;
 
 
-class coin_collecter:virtual public gamemain
+class coin_collecter
 {   
 public:
-    coin_collecter() : gamemain(){}
-    coin_collecter(int **map, int size);
+    coin_collecter(gamemain *informations) : informations(informations){}
     ~coin_collecter(){};
-   bool ifsourvaild(point currentpoint);
+    gamemain *informations = nullptr;
+    bool ifsourvaild(point currentpoint);
     point findway(point currentpoint);
-   void oneview(int index,point viewpoint);
+    void oneview(int index,point viewpoint);
     unordered_map<point, int> sourse_value;
     array<goldcoin, 8> view;
     point currentpoint;
