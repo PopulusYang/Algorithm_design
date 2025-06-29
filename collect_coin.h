@@ -23,6 +23,7 @@ public:
     coin_collecter(gamemain *informations) : informations(informations){}
     ~coin_collecter(){};
     gamemain *informations = nullptr;
+    std::unordered_set<point> tempset;
     bool ifsourvaild(point currentpoint);
     point findway(point currentpoint);
     void oneview(int index,point viewpoint);
