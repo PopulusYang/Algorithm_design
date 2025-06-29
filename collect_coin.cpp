@@ -71,35 +71,35 @@ void coin_collecter::oneview(int index,point viewpoint)
     view[index].coinpoint=viewpoint;
     int x=viewpoint.x;
     int y=viewpoint.y;
-    if(x>=0&&x<mazesize&&y>=0&&y<mazesize)
+    if(x>=0&&x<informations->mazesize&&y>=0&&y<informations->mazesize)
     {
-        if(maze[x][y]==static_cast<int>(MAZE::SOURCE))//资源
+        if (informations->maze[x][y] == static_cast<int>(MAZE::SOURCE)) // 资源
         {
             view[index].accessible=true;
             view[index].type=MAZE::SOURCE;
             view[index].value=sourse_value[point(x,y)];
         }
-        else if(maze[x][y]==static_cast<int>(MAZE::WAY))//通路
+        else if (informations->maze[x][y] == static_cast<int>(MAZE::WAY)) // 通路
         {
             view[index].accessible=true;
             view[index].type=MAZE::WAY;
             view[index].value=0;
 
         }
-        else if(maze[x][y]==static_cast<int>(MAZE::LOCKER))//陷阱
+        else if (informations->maze[x][y] == static_cast<int>(MAZE::LOCKER)) // 陷阱
         {
             view[index].accessible=true;
             view[index].type=MAZE::LOCKER;
             view[index].value=-1;
 
         }
-        else if(maze[x][y]=static_cast<int>(MAZE::TRAP))
+        else if (informations->maze[x][y] = static_cast<int>(MAZE::TRAP))
         {
             view[index].accessible=true;
             view[index].type=MAZE::TRAP;
             view[index].value=-2;
         }
-        else if(maze[x][y]==static_cast<int>(MAZE::WALL))
+        else if (informations->maze[x][y] == static_cast<int>(MAZE::WALL))
         {
             view[index].accessible=false;
             view[index].type=MAZE::WALL;

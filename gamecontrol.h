@@ -18,6 +18,26 @@ class GameController : public MazeGenerator, public dp
 public:
     GameController(int size) : gamemain(size), MazeGenerator(size), dp(size) {}
 
+    GameController(gamemain* informations):
+        gamemain(informations->mazesize),
+        MazeGenerator(informations->mazesize),
+        dp(informations->mazesize)
+    {
+        this->start = informations->start;
+        this->end = informations->end;
+        this->is_near_locker = informations->is_near_locker;
+        this->bosshp = informations->bosshp;
+        this->Skills = informations->Skills;
+        this->dimension = informations->dimension;
+        for(int i = 0; i < MAXSIZE; ++i)//复制地图信息
+        {
+            for (int j = 0; j < MAXSIZE; ++j)
+            {
+                maze[i][j] = informations->maze[i][j];
+            }
+        }
+    }
+
     bool inBounds(int x, int y) // 判断是否越界
     {
         return x > 0 && y > 0 && x < mazesize && y < mazesize;

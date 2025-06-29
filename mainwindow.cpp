@@ -21,7 +21,7 @@ void MainWindow::ontimeout()
 }
 
 // MainWindow 构造函数中初始化
-MainWindow::MainWindow(int mazeSize, int model,QWidget *parent)
+MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -30,6 +30,10 @@ MainWindow::MainWindow(int mazeSize, int model,QWidget *parent)
     if(model==2)
     {
          gameController = new GameController(mazeSize);
+    }
+    else
+    {
+        gameController = new GameController(informations);
     }
     // gameController->generate(); // Replaced with animation
     // gameController->placeFeatures();
@@ -266,7 +270,7 @@ void MainWindow::onSolveMazeClicked()
         return;
     if (gameController)
     {
-        solvedPath = gameController->findBestPath({static_cast<int>(std::round(Player.playerPos.y())), static_cast<int>(std::round(Player.playerPos.x()))});
+        solvedPath = gameController->simulate({static_cast<int>(std::round(Player.playerPos.y())), static_cast<int>(std::round(Player.playerPos.x()))});
         update(); // 触发重绘以显示路径
     }
     // 开始自动走

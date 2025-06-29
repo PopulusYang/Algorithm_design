@@ -205,7 +205,7 @@ void gamechoose::onFileButtonClicked()
         }
     } else {
         QMessageBox::warning(this, "错误", "JSON文件中缺少'maze'数组或格式不正确。");
-        return;
+        // return;
     }
 
     // 5. 处理 "B" (Boss HP) 数据
@@ -219,8 +219,9 @@ void gamechoose::onFileButtonClicked()
             this->bosshp.push_back(hpValue.toInt());
         }
     } else {
-        QMessageBox::warning(this, "错误", "JSON文件中缺少'B'数组或格式不正确。");
-        return;
+        // QMessageBox::warning(this, "错误", "JSON文件中缺少'B'数组或格式不正确。");
+        this->bosshp.clear();
+        // return;
     }
     if (jsonObj.contains("PlayerSkills") && jsonObj["PlayerSkills"].isArray())
     {
@@ -242,7 +243,7 @@ void gamechoose::onFileButtonClicked()
             }
         }
     }
-    MainWindow*w=new MainWindow(this->mazesize,model);
+    MainWindow*w=new MainWindow(this->mazesize,model, this);
     w->show();
     this->hide();
 }
@@ -256,7 +257,7 @@ void gamechoose::onRandomButtonClicked()
 
     if (ok) // 仅当用户点击“OK”时才创建和显示主窗口
     {
-        MainWindow*w=new MainWindow(mazeSize,2);
+        MainWindow*w=new MainWindow(mazeSize,2, this);
         w->show();
         this->hide();
     }
