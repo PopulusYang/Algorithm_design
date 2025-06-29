@@ -83,6 +83,8 @@ public:
     point start;
     point end;
 
+    bool boss_in_map = false; // 是否有BOSS
+    
     std::unordered_set<point> sourse;
     std::unordered_map<point, int> sourse_value; // 资源价值
     std::unordered_map<point, bool> traps;

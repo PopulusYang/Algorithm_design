@@ -83,7 +83,7 @@ void dp::full_the_path(std::vector<point> &input)//将路连起来
     input = output;
 }
 
-djstruct dp::Dijkstra(point S, point E)
+djstruct dp::Dijkstra(point S, point E)//迪杰斯特拉算法求两点路径
 {
     djstruct res;
     int n = mazesize, m = mazesize;
@@ -147,6 +147,8 @@ djstruct dp::Dijkstra(point S, point E)
     return {}; // 无解
 }
 
+//这个狗算法的时间复杂度竟然可以来到O( (k+2)^2 * BFS + 2^k * k^2 )，\
+其中n和m分别是地图的行数和列数，完美解决动态规划算法优化的太好的问题
 std::vector<point> dp::findBestPath(point playerstart)
 {
     int k = sourse.size();
@@ -227,7 +229,7 @@ std::vector<point> dp::findBestPath(point playerstart)
     }
     std::reverse(orderR.begin(), orderR.end());
 
-    std::vector<point> fullPath = {playerstart};
+    std::vector<point> fullPath = {};
     for(int idx: orderR)
         fullPath.push_back(R[idx]);
     fullPath.push_back(end);
@@ -237,12 +239,42 @@ std::vector<point> dp::findBestPath(point playerstart)
         std::cout << p.x << "," << p.y << std::endl;
     }
 
-    full_the_path(fullPath);
+    // full_the_path(fullPath);
 
-    std::cout << "补满后" << std::endl;
-    for (auto p : fullPath)
-    {
-        std::cout << p.x << "," << p.y << std::endl;
-    }
+    // std::cout << "补满后" << std::endl;
+    // for (auto p : fullPath)
+    // {
+    //     std::cout << p.x << "," << p.y << std::endl;
+    // }
     return fullPath;
+}
+
+std::vector<point> dp::simulate(point playerstart)
+{
+    std::vector<point> path;
+    std::vector<point> finalpath;
+    point current = playerstart;
+    while(current != end)
+    {
+        path = findBestPath(current);
+        point startp = path[0];
+        point endp = path[1];
+        auto [length, p] = Dijkstra(startp, endp);//获取路径
+        finalpath.insert(finalpath.end(), p.begin(), p.end());
+        //用贪心算法收集金币
+        std::cout << "开始贪婪" << std::endl;
+        current = endp;
+        if (current == end)
+            break;
+        int source_count = 0;
+        while (collecter.ifsourvaild(current))//如果当前点周围存在资源
+        {
+            current = collecter.findway(current);//找到下一个资源点
+            finalpath.push_back(current);//将资源点加入路径
+            std::cout << "贪婪收集到资源点" << current.x << "," << current.y << std::endl;
+            source_count++;
+        }
+        std::cout << "结束贪婪，通过贪心算法收集到金币：" << source_count << std::endl;
+    }
+    return finalpath;
 }
