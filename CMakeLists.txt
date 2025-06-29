@@ -30,6 +30,8 @@ set(PROJECT_SOURCES
         boss.h
         boss.cpp
         boss.ui
+        exam4.cpp
+        json.hpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

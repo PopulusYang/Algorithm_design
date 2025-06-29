@@ -8,7 +8,8 @@
 #include <ctime>
 #include <algorithm>
 #include <utility>
-
+#include <fstream>
+#include "json.hpp"
 
 #include "gamemain.h"
 
@@ -307,6 +308,40 @@ public:
             return it->second.password_dig_val;
         }
         return -1; // 或者其他适当的错误值
+    }
+
+    // 保存maze为json文件（以符号字符串形式保存）
+    void saveMazeToJson(const std::string& filename) const {
+        nlohmann::json j;
+        j["dimension"] = dimension;
+        j["maze"] = nlohmann::json::array();
+        for (int i = 0; i < dimension; ++i) {
+            nlohmann::json row = nlohmann::json::array();
+            for (int j_ = 0; j_ < dimension; ++j_) {
+                std::string symbol;
+                switch (static_cast<MAZE>(maze[i][j_])) {
+                    case MAZE::START: symbol = "S"; break;
+                    case MAZE::EXIT: symbol = "E"; break;
+                    case MAZE::WALL: symbol = "#"; break;
+                    case MAZE::WAY: symbol = " "; break;
+                    case MAZE::SOURCE: symbol = "G"; break;
+                    case MAZE::TRAP: symbol = "T"; break;
+                    case MAZE::LOCKER: symbol = "L"; break;
+                    case MAZE::BOSS: symbol = "B"; break;
+                    case MAZE::CLUE: symbol = "C"; break;
+                    default: symbol = "?"; break;
+                }
+                row.push_back(symbol);
+            }
+            j["maze"].push_back(row);
+        }
+        std::ofstream ofs(filename);
+        if (!ofs.is_open()) {
+            std::cerr << "fail to open file: " << filename << std::endl;
+            return;
+        }
+        ofs << j.dump(4); // pretty print with 4 spaces
+        ofs.close();
     }
 
 private:

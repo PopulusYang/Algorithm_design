@@ -215,6 +215,8 @@ void MainWindow::paintEvent(QPaintEvent *event)
     const int subBlockSize = blockSize / 3;
     QPixmap wallpixmap("../img/wall.png");
 
+    gameController->saveMazeToJson("../maze.json");
+
     for (int i = 0; i < mazeSize; ++i)
     {
         for (int j = 0; j < mazeSize; ++j)
