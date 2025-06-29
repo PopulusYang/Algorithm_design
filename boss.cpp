@@ -30,7 +30,7 @@ int boss::callowerBound(vector<int>&bosshp,vector<Skill>skills)//计算下界函
     return static_cast<int>(ceil(totalremainhp/avedamage));
 }
 
-void boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
+vector<int> boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
 {
     priority_queue<Node,vector<Node>,greater<Node>>pq;
     Node startNode;
@@ -42,7 +42,7 @@ void boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
 
     pq.push(startNode);
     int minturns=numeric_limits<int>::max();
-    vector<pair<int,int>>bestpath;
+    vector<int>bestpath;
     while(!pq.empty())
     {
         Node currentNode=pq.top();
@@ -76,7 +76,7 @@ void boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
                 {
                     nextNode.currbossindex++;
                 }
-                nextNode.path.push_back({currentNode.currturn,skills[i].id});
+                nextNode.path.push_back(skills[i].id);
                 nextNode.lowerbound=(nextNode.currturn-1)+callowerBound(nextNode.bosshp,skills);
                 if(nextNode.lowerbound<minturns)pq.push(nextNode);//分支限界
             }
@@ -89,7 +89,7 @@ void boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
             {
                 if(nextNode.skicolldown[j]>0)nextNode.skicolldown[j]--;
             }
-            nextNode.path.push_back({currentNode.currturn,-1});
+            nextNode.path.push_back(-1);
             nextNode.lowerbound=(nextNode.currturn-1)+callowerBound(nextNode.bosshp,skills);
             if(nextNode.lowerbound<minturns)
             {
@@ -98,17 +98,30 @@ void boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
         }
     }
 
-
+    return bestpath;
 }
 
 
-vector<int> boss::readAndwrite(QString filename)
+vector<int> boss::readAndwrite()
 {
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "错误: 无法打开文件" << file.fileName();
+    QString filename = "D:/codes/suanfa/Algorithm_design/data/boss_case_9.json";
+
+    // 调试输出当前路径
+    qDebug() << "当前工作目录:" << QDir::currentPath();
+    qDebug() << "尝试打开文件:" << filename;
+
+    if (!QFile::exists(filename)) {
+        qWarning() << "错误: 文件不存在" << QFileInfo(filename).absoluteFilePath();
         return {};
     }
+
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "错误: 无法打开文件" << QFileInfo(filename).absoluteFilePath();
+        qWarning() << "错误信息:" << file.errorString();
+        return {};
+    }
+
     QByteArray jsonData = file.readAll();
     file.close();
     vector<int>bossHP;
@@ -143,12 +156,9 @@ vector<int> boss::readAndwrite(QString filename)
             }
         }
     }
-    vector<int>skillid;
-    solveBossRush(bossHP,skills);
-    for(int i=0;i<skills.size();i++)
-    {
-        skillid.push_back(skills[i].id);
-    }
+
+    vector<int>skillid=solveBossRush(bossHP,skills);
+
     return skillid;
 }
 

@@ -37,11 +37,10 @@ private:
     void full_the_path(std::vector<point> &input);
 
 public:
-    explicit dp(int size) : gamemain(size)
+    explicit dp(int size) : gamemain(size),collecter()
     {}
-
+    coin_collecter collecter;
     djstruct Dijkstra(point S, point E);
-
     std::vector<point> findBestPath(point playerstart);
 };
 

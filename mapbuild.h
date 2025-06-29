@@ -430,87 +430,7 @@ public:
 private:
     std::mt19937 rng; // Mersenne Twister ?????
 
-    // ?????????
-    // void divide(int r, int c, int h, int w) // 此函数已被 generateStep 替代
-    // {
-    //     // ?????????????????????
-    //     if (h < 3 || w < 3)
-    //     {
-    //         return;
-    //     }
 
-    //     // ????????????????????????????
-    //     bool horizontal = (h > w);
-    //     if (h == w)
-    //     { // ?????????????
-    //         std::uniform_int_distribution<int> dist(0, 1);
-    //         horizontal = dist(rng) == 0;
-    //     }
-
-    //     if (horizontal)
-    //     {
-    //         // ????
-    //         // 1. ????????????
-    //         std::uniform_int_distribution<int> wall_dist(r + 1, r + h - 2);
-    //         int wall_r = wall_dist(rng);
-    //         if (wall_r % 2 != 0)
-    //             wall_r++;
-    //         if (wall_r >= r + h - 1)
-    //             wall_r -= 2;
-
-    //         // 2. ????????????
-    //         std::uniform_int_distribution<int> passage_dist(c, c + w - 1);
-    //         int passage_c = passage_dist(rng);
-    //         if (passage_c % 2 == 0)
-    //             passage_c++; // ??????
-    //         if (passage_c >= c + w)
-    //             passage_c -= 2;
-
-    //         // 3. ?????????
-    //         for (int i = c; i < c + w; ++i)
-    //         {
-    //             if (i != passage_c)
-    //             {
-    //                 maze[wall_r][i] = static_cast<int>(MAZE::WALL);
-    //             }
-    //         }
-
-    //         // 4. ???????????
-    //         divide(r, c, wall_r - r, w);
-    //         divide(wall_r + 1, c, r + h - (wall_r + 1), w);
-    //     }
-    //     else
-    //     {
-    //         // ????
-    //         // 1. ????????????
-    //         std::uniform_int_distribution<int> wall_dist(c + 1, c + w - 2);
-    //         int wall_c = wall_dist(rng);
-    //         if (wall_c % 2 != 0)
-    //             wall_c++;
-    //         if (wall_c >= c + w - 1)
-    //             wall_c -= 2;
-
-    //         // 2. ????????????
-    //         std::uniform_int_distribution<int> passage_dist(r, r + h - 1);
-    //         int passage_r = passage_dist(rng);
-    //         if (passage_r % 2 == 0)
-    //             passage_r++;
-    //         if (passage_r >= r + h)
-    //             passage_r -= 2;
-
-    //         // 3. ?????????
-    //         for (int i = r; i < r + h; ++i)
-    //         {
-    //             if (i != passage_r)
-    //             {
-    //                 maze[i][wall_c] = static_cast<int>(MAZE::WALL);
-    //             }
-    //         }
-    //         // 4. ???????????
-    //         divide(r, c, h, wall_c - c);
-    //         divide(r, wall_c + 1, h, c + w - (wall_c + 1));
-    //     }
-    // }
     void placeFeature(std::vector<std::pair<int, int>> &cells, MAZE feature)
     {
         if (cells.empty())
@@ -575,35 +495,6 @@ private:
     }
 };
 
-// int call_mapbuild_example() {
-// //int main() {
-//     int size;
-//     std::cout << "???????? (????, ???7): ";
-//     std::cin >> size;
 
-//     std::cout << "\n???? " << size << "x" << size << " (???????) ???...\n" << std::endl;
-
-//     // ???????
-//     MazeGenerator generator(size);
-
-//     // ??????
-//     generator.generate();
-
-//     // ????????
-//     generator.placeFeatures();
-
-//     //??????,??maze[0][0]
-//     std::cout<<generator.getmaze()[0][0];
-
-//     // ???????
-//     std::cout << "??????:" << std::endl;
-//     std::cout << "S: ??, E: ??, #: ??, G: ??, T: ??, L: ??, B: BOSS" << std::endl;
-//     std::cout << "-------------------------------------------------" << std::endl;
-//     generator.print();
-//     std::cout << "-------------------------------------------------" << std::endl;
-//     generator.print_num();
-
-//     return 0;
-// }
 
 #endif

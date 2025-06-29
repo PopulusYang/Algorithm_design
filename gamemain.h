@@ -102,10 +102,10 @@ public:
     {
         return x > 0 && y > 0 && x < mazesize && y < mazesize;
     }
-
+    int maze[MAXSIZE][MAXSIZE];
 protected:
     int dimension;
-    int maze[MAXSIZE][MAXSIZE];
+
 };
 
 #endif

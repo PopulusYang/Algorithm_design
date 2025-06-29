@@ -21,7 +21,7 @@ enum class Technique
     bigTech
 };
 
-class Player : public QObject
+class player : public QObject
 {
     Q_OBJECT
 public:
@@ -58,7 +58,7 @@ public:
             playersource = rhs.playersource;
             commtech = rhs.commtech;
             commhurt = rhs.commhurt;
-            bigtech = rhs.bigtech;
+       //     bigtech = rhs.bigtech;
             bighurt = rhs.bighurt;
         }
         return *this;
@@ -70,7 +70,8 @@ public:
           inertia(rhs.inertia), moveSpeed(rhs.moveSpeed),
           playerpoint(rhs.playerpoint), playerblood(rhs.playerblood),
           playersource(rhs.playersource), commtech(rhs.commtech),
-          commhurt(rhs.commhurt), bigtech(rhs.bigtech), bighurt(rhs.bighurt) {}
+        // commhurt(rhs.commhurt), bigtech(rhs.bigtech),
+        bighurt(rhs.bighurt) {}
 
 
     QPixmap playerSprite;

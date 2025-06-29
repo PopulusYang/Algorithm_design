@@ -10,8 +10,11 @@
 #include <QJsonObject>    // 用于处理JSON对象
 #include <QJsonArray>     // 用于处理JSON数组
 #include <QFile>          // 用于读取文件
+#include <QDir>        // 用于目录操作
+#include <QFileInfo>   // 用于获取文件信息
 #include<math.h>
 #include<QString>
+#include<qdebug.h>
 namespace Ui {
 class boss;
 }
@@ -30,7 +33,7 @@ struct Node
     vector<int>bosshp;
     int currbossindex;
     vector<int>skicolldown;
-    vector<pair<int,int>>path;
+    vector<int>path;
     int lowerbound;
     bool operator>(const Node&other)const
     {
@@ -47,9 +50,9 @@ public:
     ~boss();
     void findBestStrate();
     int callowerBound(vector<int>&bosshp,vector<Skill>skills);
-    void solveBossRush(vector<int>&bosshp,vector<Skill>&skills);
-    vector<int> readAndwrite(QString filename);
-    Player player;
+    vector<int> solveBossRush(vector<int>&bosshp,vector<Skill>&skills);
+    vector<int> readAndwrite();
+    player player;
 private:
     Ui::boss *ui;
 };

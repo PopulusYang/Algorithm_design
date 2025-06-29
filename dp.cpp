@@ -50,25 +50,25 @@ int dp::weight(point dest, point current) const
 
 void dp::isWorth(djstruct& input)
 {
-    if(*(input.path.end()-1) == end|| input.lenght==0)
+    if(*(input.path.end()-1) == end|| input.lenght==0)//如果路径终点是迷宫出口或者路径长度为0，跳过价值评估直接认可
         return;
     float cost = input.lenght;//路径代价
     float gain = sourse_value[*(input.path.end()-1)];//价值
     for(auto p: input.path)
     {
-        if(traps.count(p))
+        if(traps.count(p))//踩到陷阱
             cost += 20.0;
     }
     float worth = gain / cost;
     if(worth<=0.5)
-    
+
     {
         input.lenght = INF;
         std::cout << "该路径可收获" << gain << "，代价" << cost << ",worth:" << worth << std::endl;
     }
 }
 
-void dp::full_the_path(std::vector<point> &input)
+void dp::full_the_path(std::vector<point> &input)//将路连起来
 {
     std::pair<point, point> road;
     std::vector<point> output = input;
@@ -116,17 +116,7 @@ djstruct dp::Dijkstra(point S, point E)
             std::cerr << "路径太长，可能死循环，强制退出\n";
             return {};
         }
-        while(collecter.ifsourvaild(cur))
-        {
-            stack<point>backway;
-            point nextpoint=collecter.findway(cur);
-            if(nextpoint!=cur)
-            {
-                backway.push(nextpoint);
-                path.push_back(nextpoint);
-            }
-            
-        }
+
         for (auto [dx, dy] : dirs)//扫描上下左右各个点
         {
             //更新点坐标
@@ -224,7 +214,7 @@ std::vector<point> dp::findBestPath(point playerstart)
             bestEnd = i;
         }
     }
-    
+
     //回溯得到访问顺序
     std::vector<int> orderR;
     int curMask = ALL, cur = bestEnd;

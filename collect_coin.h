@@ -22,7 +22,7 @@ class coin_collecter:virtual public gamemain
 public:
     coin_collecter() : gamemain(){}
     coin_collecter(int **map, int size);
-    ~coin_collecter();
+    ~coin_collecter(){};
    bool ifsourvaild(point currentpoint);
     point findway(point currentpoint);
    void oneview(int index,point viewpoint);

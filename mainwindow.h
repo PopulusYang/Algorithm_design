@@ -14,6 +14,7 @@
 #include <QThread>
 #include <QImage>
 #include <QWaitCondition>
+#include<QDialogButtonBox>
 #include "player.h"
 #include "gamecontrol.h"
 #include "autocontrol.h"
