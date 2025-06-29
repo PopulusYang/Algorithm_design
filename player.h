@@ -33,15 +33,8 @@ public:
     QSet<int> pressedKeys; // 当前按下的键
     float inertia;         // 惯性系数
     float moveSpeed;       // 基础速度
-
     point playerpoint;//玩家位置
-    int playerblood;//血量
     int playersource = 0;//资源量
-    int commtech;//普通招式
-    int commhurt;//普通伤害
-    int bigsour;//大招消耗资源
-    int bighurt;//大招伤害
-
 
     player& operator=(const player &rhs)
     {
@@ -54,12 +47,7 @@ public:
             inertia = rhs.inertia;
             moveSpeed = rhs.moveSpeed;
             playerpoint = rhs.playerpoint;
-            playerblood = rhs.playerblood;
             playersource = rhs.playersource;
-            commtech = rhs.commtech;
-            commhurt = rhs.commhurt;
-       //     bigtech = rhs.bigtech;
-            bighurt = rhs.bighurt;
         }
         return *this;
     }
@@ -68,11 +56,8 @@ public:
         : playerPos(rhs.playerPos), playerVel(rhs.playerVel), playerAcc(rhs.playerAcc),
           playerTimer(rhs.playerTimer), pressedKeys(rhs.pressedKeys),
           inertia(rhs.inertia), moveSpeed(rhs.moveSpeed),
-          playerpoint(rhs.playerpoint), playerblood(rhs.playerblood),
-          playersource(rhs.playersource), commtech(rhs.commtech),
-        // commhurt(rhs.commhurt), bigtech(rhs.bigtech),
-        bighurt(rhs.bighurt) {}
-
+          playerpoint(rhs.playerpoint),
+          playersource(rhs.playersource){}
 
     QPixmap playerSprite;
     int playerDir = 2;            // 0:左 1:下 2:上 3:右
@@ -81,6 +66,7 @@ public:
 
     player(QObject *parent = nullptr) : QObject(parent) {}
     int animFrameCounter = 0;
+
 
 public slots:
     void onPlayerMove(GameController *gameController);

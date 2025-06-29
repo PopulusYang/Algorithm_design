@@ -20,7 +20,12 @@ enum class MAZE
     LOCKER,
     CLUE
 };
-
+struct Skill
+{
+    int id;
+    int damage;
+    int cooldown;
+};
 
 class point
 {
@@ -41,18 +46,7 @@ public:
 
 };
 
-//玩家信息
-// typedef struct player
-// {
-//     point playerpoint;//玩家位置
-//     int playerblood;//血量
-//     int playersource;//资源量
-//     int commtech;//普通招式
-//     int commhurt;//普通伤害
-//     int bigtech;//大招
-//     int bighurt;//大招伤害
-// }gameplayer;
-// 为 point 特化 std::hash
+
 namespace std
 {
     template <>
@@ -88,7 +82,8 @@ public:
     std::unordered_set<point> sourse;
     std::unordered_map<point, int> sourse_value; // 资源价值
     std::unordered_map<point, bool> traps;
-
+    std::vector<Skill>Skills;//玩家的招式伤害和对应的冷却回合
+    std::vector<int>bosshp;
     int getSize()
     {
         return mazesize;
@@ -105,7 +100,6 @@ public:
         return x > 0 && y > 0 && x < mazesize && y < mazesize;
     }
     int maze[MAXSIZE][MAXSIZE];
-protected:
     int dimension;
 
 };

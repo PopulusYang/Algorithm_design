@@ -3,8 +3,8 @@
 
 #include "mapbuild.h" // 包含地图生成器
 #include "dp.h"
-
-
+#include<QString>
+#include<QPointF>
 struct DamageIndicator
     {
         QString text;

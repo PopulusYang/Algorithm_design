@@ -13,7 +13,7 @@ boss::~boss()
     delete ui;
 }
 
-int boss::callowerBound(vector<int>&bosshp,vector<Skill>skills)//计算下界函数
+int boss::callowerBound(std::vector<int>&bosshp,std::vector<Skill>skills)//计算下界函数
 {
     int totalremainhp;
     for(int hp:bosshp)
@@ -26,13 +26,13 @@ int boss::callowerBound(vector<int>&bosshp,vector<Skill>skills)//计算下界函
     {
         avedamage+=static_cast<double>(skill.damage)/(skill.cooldown+1);
     }
-    if(avedamage==0)return numeric_limits<int>::max();
+    if(avedamage==0)return std::numeric_limits<int>::max();
     return static_cast<int>(ceil(totalremainhp/avedamage));
 }
 
-vector<int> boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
+std::vector<int> boss::solveBossRush(std::vector<int>&bosshp,std::vector<Skill>&skills)
 {
-    priority_queue<Node,vector<Node>,greater<Node>>pq;
+    std::priority_queue<Node,std::vector<Node>,std::greater<Node>>pq;
     Node startNode;
     startNode.currturn=1;
     startNode.bosshp=bosshp;
@@ -41,8 +41,8 @@ vector<int> boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
     startNode.lowerbound=callowerBound(startNode.bosshp,skills);
 
     pq.push(startNode);
-    int minturns=numeric_limits<int>::max();
-    vector<int>bestpath;
+    int minturns=std::numeric_limits<int>::max();
+    std::vector<int>bestpath;
     while(!pq.empty())
     {
         Node currentNode=pq.top();
@@ -102,7 +102,7 @@ vector<int> boss::solveBossRush(vector<int>&bosshp,vector<Skill>&skills)
 }
 
 
-vector<int> boss::readAndwrite()
+std::vector<int> boss::readAndwrite()
 {
     QString filename = "D:/codes/suanfa/Algorithm_design/data/boss_case_9.json";
 
@@ -124,7 +124,7 @@ vector<int> boss::readAndwrite()
 
     QByteArray jsonData = file.readAll();
     file.close();
-    vector<int>bossHP;
+    std::vector<int>bossHP;
     QJsonDocument doc = QJsonDocument::fromJson(jsonData);
     QJsonObject jsonObject = doc.object();
     if (jsonObject.contains("B") && jsonObject["B"].isArray())
@@ -135,7 +135,7 @@ vector<int> boss::readAndwrite()
             bossHP.push_back(value.toInt());
         }
     }
-    vector<Skill>skills;
+    std::vector<Skill>skills;
     if (jsonObject.contains("PlayerSkills") && jsonObject["PlayerSkills"].isArray())
     {
         QJsonArray skillsArray = jsonObject["PlayerSkills"].toArray();
@@ -157,7 +157,7 @@ vector<int> boss::readAndwrite()
         }
     }
 
-    vector<int>skillid=solveBossRush(bossHP,skills);
+    std::vector<int>skillid=solveBossRush(bossHP,skills);
 
     return skillid;
 }
