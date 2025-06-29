@@ -1,6 +1,6 @@
 #include "gamechoose.h"
 #include "ui_gamechoose.h"
-
+//extern struct Skill;
 gamechoose::gamechoose(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::gamechoose)
@@ -247,7 +247,7 @@ void gamechoose::onFileButtonClicked()
     // MainWindow*w=new MainWindow(this->mazesize,model, this);
     // w->show();
     // this->hide();
-    boss*mboss=new boss(Skills,bosshp);
+    boss*mboss=new boss(bosshp,Skills);
     mboss->show();
 }
 

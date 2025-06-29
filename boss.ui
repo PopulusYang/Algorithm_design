@@ -13,31 +13,56 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <widget class="QPushButton" name="nextTurnButton">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>450</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>下一回合</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="turnLabel">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>310</y>
+     <width>441</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>20</y>
-     <width>311</width>
-     <height>181</height>
+     <x>60</x>
+     <y>50</y>
+     <width>261</width>
+     <height>211</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="bossesLayout"/>
+   <layout class="QVBoxLayout" name="bossLayout"/>
   </widget>
   <widget class="QWidget" name="verticalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>170</x>
-     <y>260</y>
-     <width>331</width>
+     <x>380</x>
+     <y>60</y>
+     <width>221</width>
      <height>201</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
-     <layout class="QHBoxLayout" name="skillsLayout"/>
-    </item>
-   </layout>
+   <layout class="QVBoxLayout" name="skillsLayout"/>
   </widget>
  </widget>
  <resources/>
