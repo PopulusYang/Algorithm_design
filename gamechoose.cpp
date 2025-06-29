@@ -243,9 +243,12 @@ void gamechoose::onFileButtonClicked()
             }
         }
     }
-    MainWindow*w=new MainWindow(this->mazesize,model, this);
-    w->show();
-    this->hide();
+
+    // MainWindow*w=new MainWindow(this->mazesize,model, this);
+    // w->show();
+    // this->hide();
+    boss*mboss=new boss(Skills,bosshp);
+    mboss->show();
 }
 
 void gamechoose::onRandomButtonClicked()

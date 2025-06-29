@@ -17,6 +17,7 @@
 #include<QFileDialog>
 #include"gamemain.h"
 #include"mainwindow.h"
+#include"boss.h"//测试一下boss好不好使
 namespace Ui {
 class gamechoose;
 }

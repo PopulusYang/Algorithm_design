@@ -13,85 +13,31 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="gridLayoutWidget">
+  <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>390</y>
-     <width>661</width>
-     <height>131</height>
+     <x>180</x>
+     <y>20</y>
+     <width>311</width>
+     <height>181</height>
     </rect>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="2">
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="text">
-       <string>购买</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2">
-     <widget class="QWidget" name="widget_2" native="true">
-      <widget class="QLabel" name="label_2">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>40</y>
-         <width>181</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>血量资源信息</string>
-       </property>
-      </widget>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>信息在这里显示</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>攻击</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="text">
-       <string>大招</string>
-      </property>
-     </widget>
+   <layout class="QVBoxLayout" name="bossesLayout"/>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>260</y>
+     <width>331</width>
+     <height>201</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QHBoxLayout" name="skillsLayout"/>
     </item>
    </layout>
-  </widget>
-  <widget class="QWidget" name="widget" native="true">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>40</y>
-     <width>641</width>
-     <height>321</height>
-    </rect>
-   </property>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>20</y>
-      <width>221</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>人物在这里显示，很甜美的帅气</string>
-    </property>
-   </widget>
   </widget>
  </widget>
  <resources/>
