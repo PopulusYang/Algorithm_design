@@ -21,13 +21,16 @@ void MainWindow::ontimeout()
 }
 
 // MainWindow 构造函数中初始化
-MainWindow::MainWindow(int mazeSize, QWidget *parent)
+MainWindow::MainWindow(int mazeSize, int model,QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     // 初始化并生成迷宫
-    gameController = new GameController(mazeSize);
+    if(model==2)
+    {
+         gameController = new GameController(mazeSize);
+    }
     // gameController->generate(); // Replaced with animation
     // gameController->placeFeatures();
 

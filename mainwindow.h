@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    MainWindow(int mazeSize, QWidget *parent = nullptr);
+    MainWindow(int mazeSize,int model, QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:

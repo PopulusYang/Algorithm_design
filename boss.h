@@ -2,7 +2,7 @@
 #define BOSS_H
 
 #include <QWidget>
-#include"player.h"
+#include"gamemain.h"
 #include<vector>
 #include <limits>
 #include<queue>
@@ -19,21 +19,13 @@ namespace Ui {
 class boss;
 }
 
-
-struct Skill
-{
-    int id;
-    int damage;
-    int cooldown;
-};
-
 struct Node
 {
     int currturn;
-    vector<int>bosshp;
+    std::vector<int>bosshp;
     int currbossindex;
-    vector<int>skicolldown;
-    vector<int>path;
+    std::vector<int>skicolldown;
+    std::vector<int>path;
     int lowerbound;
     bool operator>(const Node&other)const
     {
@@ -49,10 +41,9 @@ public:
     explicit boss(QWidget *parent = nullptr);
     ~boss();
     void findBestStrate();
-    int callowerBound(vector<int>&bosshp,vector<Skill>skills);
-    vector<int> solveBossRush(vector<int>&bosshp,vector<Skill>&skills);
-    vector<int> readAndwrite();
-    player player;
+    int callowerBound(std::vector<int>&bosshp,std::vector<Skill>skills);
+    std::vector<int> solveBossRush(std::vector<int>&bosshp,std::vector<Skill>&skills);
+    std::vector<int> readAndwrite();
 private:
     Ui::boss *ui;
 };
