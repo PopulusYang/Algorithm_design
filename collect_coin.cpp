@@ -12,6 +12,10 @@ bool coin_collecter::ifsourvaild(point currentpoint) // 判断周围视野中是
     oneview(5, point(x + 1, y - 1));
     oneview(6, point(x + 1, y));
     oneview(7, point(x + 1, y + 1));
+    for(int i = 0; i <= 7; i++)
+    {
+        std::cout << view[i].coinpoint.x << "," << view[i].coinpoint.y << view[i].type << std::endl;
+    }
     for (int i = 0; i <= 7; i++)
     {
         if (view[i].type == MAZE::SOURCE)
@@ -19,6 +23,8 @@ bool coin_collecter::ifsourvaild(point currentpoint) // 判断周围视野中是
             return true;
         }
     }
+    std::cout << "周围信息" << std::endl;
+    
     return false;
 }
 point coin_collecter::findway(point currentpoint) // 在这个函数里找到下一步的位置

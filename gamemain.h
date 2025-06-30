@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 
 #define MAXSIZE 51 // 最大支持51x51的迷宫
 
@@ -20,6 +21,24 @@ enum class MAZE
     LOCKER,
     CLUE
 };
+
+inline std::ostream& operator<<(std::ostream& os, MAZE type)
+{
+    switch (type)
+    {
+    case MAZE::START:    return os << "START";
+    case MAZE::BOSS:     return os << "BOSS";
+    case MAZE::TRAP:     return os << "TRAP";
+    case MAZE::WALL:     return os << "WALL";
+    case MAZE::WAY:      return os << "WAY";
+    case MAZE::EXIT:     return os << "EXIT";
+    case MAZE::SOURCE:   return os << "SOURCE";
+    case MAZE::LOCKER:   return os << "LOCKER";
+    case MAZE::CLUE:    return os << "CLUE";
+    default:             return os << "UNKNOWN";
+    }
+}
+
 struct Skill
 {
     int id;
