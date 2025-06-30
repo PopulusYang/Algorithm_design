@@ -298,37 +298,83 @@ std::vector<point> dp::simulate(point playerstart)
     std::vector<point> path;
     std::vector<point> finalpath;
     point current = playerstart;
+    path = findBestPath(current, collecter.tempset);
     while (current != end)
     {
-        path = findBestPath(current, collecter.tempset);
+        
         point startp = current;
         point endp = path[0];
+
+        path.erase(path.begin()); // 移除第一个点
         auto [length, p] = Dijkstra(startp, endp); // 获取路径
-        finalpath.insert(finalpath.end(), p.begin(), p.end());
+        
         // 用贪心算法收集金币
         std::cout << "开始贪婪" << std::endl;
         current = endp;
-        if (collecter.tempset.count(current))
-            collecter.tempset.erase(current); // 记录已收集资源
+        
+        std::vector<point> has_collected; // 记录已收集的资源点
+
+        
+
+        for (int i = 0; i < p.size(); i++)
+        {
+            if (collecter.tempset.count(p[i]))
+            {
+                collecter.tempset.erase(p[i]); // 记录已收集资源
+                has_collected.push_back(p[i]);
+            }
+        }
+        std::cout << "该路径经过的资源点" << std::endl;
+        for (auto p : has_collected)
+        {
+            std::cout << p.x << "," << p.y << std::endl;
+        }
+
+        std::vector<point> temp = path;
+        for (auto it : has_collected) // 遍历已收集的资源点
+        {
+            int index = 0;
+            for(auto po : temp)
+            {
+                if (it == po)
+                {
+                    path.erase(path.begin() + index); // 移除已收集的资源点
+                    index--;
+                }
+                index++;
+            }
+        }
+
+        std::cout << "当前计算路径" << std::endl;
+        for (auto p : p)
+        {
+            std::cout << p.x << "," << p.y << std::endl;
+        }
+
+        finalpath.insert(finalpath.end(), p.begin() + 1, p.end());
+
+
         if (current == end)
             break;
         int source_count = 0;
         int loop_count = 0;
+        
         while (collecter.ifsourvaild(current)) // 如果当前点周围存在资源
         {
             current = collecter.findway(current); // 找到下一个资源点
-            if (loop_count>14)
-            { // 如果位置没有变化，说明卡住了，退出贪心
-                std::cout << "贪婪算法卡住，退出循环" << std::endl;
-                break;
-            }
+            point next = collecter.findway(current); // 找到下一个资源点
+            
             if (collecter.tempset.count(current))
             {
                 collecter.tempset.erase(current); // 记录已收集资源
                 std::cout << "贪婪收集到资源点" << current.x << "," << current.y << std::endl;
                 source_count++;
             }
-
+            if (loop_count>14||next == current)
+            { // 如果位置没有变化，说明卡住了，退出贪心
+                std::cout << "贪婪算法卡住，退出循环" << std::endl;
+                break;
+            }
             finalpath.push_back(current); // 将资源点加入路径
             loop_count++;
         }
