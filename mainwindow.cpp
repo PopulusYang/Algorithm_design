@@ -25,7 +25,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    m_model=model;
     // 初始化并生成迷宫
     if(model==2)
     {
@@ -589,7 +589,7 @@ void MainWindow::onGenerationStep()
 
         if (gameController)
         {
-            if(model==2)
+            if(m_model==2)
             {
                 gameController->placeFeatures(); // Place features after generation is complete
             }
