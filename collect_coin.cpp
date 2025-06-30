@@ -2,6 +2,7 @@
 
 bool coin_collecter::ifsourvaild(point currentpoint) // 判断周围视野中是否有资源
 {
+    // 0是左上角，1是正上方，2是右上角，3是正左方，4是正右方，5是左下角，6是正下方，7是右下角
     int x = currentpoint.x;
     int y = currentpoint.y;
     oneview(0, point(x - 1, y - 1));
@@ -12,10 +13,10 @@ bool coin_collecter::ifsourvaild(point currentpoint) // 判断周围视野中是
     oneview(5, point(x + 1, y - 1));
     oneview(6, point(x + 1, y));
     oneview(7, point(x + 1, y + 1));
-    for(int i = 0; i <= 7; i++)
-    {
-        std::cout << view[i].coinpoint.x << "," << view[i].coinpoint.y << view[i].type << std::endl;
-    }
+    // for (int i = 0; i <= 7; i++)
+    // {
+    //     std::cout << view[i].coinpoint.x << "," << view[i].coinpoint.y << view[i].type << std::endl;
+    // }
     for (int i = 0; i <= 7; i++)
     {
         if (view[i].type == MAZE::SOURCE)
@@ -24,7 +25,7 @@ bool coin_collecter::ifsourvaild(point currentpoint) // 判断周围视野中是
         }
     }
     std::cout << "周围信息" << std::endl;
-    
+
     return false;
 }
 point coin_collecter::findway(point currentpoint) // 在这个函数里找到下一步的位置
@@ -134,7 +135,7 @@ void coin_collecter::oneview(int index, point viewpoint)
         }
         else if (informations->maze[x][y] == static_cast<int>(MAZE::WALL))
         {
-            view[index].accessible = false;//true和false的问题
+            view[index].accessible = false; // true和false的问题
             view[index].type = MAZE::WALL;
             view[index].value = -3;
         }
