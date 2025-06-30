@@ -265,4 +265,3 @@ void gamechoose::onRandomButtonClicked()
         this->hide();
     }
 }
-
