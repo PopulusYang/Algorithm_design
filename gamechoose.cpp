@@ -124,7 +124,7 @@ void gamechoose::onFileButtonClicked()
     QString filePath = QFileDialog::getOpenFileName(
         this,
         "选择迷宫JSON文件",       // 对话框标题
-        "",                       // 默认打开的目录（空表示上次的目录或默认目录）
+        "D:/Downloads/验收及测试文件 (2)/验收及测试文件",                       // 默认打开的目录（空表示上次的目录或默认目录）
         "JSON 文件 (*.json)"      // 文件过滤器
         );
 
@@ -181,7 +181,7 @@ void gamechoose::onFileButtonClicked()
         for (int i = 0; i < height; ++i) {
             QJsonArray rowArray = mazeArray[i].toArray();
             for (int j = 0; j < width; ++j) {
-                point current_pos = {i, j};
+                point current_pos = {j,i};
                 QString cell = rowArray[j].toString();
                 // 根据字符映射为整数
                 if (cell == "#") this->maze[i][j] = static_cast<int>(MAZE::WALL);      // 墙

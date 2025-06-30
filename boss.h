@@ -41,6 +41,8 @@ public:
 private slots:
     void onNextTurnClicked();
 
+    void on_returnbotton_clicked();
+
 private:
     void setupUiElements();
     void updateUI();

@@ -19,6 +19,7 @@
 #include "gamecontrol.h"
 #include "autocontrol.h"
 #include "renderthread.h"
+#include"boss.h"
 #include <thread>
 #include <list>
 
@@ -58,6 +59,7 @@ private slots:
     void onFrameReady(const QPixmap &frame);
     void onRenderTick();
     void onTrapTriggered(const QPointF &playerPos);
+    void onExitReached();
 
 private:
     Ui::MainWindow *ui;

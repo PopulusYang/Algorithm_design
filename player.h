@@ -74,6 +74,7 @@ public slots:
 signals:
     void needUpdate();
     void trapTriggered(const QPointF &pos);
+    void exitReached();
 };
 
 

@@ -112,6 +112,9 @@ void player::onPlayerMove(GameController *gameController)
 
     int cur_x = qRound(playerPos.y() + 0.15);
     int cur_y = qRound(playerPos.x() + 0.1);
+
+
+
     if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::CLUE)
     {
         // std::cout<<"find a clue in :("<<cur_x<<","<<cur_y<<")"<<std::endl;
@@ -165,9 +168,15 @@ void player::onPlayerMove(GameController *gameController)
 
     if (gameController && gameController->inBounds(nx, ny))
     {
+
         MAZE cell = static_cast<MAZE>(gameController->maze[nx][ny]);
         // 检查当前位置是否为线索点
-
+        if (cell == MAZE::EXIT)
+        {
+            playerPos = nextPos; // 将玩家移动到出口位置
+            emit exitReached();  // 发射信号
+            return;              // 在此停止本次移动的后续处理
+        }
         if (cell != MAZE::WALL)
         {
             playerPos = nextPos;

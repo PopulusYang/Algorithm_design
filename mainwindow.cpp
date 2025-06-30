@@ -29,7 +29,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     // 初始化并生成迷宫
     if(model==2)
     {
-         gameController = new GameController(mazeSize);
+        gameController = new GameController(mazeSize);
     }
     else
     {
@@ -66,6 +66,11 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::onSolveMazeClicked);
     connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
     connect(&Player, &player::trapTriggered, this, &MainWindow::onTrapTriggered);
+
+    connect(&Player, &player::exitReached, this, &MainWindow::onExitReached);
+
+
+
     // 玩家初始位置在起点
     //Player.playerPos = QPointF(gameController->start.y, gameController->start.x); // This is now set in onGenerationStep
     Player.playerVel = QPointF(0, 0);
@@ -115,6 +120,36 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
 
     autoThread = new std::thread([this]()
                                  { autoCtrl.thread_auto_run(); });
+
+
+}
+
+void MainWindow::onExitReached()
+{
+    // 停止当前窗口的所有计时器，以防止后台继续处理
+    Player.playerTimer->stop();
+    if (generationTimer) {
+        generationTimer->stop();
+    }
+    if (m_renderTimer) {
+        m_renderTimer->stop();
+    }
+
+    // 停止线程
+    autoCtrl.stopautocontrol();
+    if (autoThread && autoThread->joinable()) {
+        autoThread->join();
+    }
+    if (runalongThread && runalongThread->joinable()) {
+        if(autoCtrl.rundone) runalongThread->join();
+    }
+
+    // 创建并显示新的boss窗口
+    boss *bossWindow = new boss(gameController->bosshp,gameController->Skills); // 创建 boss 窗口的实例
+    bossWindow->show();             // 显示它
+
+    // 关闭当前的迷宫窗口
+    this->close();
 }
 
 MainWindow::~MainWindow()
@@ -149,6 +184,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     Player.pressedKeys.insert(event->key());
     event->accept();
 }
+
+
+
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
