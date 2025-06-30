@@ -103,8 +103,6 @@ public:
     std::unordered_map<point, bool> traps;
     std::vector<Skill>Skills;//玩家的招式伤害和对应的冷却回合
     std::vector<int>bosshp;
-
-
     int getSize()
     {
         return mazesize;
