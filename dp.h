@@ -42,7 +42,7 @@ public:
     {}
     coin_collecter collecter;
     djstruct Dijkstra(point S, point E);
-    std::vector<point> findBestPath(point playerstart, std::unordered_set<point> tempsource);
+    std::vector<point> findBestPath(point playerstart);
     std::vector<point> simulate(point playerstart);
 };
 

@@ -270,7 +270,7 @@ void MainWindow::onSolveMazeClicked()
         return;
     if (gameController)
     {
-        solvedPath = gameController->simulate({static_cast<int>(std::round(Player.playerPos.y())), static_cast<int>(std::round(Player.playerPos.x()))});
+        solvedPath = gameController->findBestPath({static_cast<int>(std::round(Player.playerPos.y())), static_cast<int>(std::round(Player.playerPos.x()))});
         update(); // 触发重绘以显示路径
     }
     // 开始自动走

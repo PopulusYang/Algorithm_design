@@ -191,10 +191,10 @@ djstruct dp::Dijkstra(point S, point E) // 迪杰斯特拉算法求两点路径
 
 //这个狗算法的时间复杂度竟然可以来到O( (k+2)^2 * BFS + 2^k * k^2 )，\
 其中n和m分别是地图的行数和列数，完美解决动态规划算法优化的太好的问题
-std::vector<point> dp::findBestPath(point playerstart, std::unordered_set<point> tempsource)
+std::vector<point> dp::findBestPath(point playerstart)
 {
-    int k = tempsource.size();
-    std::vector<point> R(tempsource.begin(), tempsource.end()); // 拍平成vector
+    int k = sourse.size();
+    std::vector<point> R(sourse.begin(), sourse.end()); // 拍平成vector
     int V = k + 2;
     // 预处理dist
     std::vector<std::vector<int>> dist(V, std::vector<int>(V, INF));
@@ -282,92 +282,92 @@ std::vector<point> dp::findBestPath(point playerstart, std::unordered_set<point>
         std::cout << p.x << "," << p.y << std::endl;
     }
 
-    // full_the_path(fullPath);
+    full_the_path(fullPath);
 
-    // std::cout << "补满后" << std::endl;
-    // for (auto p : fullPath)
-    // {
-    //     std::cout << p.x << "," << p.y << std::endl;
-    // }
+    std::cout << "补满后" << std::endl;
+    for (auto p : fullPath)
+    {
+        std::cout << p.x << "," << p.y << std::endl;
+    }
     return fullPath;
 }
 
-std::vector<point> dp::simulate(point playerstart)
-{
-    collecter.tempset = this->sourse;
-    std::vector<point> path;
-    std::vector<point> finalpath;
-    point current = playerstart;
-    path = findBestPath(current, collecter.tempset);
-    while (current != end)
-    {
+// std::vector<point> dp::simulate(point playerstart)
+// {
+//     collecter.tempset = this->sourse;
+//     std::vector<point> path;
+//     std::vector<point> finalpath;
+//     point current = playerstart;
+//     path = findBestPath(current, collecter.tempset);
+//     while (current != end)
+//     {
 
-        point startp = current;
-        point endp = path[0];
+//         point startp = current;
+//         point endp = path[0];
 
-        path.erase(path.begin());                  // 移除第一个点
-        auto [length, p] = Dijkstra(startp, endp); // 获取路径
+//         path.erase(path.begin());                  // 移除第一个点
+//         auto [length, p] = Dijkstra(startp, endp); // 获取路径
 
-        // 用贪心算法收集金币
-        std::cout << "开始贪婪" << std::endl;
-        current = endp;
+//         // 用贪心算法收集金币
+//         std::cout << "开始贪婪" << std::endl;
+//         current = endp;
 
-        std::vector<point> has_collected; // 记录已收集的资源点
+//         std::vector<point> has_collected; // 记录已收集的资源点
 
-        for (int i = 0; i < p.size(); i++)
-        {
-            if (collecter.tempset.count(p[i]))
-            {
-                collecter.tempset.erase(p[i]); // 记录已收集资源
-                has_collected.push_back(p[i]);
-            }
-        }
+//         for (int i = 0; i < p.size(); i++)
+//         {
+//             if (collecter.tempset.count(p[i]))
+//             {
+//                 collecter.tempset.erase(p[i]); // 记录已收集资源
+//                 has_collected.push_back(p[i]);
+//             }
+//         }
 
-        // std::cout << "当前计算路径" << std::endl;
-        // for (auto p : p)
-        // {
-        //     std::cout << p.x << "," << p.y << std::endl;
-        // }
+//         // std::cout << "当前计算路径" << std::endl;
+//         // for (auto p : p)
+//         // {
+//         //     std::cout << p.x << "," << p.y << std::endl;
+//         // }
 
-        finalpath.insert(finalpath.end(), p.begin() + 1, p.end());
+//         finalpath.insert(finalpath.end(), p.begin() + 1, p.end());
 
-        if (current == end)
-            break;
-        int source_count = 0;
-        int loop_count = 0;
+//         if (current == end)
+//             break;
+//         int source_count = 0;
+//         int loop_count = 0;
 
-        while (collecter.ifsourvaild(current)) // 如果当前点周围存在资源
-        {
-            point next = collecter.findway(current); // 找到下一个资源点
-            if (loop_count > 14 || next == current)
-            { // 如果位置没有变化，说明卡住了，退出贪心
-                std::cout << "贪婪算法卡住，退出循环" << std::endl;
-                break;
-            }
-            current = next; // 更新当前位置
-            if (collecter.tempset.count(current))
-            {
-                collecter.tempset.erase(current); // 记录已收集资源
-                has_collected.push_back(current);
-                std::cout << "贪婪收集到资源点" << current.x << "," << current.y << std::endl;
-                source_count++;
-            }
+//         while (collecter.ifsourvaild(current)) // 如果当前点周围存在资源
+//         {
+//             point next = collecter.findway(current); // 找到下一个资源点
+//             if (loop_count > 14 || next == current)
+//             { // 如果位置没有变化，说明卡住了，退出贪心
+//                 std::cout << "贪婪算法卡住，退出循环" << std::endl;
+//                 break;
+//             }
+//             current = next; // 更新当前位置
+//             if (collecter.tempset.count(current))
+//             {
+//                 collecter.tempset.erase(current); // 记录已收集资源
+//                 has_collected.push_back(current);
+//                 std::cout << "贪婪收集到资源点" << current.x << "," << current.y << std::endl;
+//                 source_count++;
+//             }
 
-            finalpath.push_back(current); // 将资源点加入路径
-            std::cout << "插入了坐标" << current.x << "," << current.y << std::endl;
-            loop_count++;
-        }
-        // std::cout << "结束贪婪，通过贪心算法收集到金币：" << source_count << std::endl;
+//             finalpath.push_back(current); // 将资源点加入路径
+//             std::cout << "插入了坐标" << current.x << "," << current.y << std::endl;
+//             loop_count++;
+//         }
+//         // std::cout << "结束贪婪，通过贪心算法收集到金币：" << source_count << std::endl;
 
-        // -- 开始修改 --
-        // 使用 erase-remove idiom 来正确地从 path 中移除已收集的资源点
-        path.erase(
-            std::remove_if(path.begin(), path.end(), [&](const point &p)
-                           {
-                // 检查点 p 是否在 has_collected 列表中
-                return std::find(has_collected.begin(), has_collected.end(), p) != has_collected.end(); }),
-            path.end());
-        // -- 结束修改 --
-    }
-    return finalpath;
-}
+//         // -- 开始修改 --
+//         // 使用 erase-remove idiom 来正确地从 path 中移除已收集的资源点
+//         path.erase(
+//             std::remove_if(path.begin(), path.end(), [&](const point &p)
+//                            {
+//                 // 检查点 p 是否在 has_collected 列表中
+//                 return std::find(has_collected.begin(), has_collected.end(), p) != has_collected.end(); }),
+//             path.end());
+//         // -- 结束修改 --
+//     }
+//     return finalpath;
+// }
