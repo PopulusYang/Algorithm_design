@@ -116,7 +116,7 @@ public:
 
     bool inBounds(int x, int y)//判断是否越界
     {
-        return x > 0 && y > 0 && x < mazesize && y < mazesize;
+        return x >= 0 && y >= 0 && x <= mazesize && y <= mazesize;
     }
     int maze[MAXSIZE][MAXSIZE];
     int dimension;
