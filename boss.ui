@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>683</width>
-    <height>541</height>
+    <width>697</width>
+    <height>515</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="nextTurnButton">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>450</y>
+     <x>290</x>
+     <y>480</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -29,10 +29,10 @@
   <widget class="QLabel" name="turnLabel">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>310</y>
-     <width>441</width>
-     <height>81</height>
+     <x>70</x>
+     <y>400</y>
+     <width>561</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
@@ -45,21 +45,39 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>50</y>
-     <width>261</width>
-     <height>211</height>
+     <x>20</x>
+     <y>30</y>
+     <width>321</width>
+     <height>351</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="bossLayout"/>
+   <layout class="QVBoxLayout" name="bossLayout">
+    <item>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>317</width>
+         <height>347</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QWidget" name="verticalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>60</y>
-     <width>221</width>
-     <height>201</height>
+     <x>360</x>
+     <y>30</y>
+     <width>311</width>
+     <height>351</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="skillsLayout"/>

@@ -7,14 +7,14 @@
 #include"gamemain.h"
 
 using namespace std;
-typedef struct goldcoin
+struct goldcoin
 {
     point coinpoint;
     bool accessible;//某个位置是否是可以去的
     int value;
     MAZE type;
     double valueff;//性价比
-}goldcoin;
+};
 
 
 class coin_collecter

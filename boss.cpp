@@ -192,13 +192,23 @@ void boss::setupUiElements()
     for (size_t i = 0; i < this->bosshp.size(); ++i) {
         QLabel* label = new QLabel(QString("Boss %1 (HP: %2)").arg(i + 1).arg(this->bosshp[i]), this);
         QProgressBar* bar = new QProgressBar(this);
+        bar->setMinimumHeight(28);
         bar->setRange(0, this->bosshp[i]);
         bar->setValue(this->bosshp[i]);
         bar->setTextVisible(true);
         bar->setFormat(QString("%v / %m"));
         bar->setStyleSheet(
-            "QProgressBar { border: 2px solid grey; border-radius: 5px; background-color: #E0E0E0; text-align: center; }"
-            "QProgressBar::chunk { background-color: #CD2626; width: 1px; }"
+            "QProgressBar {"
+            "    border: 1px solid grey;"
+            "    border-radius: 5px;"
+            "    background-color: #EFEFEF;"      // 已损失血量的颜色 (浅灰色背景)
+            "    text-align: center;"
+            "    color: black;"                  // 进度条上的文字颜色
+            "}"
+            "QProgressBar::chunk {"
+            "    background-color: #E53935;"      // 剩余血量的颜色 (鲜艳的红色)
+            "    border-radius: 4px;"
+            "}"
             );
         ui->bossLayout->addWidget(label);
         ui->bossLayout->addWidget(bar);
@@ -209,13 +219,23 @@ void boss::setupUiElements()
     for (const auto& skill : this->Skills) {
         QLabel* label = new QLabel(QString("技能 %1 (伤害: %2, 冷却: %3)").arg(skill.id).arg(skill.damage).arg(skill.cooldown), this);
         QProgressBar* bar = new QProgressBar(this);
+        bar->setMinimumHeight(28);
         bar->setRange(0, std::max(1, skill.cooldown));
         bar->setValue(0);
         bar->setTextVisible(true);
         bar->setFormat("冷却中: %v回合");
         bar->setStyleSheet(
-            "QProgressBar { border: 2px solid grey; border-radius: 5px; background-color: #6E8B3D; text-align: center; }"
-            "QProgressBar::chunk { background-color: #4A708B; }"
+            "QProgressBar {"
+            "    border: 1px solid grey;"
+            "    border-radius: 5px;"
+            "    background-color: #D3D3D3;"      // 已冷却回合: 灰色
+            "    text-align: center;"
+            "    color: black;"
+            "}"
+            "QProgressBar::chunk {"
+            "    background-color: #87CEEB;"      // 待冷却回合: 浅蓝色 (SkyBlue)
+            "    border-radius: 4px;"
+            "}"
             );
         ui->skillsLayout->addWidget(label);
         ui->skillsLayout->addWidget(bar);

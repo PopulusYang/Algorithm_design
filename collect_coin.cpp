@@ -128,7 +128,7 @@ void coin_collecter::oneview(int index, point viewpoint)
         }
         else if (informations->maze[x][y] == static_cast<int>(MAZE::WALL))
         {
-            view[index].accessible = false;
+            view[index].accessible = false;//true和false的问题
             view[index].type = MAZE::WALL;
             view[index].value = -3;
         }
