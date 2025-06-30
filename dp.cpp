@@ -27,7 +27,7 @@ int dp::weight(point dest, point current) const
     int distance_weight = 1000 - (int)(sqrt(dx * dx + dy * dy) * 10);
 
     // 格子类型权值
-    MAZE cellType = static_cast<MAZE>(getMaze()[current.x][current.y]);
+    MAZE cellType = static_cast<MAZE>(maze[current.x][current.y]);
     int cell_weight = getCellWeight(cellType);
 
     // 附加资源点权值
@@ -119,7 +119,7 @@ djstruct dp::Dijkstra(point S, point E) // 迪杰斯特拉算法求两点路径
                 continue;
 
             point next{nx, ny}; // 创建下一个点对象
-            if (getCellWeight(static_cast<MAZE>(getMaze()[nx][ny])) <= -1000)
+            if (getCellWeight(static_cast<MAZE>(maze[nx][ny])) <= -1000)
                 continue; // 禁止通行
 
             int w = weight(end, next);  // 计算新的权值

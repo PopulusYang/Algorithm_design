@@ -181,7 +181,7 @@ void gamechoose::onFileButtonClicked()
         for (int i = 0; i < height; ++i) {
             QJsonArray rowArray = mazeArray[i].toArray();
             for (int j = 0; j < width; ++j) {
-                point current_pos = {j, i};
+                point current_pos = {i, j};
                 QString cell = rowArray[j].toString();
                 // 根据字符映射为整数
                 if (cell == "#") this->maze[i][j] = static_cast<int>(MAZE::WALL);      // 墙
