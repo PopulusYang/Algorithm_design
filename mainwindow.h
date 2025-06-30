@@ -89,7 +89,7 @@ private:
     QTimer *m_renderTimer = nullptr; // 用于驱动渲染的计时器
 
     int m_screenShakeFrames = 0;
-
+    int model=-1;
     std::list<DamageIndicator> m_damageIndicators;
 
     autocontroller autoCtrl = autocontroller(&Player);

@@ -55,7 +55,10 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     // Animate maze generation
     generationTimer = new QTimer(this);
     connect(generationTimer, &QTimer::timeout, this, &MainWindow::onGenerationStep);
-    gameController->generate_init();
+    if(model==2)
+    {
+        gameController->generate_init();
+    }
     generationTimer->start(5); // 5ms per step, adjust for speed
 
     solveButton = new QPushButton("一键开挂", this);
@@ -64,7 +67,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
     connect(&Player, &player::trapTriggered, this, &MainWindow::onTrapTriggered);
     // 玩家初始位置在起点
-    // Player.playerPos = QPointF(gameController->start.y, gameController->start.x); // This is now set in onGenerationStep
+    //Player.playerPos = QPointF(gameController->start.y, gameController->start.x); // This is now set in onGenerationStep
     Player.playerVel = QPointF(0, 0);
     Player.playerAcc = QPointF(0, 0);
     Player.inertia = 0.85f;
@@ -586,7 +589,10 @@ void MainWindow::onGenerationStep()
 
         if (gameController)
         {
-            gameController->placeFeatures(); // Place features after generation is complete
+            if(model==2)
+            {
+                gameController->placeFeatures(); // Place features after generation is complete
+            }
             gameController->print();         // 在此处调用 print
             // 在确定起点后设置玩家位置
             Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
