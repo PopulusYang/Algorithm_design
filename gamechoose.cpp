@@ -186,8 +186,16 @@ void gamechoose::onFileButtonClicked()
                 // 根据字符映射为整数
                 if (cell == "#") this->maze[i][j] = static_cast<int>(MAZE::WALL);      // 墙
                 else if(cell==" ")this->maze[i][j]=static_cast<int>(MAZE::WAY);
-                else if (cell == "S") this->maze[i][j] = static_cast<int>(MAZE::START); // 起点
-                else if (cell == "E") this->maze[i][j] = static_cast<int>(MAZE::EXIT); // 终点
+                else if (cell == "S")
+                {
+                    this->maze[i][j] = static_cast<int>(MAZE::START); // 起点
+                    this->start=point(i,j);
+                }
+                else if (cell == "E")
+                {
+                    this->maze[i][j] = static_cast<int>(MAZE::EXIT); // 终点
+                    this->end=point(i,j);
+                }
                 else if (cell == "G")
                 {
                     this->maze[i][j] = static_cast<int>(MAZE::SOURCE); // 金币
