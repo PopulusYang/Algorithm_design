@@ -124,7 +124,7 @@ void gamechoose::onFileButtonClicked()
     QString filePath = QFileDialog::getOpenFileName(
         this,
         "选择迷宫JSON文件",       // 对话框标题
-        "",                       // 默认打开的目录（空表示上次的目录或默认目录）
+        "D:/Downloads/验收及测试文件 (2)/验收及测试文件",                       // 默认打开的目录（空表示上次的目录或默认目录）
         "JSON 文件 (*.json)"      // 文件过滤器
         );
 

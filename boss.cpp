@@ -5,8 +5,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <algorithm>
-
-
+#include"gamechoose.h"
 // 构造函数实现
 boss::boss(std::vector<int>initialBosshp, std::vector<Skill> initialSkills, QWidget *parent) :
     QWidget(parent),
@@ -312,3 +311,11 @@ void boss::cleanupUiElements()
     m_skillLabels.clear();
     m_skillCooldownBars.clear();
 }
+
+void boss::on_returnbotton_clicked()
+{
+    gamechoose*newgame=new gamechoose();
+    newgame->show();
+    this->hide();
+}
+
