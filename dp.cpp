@@ -83,47 +83,7 @@ void dp::full_the_path(std::vector<point> &input) // 将路连起来
     input = output;
 }
 
-// 为findBestPath新增一个只计算路径长度的Dijkstra版本
-int dp::get_path_length(point S, point E)
-{
-    if (S == E)
-        return 0;
-    int n = mazesize, m = mazesize;
-    std::queue<std::pair<point, int>> q;
-    std::vector<std::vector<bool>> visited(n, std::vector<bool>(m, false));
 
-    q.push({S, 1}); // 路径长度从1开始
-    visited[S.x][S.y] = true;
-
-    const std::vector<std::pair<int, int>> dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-    while (!q.empty())
-    {
-        auto [cur, len] = q.front();
-        q.pop();
-
-        for (auto [dx, dy] : dirs)
-        {
-            int nx = cur.x + dx;
-            int ny = cur.y + dy;
-
-            if (!inBounds(nx, ny) || visited[nx][ny] || getCellWeight(static_cast<MAZE>(getMaze()[nx][ny])) <= -1000)
-            {
-                continue;
-            }
-
-            point next{nx, ny};
-            if (next == E)
-            {
-                return len + 1;
-            }
-
-            visited[nx][ny] = true;
-            q.push({next, len + 1});
-        }
-    }
-    return INF; // 找不到路径
-}
 
 djstruct dp::Dijkstra(point S, point E) // 迪杰斯特拉算法求两点路径
 {
@@ -213,7 +173,7 @@ std::vector<point> dp::findBestPath(point playerstart)
         for (int j = i + 1; j < V; ++j)
         {
             // 使用新的BFS函数计算纯粹的路径长度
-            int d = get_path_length(node(i), node(j));
+            int d = Dijkstra(node(i), node(j)).lenght;
             dist[i][j] = dist[j][i] = d;
         }
 
@@ -272,7 +232,7 @@ std::vector<point> dp::findBestPath(point playerstart)
     }
     std::reverse(orderR.begin(), orderR.end());
 
-    std::vector<point> fullPath = {};
+    std::vector<point> fullPath = {playerstart};
     for (int idx : orderR)
         fullPath.push_back(R[idx]);
     fullPath.push_back(end);
