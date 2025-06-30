@@ -55,7 +55,10 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     // Animate maze generation
     generationTimer = new QTimer(this);
     connect(generationTimer, &QTimer::timeout, this, &MainWindow::onGenerationStep);
-    gameController->generate_init();
+    if(model==2)
+    {
+        gameController->generate_init();
+    }
     generationTimer->start(5); // 5ms per step, adjust for speed
 
     solveButton = new QPushButton("一键开挂", this);
