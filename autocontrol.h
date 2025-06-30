@@ -145,9 +145,7 @@ inline void autocontroller::control(autocontroller::state newstate)
     default:
         return;
     }
-    if (!mazeinformation->inBounds(destpos_y, destpos_x))
-        return;
-    if (mazeinformation->getMaze()[destpos_y][destpos_x] == static_cast<int>(MAZE::WALL)) // 不撞墙
+    if (mazeinformation->maze[destpos_y][destpos_x] == static_cast<int>(MAZE::WALL)) // 不撞墙
         return;
     if (auto_call_stop != nullptr)
     {

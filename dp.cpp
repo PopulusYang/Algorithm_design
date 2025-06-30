@@ -27,25 +27,16 @@ int dp::weight(point dest, point current) const
     int distance_weight = 1000 - (int)(sqrt(dx * dx + dy * dy) * 10);
 
     // 格子类型权值
-    MAZE cellType = static_cast<MAZE>(getMaze()[current.x][current.y]);
+    MAZE cellType = static_cast<MAZE>(maze[current.x][current.y]);
     int cell_weight = getCellWeight(cellType);
 
     // 附加资源点权值
-    double resource_weight = 0.0;
     const double RESOURCE_BASE = 300.0; // 每个资源点的基础影响力
     const double DECAY_RATE = 20.0;     // 衰减因子，越大衰减越快
     const double EPSILON = 1e-6;        // 防止除零
 
-    for (const point &src : sourse) // source 为资源点集合
-    {
-        double ddx = current.x - src.x;
-        double ddy = current.y - src.y;
-        double dist = sqrt(ddx * ddx + ddy * ddy);
 
-        resource_weight += RESOURCE_BASE / (dist + EPSILON); // 可根据需要换成其他形式
-    }
-
-    return distance_weight + cell_weight + (int)resource_weight;
+    return distance_weight + cell_weight;
 }
 
 void dp::isWorth(djstruct &input)
@@ -90,9 +81,9 @@ djstruct dp::Dijkstra(point S, point E) // 迪杰斯特拉算法求两点路径
     djstruct res;
     int n = mazesize, m = mazesize;
     std::priority_queue<State> pq;
-    std::vector<std::vector<int>> maxWeight(n, std::vector<int>(m, INT_MIN));
+    std::vector<std::vector<int>> maxWeight(n+1, std::vector<int>(m+1, INT_MIN));
 
-    std::vector<std::vector<bool>> visited(n, std::vector<bool>(m, false)); // 已访问的点
+    std::vector<std::vector<bool>> visited(n+1, std::vector<bool>(m+1, false)); // 已访问的点
 
     pq.push({S, weight(E, S), {S}});    // 将起点/初始状态放入队列
     maxWeight[S.x][S.y] = weight(E, S); // 初始化dp表
@@ -128,7 +119,7 @@ djstruct dp::Dijkstra(point S, point E) // 迪杰斯特拉算法求两点路径
                 continue;
 
             point next{nx, ny}; // 创建下一个点对象
-            if (getCellWeight(static_cast<MAZE>(getMaze()[nx][ny])) <= -1000)
+            if (getCellWeight(static_cast<MAZE>(maze[nx][ny])) <= -1000)
                 continue; // 禁止通行
 
             int w = weight(end, next);  // 计算新的权值

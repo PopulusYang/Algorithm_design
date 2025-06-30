@@ -112,12 +112,12 @@ void player::onPlayerMove(GameController *gameController)
 
     int cur_x = qRound(playerPos.y() + 0.15);
     int cur_y = qRound(playerPos.x() + 0.1);
-    if (static_cast<MAZE>(gameController->getMaze()[cur_x][cur_y]) == MAZE::CLUE)
+    if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::CLUE)
     {
         // std::cout<<"find a clue in :("<<cur_x<<","<<cur_y<<")"<<std::endl;
         record_clue(gameController, cur_x, cur_y);
     }
-    else if (static_cast<MAZE>(gameController->getMaze()[cur_x][cur_y]) == MAZE::SOURCE)
+    else if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::SOURCE)
     {
         point resource_pos(cur_x, cur_y);
         if (gameController->sourse_value.count(resource_pos))
@@ -132,7 +132,7 @@ void player::onPlayerMove(GameController *gameController)
             emit needUpdate(); // 通知界面更新
         }
     }
-    else if (static_cast<MAZE>(gameController->getMaze()[cur_x][cur_y]) == MAZE::TRAP)
+    else if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::TRAP)
     {
         point trap_pos(cur_x, cur_y);
         // 检查陷阱是否是第一次被触发
@@ -153,7 +153,7 @@ void player::onPlayerMove(GameController *gameController)
         }
     }
 
-    if (static_cast<MAZE>(gameController->getMaze()[cur_x][cur_y]) == MAZE::LOCKER)
+    if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::LOCKER)
     {
         // std::cout<<"find locker in :("<<cur_x<<","<<cur_y<<")"<<std::endl;
         locker_interaction(gameController);
@@ -165,7 +165,7 @@ void player::onPlayerMove(GameController *gameController)
 
     if (gameController && gameController->inBounds(nx, ny))
     {
-        MAZE cell = static_cast<MAZE>(gameController->getMaze()[nx][ny]);
+        MAZE cell = static_cast<MAZE>(gameController->maze[nx][ny]);
         // 检查当前位置是否为线索点
 
         if (cell != MAZE::WALL)

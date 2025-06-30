@@ -117,7 +117,7 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
         for (int j = 0; j < data.gameController->mazesize; ++j)
         {
             QRect blockRect(j * data.blockSize, i * data.blockSize, data.blockSize, data.blockSize);
-            MAZE blockType = static_cast<MAZE>(data.gameController->getMaze()[i][j]);
+            MAZE blockType = static_cast<MAZE>(data.gameController->maze[i][j]);
 
             // 先绘制一个深灰色底板作为通路
             painter->fillRect(blockRect, Qt::darkGray);
