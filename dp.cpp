@@ -314,8 +314,6 @@ std::vector<point> dp::simulate(point playerstart)
         
         std::vector<point> has_collected; // 记录已收集的资源点
 
-        
-
         for (int i = 0; i < p.size(); i++)
         {
             if (collecter.tempset.count(p[i]))
@@ -324,26 +322,8 @@ std::vector<point> dp::simulate(point playerstart)
                 has_collected.push_back(p[i]);
             }
         }
-        std::cout << "该路径经过的资源点" << std::endl;
-        for (auto p : has_collected)
-        {
-            std::cout << p.x << "," << p.y << std::endl;
-        }
 
-        std::vector<point> temp = path;
-        for (auto it : has_collected) // 遍历已收集的资源点
-        {
-            int index = 0;
-            for(auto po : temp)
-            {
-                if (it == po)
-                {
-                    path.erase(path.begin() + index); // 移除已收集的资源点
-                    index--;
-                }
-                index++;
-            }
-        }
+        
 
         std::cout << "当前计算路径" << std::endl;
         for (auto p : p)
@@ -358,7 +338,7 @@ std::vector<point> dp::simulate(point playerstart)
             break;
         int source_count = 0;
         int loop_count = 0;
-        
+
         while (collecter.ifsourvaild(current)) // 如果当前点周围存在资源
         {
             current = collecter.findway(current); // 找到下一个资源点
@@ -367,6 +347,7 @@ std::vector<point> dp::simulate(point playerstart)
             if (collecter.tempset.count(current))
             {
                 collecter.tempset.erase(current); // 记录已收集资源
+                has_collected.push_back(current);
                 std::cout << "贪婪收集到资源点" << current.x << "," << current.y << std::endl;
                 source_count++;
             }
@@ -379,6 +360,20 @@ std::vector<point> dp::simulate(point playerstart)
             loop_count++;
         }
         std::cout << "结束贪婪，通过贪心算法收集到金币：" << source_count << std::endl;
+        std::vector<point> temp = path;
+        for (auto it : has_collected) // 遍历已收集的资源点
+        {
+            int index = 0;
+            for(auto po : temp)
+            {
+                if (it == po)
+                {
+                    path.erase(path.begin() + index); // 移除已收集的资源点
+                    index--;
+                }
+                index++;
+            }
+        }
     }
     std::cout << "输出路径" << std::endl;
     for (auto p : finalpath)
