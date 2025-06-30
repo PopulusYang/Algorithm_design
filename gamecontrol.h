@@ -29,6 +29,11 @@ public:
         this->bosshp = informations->bosshp;
         this->Skills = informations->Skills;
         this->dimension = informations->dimension;
+        this->sourse = informations->sourse;
+        this->sourse_value = informations->sourse_value;
+        this->traps = informations->traps;
+        this->received_clue = informations->received_clue;
+        this->boss_in_map = informations->boss_in_map;
         for(int i = 0; i < MAXSIZE; ++i)//复制地图信息
         {
             for (int j = 0; j < MAXSIZE; ++j)
