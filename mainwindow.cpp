@@ -143,13 +143,16 @@ void MainWindow::onExitReached()
     if (runalongThread && runalongThread->joinable()) {
         if(autoCtrl.rundone) runalongThread->join();
     }
+    if(gameController->bosshp.size()!=0)
+    {
+        // 创建并显示新的boss窗口
+        boss *bossWindow = new boss(gameController->bosshp,gameController->Skills); // 创建 boss 窗口的实例
+        bossWindow->show();             // 显示它
 
-    // 创建并显示新的boss窗口
-    boss *bossWindow = new boss(gameController->bosshp,gameController->Skills); // 创建 boss 窗口的实例
-    bossWindow->show();             // 显示它
+        // 关闭当前的迷宫窗口
+        this->close();
+    }
 
-    // 关闭当前的迷宫窗口
-    this->close();
 }
 
 MainWindow::~MainWindow()
