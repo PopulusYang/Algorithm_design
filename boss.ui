@@ -6,92 +6,76 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>683</width>
-    <height>541</height>
+    <width>697</width>
+    <height>515</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="gridLayoutWidget">
+  <widget class="QPushButton" name="nextTurnButton">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>390</y>
-     <width>661</width>
-     <height>131</height>
+     <x>130</x>
+     <y>470</y>
+     <width>91</width>
+     <height>31</height>
     </rect>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="2">
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="text">
-       <string>购买</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2">
-     <widget class="QWidget" name="widget_2" native="true">
-      <widget class="QLabel" name="label_2">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>40</y>
-         <width>181</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>血量资源信息</string>
-       </property>
-      </widget>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>信息在这里显示</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>攻击</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="text">
-       <string>大招</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
+   <property name="text">
+    <string>下一回合</string>
+   </property>
   </widget>
-  <widget class="QWidget" name="widget" native="true">
+  <widget class="QLabel" name="turnLabel">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>400</y>
+     <width>561</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>30</y>
+     <width>311</width>
+     <height>351</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="skillsLayout"/>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>40</y>
-     <width>641</width>
-     <height>321</height>
+     <y>30</y>
+     <width>281</width>
+     <height>351</height>
     </rect>
    </property>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>20</y>
-      <width>221</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>人物在这里显示，很甜美的帅气</string>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="bossLayout"/>
+  </widget>
+  <widget class="QPushButton" name="returnbotton">
+   <property name="geometry">
+    <rect>
+     <x>410</x>
+     <y>470</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>返回</string>
+   </property>
   </widget>
  </widget>
  <resources/>

@@ -14,11 +14,14 @@
 #include <QThread>
 #include <QImage>
 #include <QWaitCondition>
+#include <QDialogButtonBox>
 #include "player.h"
 #include "gamecontrol.h"
-#include "autowindow.h"
 #include "autocontrol.h"
+#include "renderthread.h"
+#include"boss.h"
 #include <thread>
+#include <list>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -27,60 +30,36 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
-class MonsterRenderThread : public QThread
-{
-    Q_OBJECT
-public:
-    MonsterRenderThread(QObject *parent = nullptr);
-    void requestFrame(int anim, const QRect &srcRect, const QSize &targetSize);
-    QPixmap getResult();
-    void run() override;
-    void stop();
-
-signals:
-    void frameReady(); // 添加这一行
-
-private:
-    QMutex mutex;
-    QWaitCondition cond;
-    bool running = true;
-    int anim = 0;
-    QRect srcRect;
-    QSize targetSize;
-    QPixmap result;
-    bool frameRequested = false;
-    QPixmap monsterSheet;
-};
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(int mazeSize,int model, gamemain *informations = nullptr, QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
-    void paintEvent(QPaintEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     bool event(QEvent *event) override; // 用于关闭输入法
-    void createAutoControlPanel();
     void drawCluePath();
     void crackPassword();
     bool locker_status();
     void generatePasswords_Backtracking(
         const int totalDigits,
-        const std::map<int, int>& known_digits,
-        QList<QPair<QString, QString>>& passwordHashes,
-        QString currentPassword
-    );
-
+        const std::map<int, int> &known_digits,
+        QList<QPair<QString, QString>> &passwordHashes,
+        QString currentPassword);
+    void paintEvent(QPaintEvent *event) override;
 
 private slots:
-    void onSolveMazeClicked();
-
     void ontimeout();
+    void onGenerationStep();
+    void onSolveMazeClicked();
+    void onResetGameClicked();
+    void onFrameReady(const QPixmap &frame);
+    void onRenderTick();
+    void onTrapTriggered(const QPointF &playerPos);
+    void onExitReached();
 
 private:
     Ui::MainWindow *ui;
@@ -89,24 +68,35 @@ private:
     QPushButton *solveButton;
     std::vector<point> solvedPath;
     std::vector<std::vector<std::pair<int, int>>> cluePath;
+    QTimer *generationTimer = nullptr;
 
     player Player;
 
     // Boss 相关
-    QPointF bossPos;
-    QPixmap bossSprite;
-    int bossDir = 2;
     int bossAnim = 0;
     int bossAnimFrameCounter = 0;
 
-    MonsterRenderThread *monsterThread;
-    QPixmap monsterFrameReady;
-    QMutex monsterFrameMutex;
+    // Gold 相关
+    int goldAnim = 0;
+    int goldAnimFrameCounter = 0;
+
+    // Clue 相关
+    int clueAnim = 0;
+    int clueAnimFrameCounter = 0;
+
+    // 移除 MonsterRenderThread，用新的 RenderThread 代替
+    RenderThread *m_renderThread = nullptr;
+    QPixmap m_lastFrame;
+    QMutex m_frameMutex;
+    QTimer *m_renderTimer = nullptr; // 用于驱动渲染的计时器
+
+    int m_screenShakeFrames = 0;
+    int m_model=-1;
+    std::list<DamageIndicator> m_damageIndicators;
 
     autocontroller autoCtrl = autocontroller(&Player);
     std::thread *autoThread = nullptr;
-    std::thread *panelThread = nullptr;
-    AutoControlPanel *autoPanel = nullptr;
+    std::thread *runalongThread = nullptr;
 
 signals:
     void needMove(GameController *gameController);

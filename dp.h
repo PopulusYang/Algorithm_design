@@ -5,9 +5,10 @@
 #include <vector>
 #include <queue>
 #include <iostream>
+#include<stack>
 #include <algorithm>
 #include "gamemain.h"
-
+#include"collect_coin.h"
 
 struct djstruct
 {
@@ -34,15 +35,15 @@ private:
     int getCellWeight(MAZE cellType) const;
     void isWorth(djstruct& input);
     void full_the_path(std::vector<point> &input);
+    std::pair<std::unordered_set<point>, point> greedy_simulate(std::vector<point> &path, size_t start_idx);
 
 public:
-    explicit dp(int size) : gamemain(size)
-    {
-    }
-
+    explicit dp(int size) : gamemain(size), collecter(this)
+    {}
+    coin_collecter collecter;
     djstruct Dijkstra(point S, point E);
-
-    std::vector<point> findBestPath();
+    std::vector<point> findBestPath(point playerstart);
+    std::vector<point> simulate(point playerstart);
 };
 
 #endif // DP_H
