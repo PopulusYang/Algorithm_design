@@ -27,7 +27,6 @@ public:
     bool ifsourvaild(point currentpoint);
     point findway(point currentpoint);
     void oneview(int index,point viewpoint);
-    unordered_map<point, int> sourse_value;
     array<goldcoin, 8> view;
     point currentpoint;
    // point nextpoint;

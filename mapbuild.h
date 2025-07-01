@@ -9,6 +9,11 @@
 #include <algorithm>
 #include <utility>
 #include <windows.h> // 包含windows.h以使用SetConsoleOutputCP
+#include <fstream>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QFile>
 
 #include "gamemain.h"
 
@@ -186,9 +191,9 @@ public:
         // 为 gold_count 添加一个上限，防止DP算法因资源过多而崩溃
         if (gold_count > 14)
         {
-            gold_count = 14;//避免金币数量太多导致dp崩溃
+            gold_count = 14; // 避免金币数量太多导致dp崩溃
         }
-        if(trap_count > 20)
+        if (trap_count > 20)
         {
             trap_count = 20;
         }
@@ -347,6 +352,41 @@ public:
         }
     }
 
+    
+
+    void exportToJsonDefault() const
+    {
+        QJsonArray mazeArray;
+        for (int i = 0; i < dimension; ++i) {
+            QJsonArray rowArray;
+            for (int j = 0; j < dimension; ++j) {
+                QString cell;
+                switch (static_cast<MAZE>(maze[i][j])) {
+                case MAZE::START:   cell = "S"; break;
+                case MAZE::EXIT:    cell = "E"; break;
+                case MAZE::WALL:    cell = "#"; break;
+                case MAZE::WAY:     cell = " "; break;
+                case MAZE::SOURCE:  cell = "G"; break;
+                case MAZE::TRAP:    cell = "T"; break;
+                case MAZE::LOCKER:  cell = "L"; break;
+                case MAZE::BOSS:    cell = "B"; break;
+                case MAZE::CLUE:    cell = "C"; break;
+                default:            cell = "?"; break;
+                }
+                rowArray.append(cell);
+            }
+            mazeArray.append(rowArray);
+        }
+        QJsonObject root;
+        root["maze"] = mazeArray;
+        QJsonDocument doc(root);
+        QFile file("../map.json");
+        if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            file.write(doc.toJson(QJsonDocument::Indented));
+            file.close();
+        }
+    }
+
     // ??????
     int getsize()
     {
@@ -427,7 +467,6 @@ public:
 private:
     std::mt19937 rng; // Mersenne Twister ?????
 
-
     void placeFeature(std::vector<std::pair<int, int>> &cells, MAZE feature)
     {
         if (cells.empty())
@@ -491,7 +530,5 @@ private:
         }
     }
 };
-
-
 
 #endif

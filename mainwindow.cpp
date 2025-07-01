@@ -25,9 +25,9 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    m_model=model;
+    m_model = model;
     // 初始化并生成迷宫
-    if(model==2)
+    if (model == 2)
     {
         gameController = new GameController(mazeSize);
     }
@@ -55,7 +55,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     // Animate maze generation
     generationTimer = new QTimer(this);
     connect(generationTimer, &QTimer::timeout, this, &MainWindow::onGenerationStep);
-    if(model==2)
+    if (model == 2)
     {
         gameController->generate_init();
     }
@@ -69,10 +69,8 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
 
     connect(&Player, &player::exitReached, this, &MainWindow::onExitReached);
 
-
-
     // 玩家初始位置在起点
-    //Player.playerPos = QPointF(gameController->start.y, gameController->start.x); // This is now set in onGenerationStep
+    // Player.playerPos = QPointF(gameController->start.y, gameController->start.x); // This is now set in onGenerationStep
     Player.playerVel = QPointF(0, 0);
     Player.playerAcc = QPointF(0, 0);
     Player.inertia = 0.85f;
@@ -120,28 +118,31 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
 
     autoThread = new std::thread([this]()
                                  { autoCtrl.thread_auto_run(); });
-
-
 }
 
 void MainWindow::onExitReached()
 {
     // 停止当前窗口的所有计时器，以防止后台继续处理
     Player.playerTimer->stop();
-    if (generationTimer) {
+    if (generationTimer)
+    {
         generationTimer->stop();
     }
-    if (m_renderTimer) {
+    if (m_renderTimer)
+    {
         m_renderTimer->stop();
     }
 
     // 停止线程
     autoCtrl.stopautocontrol();
-    if (autoThread && autoThread->joinable()) {
+    if (autoThread && autoThread->joinable())
+    {
         autoThread->join();
     }
-    if (runalongThread && runalongThread->joinable()) {
-        if(autoCtrl.rundone) runalongThread->join();
+    if (runalongThread && runalongThread->joinable())
+    {
+        if (autoCtrl.rundone)
+            runalongThread->join();
     }
     if(gameController->bosshp.size()!=0)
     {
@@ -187,9 +188,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     Player.pressedKeys.insert(event->key());
     event->accept();
 }
-
-
-
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
@@ -318,7 +316,8 @@ void MainWindow::onSolveMazeClicked()
         update(); // 触发重绘以显示路径
     }
     // 开始自动走
-    runalongThread = new std::thread([this]() { autoCtrl.runalongthePath(solvedPath); });
+    runalongThread = new std::thread([this]()
+                                     { autoCtrl.runalongthePath(solvedPath); });
 }
 
 void MainWindow::drawCluePath()
@@ -630,11 +629,12 @@ void MainWindow::onGenerationStep()
 
         if (gameController)
         {
-            if(m_model==2)
+            if (m_model == 2)
             {
-                gameController->placeFeatures(); // Place features after generation is complete
+                gameController->placeFeatures();       // Place features after generation is complete
+                gameController->exportToJsonDefault(); // 导出到../map.json
             }
-            gameController->print();         // 在此处调用 print
+            gameController->print(); // 在此处调用 print
             // 在确定起点后设置玩家位置
             Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
         }

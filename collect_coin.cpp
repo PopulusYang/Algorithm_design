@@ -24,7 +24,6 @@ bool coin_collecter::ifsourvaild(point currentpoint) // 判断周围视野中是
             return true;
         }
     }
-    std::cout << "周围信息" << std::endl;
 
     return false;
 }
@@ -113,9 +112,9 @@ void coin_collecter::oneview(int index, point viewpoint)
         {
             view[index].accessible = true;
             view[index].type = MAZE::SOURCE;
-            view[index].value = sourse_value[point(x, y)];
+            view[index].value = informations->sourse_value[point(x, y)];
         }
-        else if (informations->maze[x][y] == static_cast<int>(MAZE::WAY)) // 通路
+        else if (informations->maze[x][y] == static_cast<int>(MAZE::WAY) || informations->maze[x][y] == static_cast<int>(MAZE::SOURCE)) // 通路
         {
             view[index].accessible = true;
             view[index].type = MAZE::WAY;

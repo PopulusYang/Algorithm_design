@@ -35,7 +35,7 @@ private:
     int getCellWeight(MAZE cellType) const;
     void isWorth(djstruct& input);
     void full_the_path(std::vector<point> &input);
-    int get_path_length(point S, point E);
+    std::pair<std::unordered_set<point>, point> greedy_simulate(std::vector<point> &path, size_t start_idx);
 
 public:
     explicit dp(int size) : gamemain(size), collecter(this)
