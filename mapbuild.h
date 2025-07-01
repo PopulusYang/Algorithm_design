@@ -9,7 +9,8 @@
 #include <algorithm>
 #include <utility>
 #include <fstream>
-#include "json.hpp"#include <windows.h> // ??windows.h???SetConsoleOutputCP
+#include "json.hpp"
+#include <windows.h> // ??windows.h???SetConsoleOutputCP
 #include <fstream>
 #include <QJsonDocument>
 #include <QJsonArray>

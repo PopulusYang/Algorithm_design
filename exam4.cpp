@@ -249,97 +249,97 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
 }
 
 // --- MAIN FUNCTION (MODIFIED) ---
-int main(int argc, char *argv[]) {
-    QCoreApplication app(argc, argv);
+// int main(int argc, char *argv[]) {
+//     QCoreApplication app(argc, argv);
 
-    QString dirPath = "../password_test";
-    QDir directory(dirPath);
+//     QString dirPath = "../password_test";
+//     QDir directory(dirPath);
 
-    if (!directory.exists()) {
-        cerr << "Directory not found: " << dirPath.toStdString() << endl;
-        return 1;
-    }
+//     if (!directory.exists()) {
+//         cerr << "Directory not found: " << dirPath.toStdString() << endl;
+//         return 1;
+//     }
     
-    QStringList jsonFiles = directory.entryList(QStringList() << "*.json", QDir::Files);
-    long long total_decrypt_count = 0;
+//     QStringList jsonFiles = directory.entryList(QStringList() << "*.json", QDir::Files);
+//     long long total_decrypt_count = 0;
 
-    for (const QString &fileName : jsonFiles) {
-        QString jsonPath = directory.filePath(fileName);
+//     for (const QString &fileName : jsonFiles) {
+//         QString jsonPath = directory.filePath(fileName);
 
-        // --- 1. 重置每个文件的状态 ---
-        posFixed.assign(3, -1);
-        posParity.assign(3, -1);
-        needPrimeUnique = false;
-        cur.clear();
-        fill(begin(used), end(used), false);
+//         // --- 1. 重置每个文件的状态 ---
+//         posFixed.assign(3, -1);
+//         posParity.assign(3, -1);
+//         needPrimeUnique = false;
+//         cur.clear();
+//         fill(begin(used), end(used), false);
         
-        // --- 2. 读取和解析JSON文件 ---
-        QFile jsonFile(jsonPath);
-        if (!jsonFile.open(QIODevice::ReadOnly)) {
-            cerr << "Failed to open JSON file for reading: " << jsonPath.toStdString() << endl;
-            continue;
-        }
-        QByteArray jsonData = jsonFile.readAll();
-        jsonFile.close();
+//         // --- 2. 读取和解析JSON文件 ---
+//         QFile jsonFile(jsonPath);
+//         if (!jsonFile.open(QIODevice::ReadOnly)) {
+//             cerr << "Failed to open JSON file for reading: " << jsonPath.toStdString() << endl;
+//             continue;
+//         }
+//         QByteArray jsonData = jsonFile.readAll();
+//         jsonFile.close();
 
-        QJsonParseError parseError;
-        QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
-        if (parseError.error != QJsonParseError::NoError) {
-            cerr << "JSON parse error in " << jsonPath.toStdString() << ": " << parseError.errorString().toStdString() << endl;
-            continue;
-        }
-        QJsonObject rootObj = doc.object();
+//         QJsonParseError parseError;
+//         QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
+//         if (parseError.error != QJsonParseError::NoError) {
+//             cerr << "JSON parse error in " << jsonPath.toStdString() << ": " << parseError.errorString().toStdString() << endl;
+//             continue;
+//         }
+//         QJsonObject rootObj = doc.object();
 
-        // --- 3. 处理来自"C"数组的线索 ---
-        QJsonArray clues = rootObj.value("C").toArray();
-        for (const QJsonValue &val : clues) {
-            QJsonArray arr = val.toArray();
-            vector<int> v;
-            for (const QJsonValue &elem : arr) v.push_back(elem.toInt());
-            if (v.size() == 2) {
-                if (v[0] == -1 && v[1] == -1) needPrimeUnique = true;
-                else posParity[v[0] - 1] = v[1];
-            } else if (v.size() == 3) {
-                for (int j = 0; j < 3; ++j) if (v[j] != -1) { posFixed[j] = v[j]; break; }
-            }
-        }
+//         // --- 3. 处理来自"C"数组的线索 ---
+//         QJsonArray clues = rootObj.value("C").toArray();
+//         for (const QJsonValue &val : clues) {
+//             QJsonArray arr = val.toArray();
+//             vector<int> v;
+//             for (const QJsonValue &elem : arr) v.push_back(elem.toInt());
+//             if (v.size() == 2) {
+//                 if (v[0] == -1 && v[1] == -1) needPrimeUnique = true;
+//                 else posParity[v[0] - 1] = v[1];
+//             } else if (v.size() == 3) {
+//                 for (int j = 0; j < 3; ++j) if (v[j] != -1) { posFixed[j] = v[j]; break; }
+//             }
+//         }
         
-        // --- 4. 搜索密码并精确计数 ---
-        string inputHash = rootObj.value("L").toString().toStdString();
-        int decrypt_count = 0;
-        string foundPassword = "";
-        PasswordLock lock;
+//         // --- 4. 搜索密码并精确计数 ---
+//         string inputHash = rootObj.value("L").toString().toStdString();
+//         int decrypt_count = 0;
+//         string foundPassword = "";
+//         PasswordLock lock;
 
-        findPasswordDfs(0, inputHash, lock, decrypt_count, foundPassword);
+//         findPasswordDfs(0, inputHash, lock, decrypt_count, foundPassword);
         
-        total_decrypt_count += decrypt_count;
+//         total_decrypt_count += decrypt_count;
 
-        // --- 5. 查找并保存结果 ---
-        if (!foundPassword.empty()) {
-            cout << "File: " << left << setw(15) << fileName.toStdString() 
-                 << " -> Password found: " << foundPassword 
-                 << " (Attempts: " << decrypt_count << ")" << endl;
+//         // --- 5. 查找并保存结果 ---
+//         if (!foundPassword.empty()) {
+//             cout << "File: " << left << setw(15) << fileName.toStdString() 
+//                  << " -> Password found: " << foundPassword 
+//                  << " (Attempts: " << decrypt_count << ")" << endl;
 
-            rootObj.insert("P", QString::fromStdString(foundPassword));
-            rootObj.insert("D", decrypt_count);
+//             rootObj.insert("P", QString::fromStdString(foundPassword));
+//             rootObj.insert("D", decrypt_count);
 
-            QJsonDocument newDoc(rootObj);
-            if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-                cerr << "  [ERROR] Failed to open file for writing: " << jsonPath.toStdString() << endl;
-            } else {
-                jsonFile.write(newDoc.toJson(QJsonDocument::Indented));
-                jsonFile.close();
-            }
-        } else {
-            cout << "File: " << left << setw(15) << fileName.toStdString() 
-                 << " -> Password NOT found. (Total attempts in space: " << decrypt_count << ")" << endl;
-        }
-    }
+//             QJsonDocument newDoc(rootObj);
+//             if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+//                 cerr << "  [ERROR] Failed to open file for writing: " << jsonPath.toStdString() << endl;
+//             } else {
+//                 jsonFile.write(newDoc.toJson(QJsonDocument::Indented));
+//                 jsonFile.close();
+//             }
+//         } else {
+//             cout << "File: " << left << setw(15) << fileName.toStdString() 
+//                  << " -> Password NOT found. (Total attempts in space: " << decrypt_count << ")" << endl;
+//         }
+//     }
 
-    // --- 6. 打印最终总数 ---
-    cout << "\n================================================" << endl;
-    cout << "  Total decryption attempts for all files: " << total_decrypt_count << endl;
-    cout << "================================================" << endl;
+//     // --- 6. 打印最终总数 ---
+//     cout << "\n================================================" << endl;
+//     cout << "  Total decryption attempts for all files: " << total_decrypt_count << endl;
+//     cout << "================================================" << endl;
 
-    return 0;
-}
+//     return 0;
+// }
