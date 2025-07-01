@@ -202,6 +202,10 @@ void gamechoose::onFileButtonClicked()
                     this->sourse_value[current_pos] = 50;
                     this->sourse.insert(current_pos);
                 }
+                else if(cell == "C")
+                {
+                    this->maze[i][j] = static_cast<int>(MAZE::CLUE);
+                }
                 else if (cell == "B") this->maze[i][j] = static_cast<int>(MAZE::WAY); // Boss
                 else if (cell == "T")
                 {
