@@ -4,3 +4,5 @@ build/
 text.md
 test/
 test.cpp
+password_test/
+*.json

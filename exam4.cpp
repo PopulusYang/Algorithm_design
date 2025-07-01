@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QCryptographicHash>
+#include <QDir>
 using namespace std;
 
 vector<int> posFixed(3, -1), posParity(3, -1);
@@ -186,24 +187,48 @@ public:
     }
 };
 
+
+/**
+ * @brief 深度优先搜索以查找密码.
+ * @param idx 当前正在处理的密码位置 (0-2).
+ * @param targetHash 要匹配的目标哈希字符串.
+ * @param lock 用于计算哈希的PasswordLock实例.
+ * @param decrypt_count 引用，用于累加解密尝试次数.
+ * @param foundPassword 引用，用于存储找到的密码.
+ * @return true 如果找到密码，则搜索终止.
+ * @return false 如果未找到密码，则继续搜索.
+ */
 // 深度优先生成满足条件的三位密码
-void dfs(int idx) {
+bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int& decrypt_count, string& foundPassword) {
+    // 基本情况：当一个完整的三位密码生成后
     if (idx == 3) {
-        answers.push_back(
-            string(1, char('0' + cur[0])) +
-            string(1, char('0' + cur[1])) +
-            string(1, char('0' + cur[2]))
-        );
-        return;
+        string pwd = string(1, char('0' + cur[0])) +
+                     string(1, char('0' + cur[1])) +
+                     string(1, char('0' + cur[2]));
+        
+        decrypt_count++; // 增加尝试次数
+
+        // 立即检查哈希值
+        if (lock.hashPassword(pwd) == targetHash) {
+            foundPassword = pwd;
+            return true; // 找到密码，返回true以终止搜索
+        }
+        
+        return false; // 哈希不匹配，继续搜索
     }
+
+    // 递归步骤
     if (needPrimeUnique) {
         for (int d : primes) {
             if (used[d]) continue;
             if (posFixed[idx] != -1 && posFixed[idx] != d) continue;
             if (posParity[idx] != -1 && d % 2 != posParity[idx]) continue;
+            
             used[d] = true;
             cur.push_back(d);
-            dfs(idx + 1);
+            if (findPasswordDfs(idx + 1, targetHash, lock, decrypt_count, foundPassword)) {
+                return true; // 如果子搜索找到密码，立即返回
+            }
             cur.pop_back();
             used[d] = false;
         }
@@ -211,80 +236,110 @@ void dfs(int idx) {
         for (int d = 0; d <= 9; ++d) {
             if (posFixed[idx] != -1 && posFixed[idx] != d) continue;
             if (posParity[idx] != -1 && d % 2 != posParity[idx]) continue;
+            
             cur.push_back(d);
-            dfs(idx + 1);
+            if (findPasswordDfs(idx + 1, targetHash, lock, decrypt_count, foundPassword)) {
+                return true; // 如果子搜索找到密码，立即返回
+            }
             cur.pop_back();
         }
     }
+
+    return false; // 在这个分支下没有找到密码
 }
 
-int main1(int argc, char *argv[]) {
+// --- MAIN FUNCTION (MODIFIED) ---
+int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
-    // 直接读取 JSON 文件，无需命令行参数
-    QString jsonPath = QString::fromLocal8Bit("../clue.json"); // 绝对路径
-    QFile jsonFile(jsonPath);
-    if (!jsonFile.open(QIODevice::ReadOnly)) {
-        cerr << "Failed to open JSON file: " << jsonPath.toStdString() << endl;
+    QString dirPath = "../password_test";
+    QDir directory(dirPath);
+
+    if (!directory.exists()) {
+        cerr << "Directory not found: " << dirPath.toStdString() << endl;
         return 1;
     }
-    QByteArray jsonData = jsonFile.readAll();
-    jsonFile.close();
+    
+    QStringList jsonFiles = directory.entryList(QStringList() << "*.json", QDir::Files);
+    long long total_decrypt_count = 0;
 
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
-    if (parseError.error != QJsonParseError::NoError) {
-        cerr << "JSON parse error: " << parseError.errorString().toStdString() << endl;
-        return 1;
-    }
-    QJsonObject rootObj = doc.object();
+    for (const QString &fileName : jsonFiles) {
+        QString jsonPath = directory.filePath(fileName);
 
-    // 读取线索数组 "C"
-    QJsonArray clues = rootObj.value("C").toArray();
-    for (const QJsonValue &val : clues) {
-        QJsonArray arr = val.toArray();
-        vector<int> v;
-        for (const QJsonValue &elem : arr) {
-            v.push_back(elem.toInt());
+        // --- 1. 重置每个文件的状态 ---
+        posFixed.assign(3, -1);
+        posParity.assign(3, -1);
+        needPrimeUnique = false;
+        cur.clear();
+        fill(begin(used), end(used), false);
+        
+        // --- 2. 读取和解析JSON文件 ---
+        QFile jsonFile(jsonPath);
+        if (!jsonFile.open(QIODevice::ReadOnly)) {
+            cerr << "Failed to open JSON file for reading: " << jsonPath.toStdString() << endl;
+            continue;
         }
-        if (v.size() == 2) {
-            if (v[0] == -1 && v[1] == -1) {
-                needPrimeUnique = true;
-            } else {
-                posParity[v[0] - 1] = v[1];
-            }
-        } else if (v.size() == 3) {
-            for (int j = 0; j < 3; ++j) {
-                if (v[j] != -1) {
-                    posFixed[j] = v[j];
-                    break;
-                }
+        QByteArray jsonData = jsonFile.readAll();
+        jsonFile.close();
+
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
+        if (parseError.error != QJsonParseError::NoError) {
+            cerr << "JSON parse error in " << jsonPath.toStdString() << ": " << parseError.errorString().toStdString() << endl;
+            continue;
+        }
+        QJsonObject rootObj = doc.object();
+
+        // --- 3. 处理来自"C"数组的线索 ---
+        QJsonArray clues = rootObj.value("C").toArray();
+        for (const QJsonValue &val : clues) {
+            QJsonArray arr = val.toArray();
+            vector<int> v;
+            for (const QJsonValue &elem : arr) v.push_back(elem.toInt());
+            if (v.size() == 2) {
+                if (v[0] == -1 && v[1] == -1) needPrimeUnique = true;
+                else posParity[v[0] - 1] = v[1];
+            } else if (v.size() == 3) {
+                for (int j = 0; j < 3; ++j) if (v[j] != -1) { posFixed[j] = v[j]; break; }
             }
         }
-    }
-
-    // 从 JSON 读取要比对的 SHA256 密文 "L"
-    QString inputHashQ = rootObj.value("L").toString();
-    string inputHash = inputHashQ.toStdString();
-
-    // 生成所有可能密码
-    dfs(0);
-
-    // 构建 hash -> 原始密码 的映射
-    unordered_map<string, string> hash2pwd;
-    for (const auto &pwd : answers) {
+        
+        // --- 4. 搜索密码并精确计数 ---
+        string inputHash = rootObj.value("L").toString().toStdString();
+        int decrypt_count = 0;
+        string foundPassword = "";
         PasswordLock lock;
-        std::string passwordHash = lock.hashPassword(pwd);
-        hash2pwd[passwordHash] = pwd;
+
+        findPasswordDfs(0, inputHash, lock, decrypt_count, foundPassword);
+        
+        total_decrypt_count += decrypt_count;
+
+        // --- 5. 查找并保存结果 ---
+        if (!foundPassword.empty()) {
+            cout << "File: " << left << setw(15) << fileName.toStdString() 
+                 << " -> Password found: " << foundPassword 
+                 << " (Attempts: " << decrypt_count << ")" << endl;
+
+            rootObj.insert("P", QString::fromStdString(foundPassword));
+            rootObj.insert("D", decrypt_count);
+
+            QJsonDocument newDoc(rootObj);
+            if (!jsonFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+                cerr << "  [ERROR] Failed to open file for writing: " << jsonPath.toStdString() << endl;
+            } else {
+                jsonFile.write(newDoc.toJson(QJsonDocument::Indented));
+                jsonFile.close();
+            }
+        } else {
+            cout << "File: " << left << setw(15) << fileName.toStdString() 
+                 << " -> Password NOT found. (Total attempts in space: " << decrypt_count << ")" << endl;
+        }
     }
 
-    // 查找并输出结果
-    auto it = hash2pwd.find(inputHash);
-    if (it != hash2pwd.end()) {
-        cout << "Original password: " << it->second << endl;
-    } else {
-        cout << "Hash not found in generated list." << endl;
-    }
+    // --- 6. 打印最终总数 ---
+    cout << "\n================================================" << endl;
+    cout << "  Total decryption attempts for all files: " << total_decrypt_count << endl;
+    cout << "================================================" << endl;
 
     return 0;
 }
