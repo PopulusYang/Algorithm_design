@@ -1,6 +1,6 @@
 #include "heads/gamechoose.h"
 #include "ui_gamechoose.h"
-// extern struct Skill;
+
 gamechoose::gamechoose(QWidget *parent)
     : QWidget(parent), ui(new Ui::gamechoose)
 {
@@ -131,6 +131,22 @@ void gamechoose::onFileButtonClicked()
         return;
     }
 
+    // 将文件复制到 ./password_test/test.json
+    QDir dir;
+    if (!dir.exists("./password_test"))
+    {
+        dir.mkpath("./password_test");
+    }
+    QString destPath = "./password_test/test.json";
+    if (QFile::exists(destPath))
+    {
+        QFile::remove(destPath);
+    }
+    if (!QFile::copy(filePath, destPath))
+    {
+        QMessageBox::warning(this, "复制文件失败", "无法将文件复制到 " + destPath);
+    }
+
     // 2. 读取文件内容
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -212,7 +228,7 @@ void gamechoose::onFileButtonClicked()
                 }
                 else if (cell == "C")
                 {
-                    this->maze[i][j] = static_cast<int>(MAZE::CLUE);
+                    this->maze[i][j] = static_cast<int>(MAZE::WAY);
                 }
                 else if (cell == "B")
                 {
@@ -231,11 +247,6 @@ void gamechoose::onFileButtonClicked()
                     this->maze[i][j] = 0; // 默认为路
             }
         }
-    }
-    else
-    {
-        QMessageBox::warning(this, "错误", "JSON文件中缺少'maze'数组或格式不正确。");
-        // return;
     }
 
     // 5. 处理 "B" (Boss HP) 数据
@@ -260,6 +271,7 @@ void gamechoose::onFileButtonClicked()
     }
     if (jsonObj.contains("PlayerSkills") && jsonObj["PlayerSkills"].isArray())
     {
+        Skills.clear();
         QJsonArray skillsArray = jsonObj["PlayerSkills"].toArray();
         int id = 0;
         for (const QJsonValue &value : skillsArray)
@@ -279,12 +291,28 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-    w = new MainWindow(this->mazesize, model, this);
+
+
+    w=new MainWindow(this->dimension,model, this,nullptr);
+    if(dimension>0)
+    {
+        w->show();
+    }
     connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
-    w->show();
     this->hide();
-    // boss*mboss=new boss(bosshp,Skills);
-    // mboss->show();
+
+    // if(this->dimension==0)
+    // {
+    //     boss* newboss=new boss(this->bosshp,this->Skills,20);
+    //     newboss->show();
+    //     this->hide();
+    // }
+    // else
+    // {
+    //     MainWindow*w=new MainWindow(this->mazesize,model, this);
+    //     w->show();
+    //     this->hide();
+    // }
 }
 
 void gamechoose::onRandomButtonClicked()
@@ -296,8 +324,10 @@ void gamechoose::onRandomButtonClicked()
 
     if (ok) // 仅当用户点击“OK”时才创建和显示主窗口
     {
-        w = new MainWindow(mazeSize, 2, this);
+
+        w = new MainWindow(mazeSize, 2, this, nullptr);
         connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
+
         w->show();
         this->hide();
     }
@@ -305,7 +335,7 @@ void gamechoose::onRandomButtonClicked()
 
 void gamechoose::onExitButtonClicked()
 {
-    delete w;
-    w = nullptr;
     this->show();
+    w->deleteLater();
+    w = nullptr;
 }

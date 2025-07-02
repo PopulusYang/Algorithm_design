@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         src/heads/boss.h
         src/heads/collect_coin.h
         src/heads/dp.h
+        src/heads/exam4.h
         src/heads/gamechoose.h
         src/heads/gamecontrol.h
         src/heads/gamemain.h

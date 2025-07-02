@@ -38,6 +38,17 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     {
         gameController = new GameController(informations);
     }
+    if (mazeSize == 0)
+    {
+        // 创建并显示新的boss窗口
+        bossWindow = new boss(gameController->bosshp,
+                              gameController->Skills, Player.playersource); // 创建 boss 窗口的实例
+
+        bossWindow->show(); // 显示它
+        connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
+        this->hide();
+        return;
+    }
 
     autoCtrl.mazeinformation = gameController;
 
@@ -133,13 +144,13 @@ void MainWindow::onExitReached()
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
-                                    gameController->Skills); // 创建 boss 窗口的实例
+                              gameController->Skills, Player.playersource); // 创建 boss 窗口的实例
 
         bossWindow->show(); // 显示它
         connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
 
         // 关闭当前的迷宫窗口
-        this->close();
+        this->hide();
     }
 }
 
@@ -150,7 +161,7 @@ void MainWindow::onExitClicked()
 }
 void MainWindow::exitbossgame()
 {
-    delete bossWindow;
+    bossWindow->deleteLater();
     bossWindow = nullptr;
     emit exit_mainwindow();
 }
