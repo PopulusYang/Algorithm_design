@@ -34,8 +34,11 @@ public:
 private slots:
     void onFileButtonClicked();   // 用于响应 fileButton 点击事件的槽函数
     void onRandomButtonClicked(); // 用于响应 randomButton 点击事件的槽函数
+    void onExitButtonClicked();
+
 private:
     Ui::gamechoose *ui;
+    MainWindow *w = nullptr;
 };
 
 #endif // GAMECHOOSE_H

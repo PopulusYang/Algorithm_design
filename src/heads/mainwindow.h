@@ -58,12 +58,14 @@ private slots:
     void onRenderTick();
     void onTrapTriggered(const QPointF &playerPos);
     void onExitReached();
+    void onExitClicked();
 
 private:
     Ui::MainWindow *ui;
     GameController *gameController;
     int blockSize;
     QPushButton *solveButton;
+    QPushButton *exitButton;
     std::vector<point> solvedPath;
     QTimer *generationTimer = nullptr;
 
@@ -97,5 +99,6 @@ private:
 
 signals:
     void needMove(GameController *gameController);
+    void exit_mainwindow();
 };
 #endif // MAINWINDOW_H

@@ -16,6 +16,7 @@
 #include <random> // 新增：用于屏幕抖动
 #include <windows.h>
 
+
 void MainWindow::ontimeout()
 {
     emit needMove(gameController);
@@ -65,6 +66,11 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     solveButton->setGeometry(10, 10, 100, 30);
     connect(solveButton, &QPushButton::clicked, this,
             &MainWindow::onSolveMazeClicked);
+
+    exitButton = new QPushButton("返回主界面", this);
+    exitButton->setGeometry(10, 50, 100, 30);
+    connect(exitButton, &QPushButton::clicked, this, &MainWindow::onExitClicked);
+
     connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
     connect(&Player, &player::trapTriggered, this,
             &MainWindow::onTrapTriggered);
@@ -135,6 +141,11 @@ void MainWindow::onExitReached()
     }
 }
 
+void MainWindow::onExitClicked()
+{
+    this->hide();
+    emit exit_mainwindow();
+}
 MainWindow::~MainWindow()
 {
     if (generationTimer)

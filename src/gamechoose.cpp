@@ -94,6 +94,7 @@ gamechoose::gamechoose(QWidget *parent)
 gamechoose::~gamechoose()
 {
     delete ui;
+    delete w;
 }
 
 void gamechoose::paintEvent(QPaintEvent *event)
@@ -254,7 +255,7 @@ void gamechoose::onFileButtonClicked()
     {
         // QMessageBox::warning(this, "错误", "JSON文件中缺少'B'数组或格式不正确。");
         this->bosshp.clear();
-        this->boss_in_map = true;//读取未发现boss也标记，直接跳转到游戏结束界面
+        this->boss_in_map = true; // 读取未发现boss也标记，直接跳转到游戏结束界面
         // return;
     }
     if (jsonObj.contains("PlayerSkills") && jsonObj["PlayerSkills"].isArray())
@@ -278,7 +279,8 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-    MainWindow *w = new MainWindow(this->mazesize, model, this);
+    w = new MainWindow(this->mazesize, model, this);
+    connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
     w->show();
     this->hide();
     // boss*mboss=new boss(bosshp,Skills);
@@ -294,8 +296,16 @@ void gamechoose::onRandomButtonClicked()
 
     if (ok) // 仅当用户点击“OK”时才创建和显示主窗口
     {
-        MainWindow *w = new MainWindow(mazeSize, 2, this);
+        w = new MainWindow(mazeSize, 2, this);
+        connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
         w->show();
         this->hide();
     }
+}
+
+void gamechoose::onExitButtonClicked()
+{
+    delete w;
+    w = nullptr;
+    this->show();
 }
