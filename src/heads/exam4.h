@@ -16,40 +16,40 @@ vector<int> primes = {2, 3, 5, 7};
 vector<int> cur;
 vector<string> answers;
 bool used[10] = {false};
-std::pair<int, string> crack_result = {0, "NAN"}; // ���ڴ洢�ƽ��� <���ܴ���, ����>
+std::pair<int, string> crack_result = {0, "NAN"}; // 用于存储破解结果 <解密次数, 密码>
 class SHA256 {
 private:
-    // SHA-256算法的常量
+    // SHA-256绠楁硶鐨勫父閲�
     const static uint32_t K[64];
     
-    // 初始哈希值（来自SHA-256标准）
+    // 鍒濆鍝堝笇鍊硷紙鏉ヨ嚜SHA-256鏍囧噯锛�
     std::array<uint32_t, 8> H = {
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
     };
     
-    // 工具函数：右旋转
+    // 宸ュ叿鍑芥暟锛氬彸鏃嬭浆
     inline uint32_t rightRotate(uint32_t value, unsigned int count) {
         return (value >> count) | (value << (32 - count));
     }
     
-    // 处理单个512位的数据块
+    // 澶勭悊鍗曚釜512浣嶇殑鏁版嵁鍧�
     void processBlock(const uint8_t* block) {
-        // 创建消息调度表
+        // 鍒涘缓娑堟伅璋冨害琛�
         uint32_t W[64];
         for (int t = 0; t < 16; t++) {
             W[t] = (block[t * 4] << 24) | (block[t * 4 + 1] << 16) |
                    (block[t * 4 + 2] << 8) | (block[t * 4 + 3]);
         }
         
-        // 扩展消息调度表
+        // 鎵╁睍娑堟伅璋冨害琛�
         for (int t = 16; t < 64; t++) {
             uint32_t s0 = rightRotate(W[t-15], 7) ^ rightRotate(W[t-15], 18) ^ (W[t-15] >> 3);
             uint32_t s1 = rightRotate(W[t-2], 17) ^ rightRotate(W[t-2], 19) ^ (W[t-2] >> 10);
             W[t] = W[t-16] + s0 + W[t-7] + s1;
         }
         
-        // 初始化工作变量
+        // 鍒濆鍖栧伐浣滃彉閲�
         uint32_t a = H[0];
         uint32_t b = H[1];
         uint32_t c = H[2];
@@ -59,7 +59,7 @@ private:
         uint32_t g = H[6];
         uint32_t h = H[7];
         
-        // 主循环
+        // 涓诲惊鐜�
         for (int t = 0; t < 64; t++) {
             uint32_t S1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
             uint32_t ch = (e & f) ^ ((~e) & g);
@@ -78,7 +78,7 @@ private:
             a = temp1 + temp2;
         }
         
-        // 更新哈希值
+        // 鏇存柊鍝堝笇鍊�
         H[0] += a;
         H[1] += b;
         H[2] += c;
@@ -90,31 +90,31 @@ private:
     }
     
 public:
-    // 计算输入数据的SHA-256哈希值
+    // 璁＄畻杈撳叆鏁版嵁鐨凷HA-256鍝堝笇鍊�
     std::vector<uint8_t> compute(const std::vector<uint8_t>& message) {
-        // 计算填充后的长度（原始长度 + 1字节的1 + 填充0 + 8字节的长度）
+        // 璁＄畻濉厖鍚庣殑闀垮害锛堝師濮嬮暱搴� + 1瀛楄妭鐨�1 + 濉厖0 + 8瀛楄妭鐨勯暱搴︼級
         uint64_t originalBitLength = message.size() * 8;
-        uint64_t paddedLength = message.size() + 1 + 8; // 至少需要添加9个字节
-        paddedLength = (paddedLength + 63) & ~63;       // 调整为64字节的倍数（512位）
+        uint64_t paddedLength = message.size() + 1 + 8; // 鑷冲皯闇€瑕佹坊鍔�9涓瓧鑺�
+        paddedLength = (paddedLength + 63) & ~63;       // 璋冩暣涓�64瀛楄妭鐨勫€嶆暟锛�512浣嶏級
         
-        // 创建填充后的消息
+        // 鍒涘缓濉厖鍚庣殑娑堟伅
         std::vector<uint8_t> paddedMessage(paddedLength, 0);
         std::copy(message.begin(), message.end(), paddedMessage.begin());
         
-        // 添加一个1位（作为一个字节的0x80）
+        // 娣诲姞涓€涓�1浣嶏紙浣滀负涓€涓瓧鑺傜殑0x80锛�
         paddedMessage[message.size()] = 0x80;
         
-        // 添加消息长度（以位为单位，大端序）
+        // 娣诲姞娑堟伅闀垮害锛堜互浣嶄负鍗曚綅锛屽ぇ绔簭锛�
         for (int i = 0; i < 8; i++) {
             paddedMessage[paddedLength - 8 + i] = (originalBitLength >> ((7 - i) * 8)) & 0xFF;
         }
         
-        // 按块处理消息
+        // 鎸夊潡澶勭悊娑堟伅
         for (size_t i = 0; i < paddedLength; i += 64) {
             processBlock(&paddedMessage[i]);
         }
         
-        // 生成最终哈希值（32字节）
+        // 鐢熸垚鏈€缁堝搱甯屽€硷紙32瀛楄妭锛�
         std::vector<uint8_t> hash(32);
         for (int i = 0; i < 8; i++) {
             hash[i * 4] = (H[i] >> 24) & 0xFF;
@@ -126,7 +126,7 @@ public:
         return hash;
     }
     
-    // 重置哈希状态
+    // 閲嶇疆鍝堝笇鐘舵€�
     void reset() {
         H = {
             0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
@@ -135,7 +135,7 @@ public:
     }
 };
 
-// SHA-256算法的常量（来自SHA-256标准）
+// SHA-256绠楁硶鐨勫父閲忥紙鏉ヨ嚜SHA-256鏍囧噯锛�
 const uint32_t SHA256::K[64] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -149,13 +149,13 @@ const uint32_t SHA256::K[64] = {
 
 class PasswordLock {
 private:
-    // 与Python版本对齐的salt值: b'\xb2S"e}\xdf\xb0\xfe\x9c\xde\xde\xfe\xf3\x1d\xdc>'
+    // 涓嶱ython鐗堟湰瀵归綈鐨剆alt鍊�: b'\xb2S"e}\xdf\xb0\xfe\x9c\xde\xde\xfe\xf3\x1d\xdc>'
     std::vector<unsigned char> salt = {
         0xb2, 0x53, 0x22, 0x65, 0x7d, 0xdf, 0xb0, 0xfe, 
         0x9c, 0xde, 0xde, 0xfe, 0xf3, 0x1d, 0xdc, 0x3e
     };
 
-    // 辅助函数：将字节数组转换为十六进制字符串
+    // 杈呭姪鍑芥暟锛氬皢瀛楄妭鏁扮粍杞崲涓哄崄鍏繘鍒跺瓧绗︿覆
     std::string bytesToHex(const std::vector<uint8_t>& bytes) {
         std::stringstream ss;
         for (const auto& byte : bytes) {
@@ -166,7 +166,7 @@ private:
 
 public:
     std::string hashPassword(const std::string& password) {
-        // 将密码转换为字节流
+        // 灏嗗瘑鐮佽浆鎹负瀛楄妭娴�
         std::vector<unsigned char> passwordBytes(password.begin(), password.end());
         
         std::vector<unsigned char> combined;
@@ -179,47 +179,47 @@ public:
         return bytesToHex(hashBytes);
     }
     
-    // 验证密码
+    // 楠岃瘉瀵嗙爜
     bool verifyPassword(const std::string& inputPassword, const std::string& storedHash) {
-        // 使用相同的盐值对输入密码进行哈希
+        // 浣跨敤鐩稿悓鐨勭洂鍊煎杈撳叆瀵嗙爜杩涜鍝堝笇
         std::string calculatedHash = hashPassword(inputPassword);
         
-        // 比较计算出的哈希值与存储的哈希值
+        // 姣旇緝璁＄畻鍑虹殑鍝堝笇鍊间笌瀛樺偍鐨勫搱甯屽€�
         return calculatedHash == storedHash;
     }
 };
 
 
 /**
- * @brief 深度优先搜索以查找密码.
- * @param idx 当前正在处理的密码位置 (0-2).
- * @param targetHash 要匹配的目标哈希字符串.
- * @param lock 用于计算哈希的PasswordLock实例.
- * @param decrypt_count 引用，用于累加解密尝试次数.
- * @param foundPassword 引用，用于存储找到的密码.
- * @return true 如果找到密码，则搜索终止.
- * @return false 如果未找到密码，则继续搜索.
+ * @brief 娣卞害浼樺厛鎼滅储浠ユ煡鎵惧瘑鐮�.
+ * @param idx 褰撳墠姝ｅ湪澶勭悊鐨勫瘑鐮佷綅缃� (0-2).
+ * @param targetHash 瑕佸尮閰嶇殑鐩爣鍝堝笇瀛楃涓�.
+ * @param lock 鐢ㄤ簬璁＄畻鍝堝笇鐨凱asswordLock瀹炰緥.
+ * @param decrypt_count 寮曠敤锛岀敤浜庣疮鍔犺В瀵嗗皾璇曟鏁�.
+ * @param foundPassword 寮曠敤锛岀敤浜庡瓨鍌ㄦ壘鍒扮殑瀵嗙爜.
+ * @return true 濡傛灉鎵惧埌瀵嗙爜锛屽垯鎼滅储缁堟.
+ * @return false 濡傛灉鏈壘鍒板瘑鐮侊紝鍒欑户缁悳绱�.
  */
-// 深度优先生成满足条件的三位密码
+// 娣卞害浼樺厛鐢熸垚婊¤冻鏉′欢鐨勪笁浣嶅瘑鐮�
 bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int& decrypt_count, string& foundPassword) {
-    // 基本情况：当一个完整的三位密码生成后
+    // 鍩烘湰鎯呭喌锛氬綋涓€涓畬鏁寸殑涓変綅瀵嗙爜鐢熸垚鍚�
     if (idx == 3) {
         string pwd = string(1, char('0' + cur[0])) +
                      string(1, char('0' + cur[1])) +
                      string(1, char('0' + cur[2]));
         
-        decrypt_count++; // 增加尝试次数
+        decrypt_count++; // 澧炲姞灏濊瘯娆℃暟
 
-        // 立即检查哈希值
+        // 绔嬪嵆妫€鏌ュ搱甯屽€�
         if (lock.hashPassword(pwd) == targetHash) {
             foundPassword = pwd;
-            return true; // 找到密码，返回true以终止搜索
+            return true; // 鎵惧埌瀵嗙爜锛岃繑鍥瀟rue浠ョ粓姝㈡悳绱�
         }
         
-        return false; // 哈希不匹配，继续搜索
+        return false; // 鍝堝笇涓嶅尮閰嶏紝缁х画鎼滅储
     }
 
-    // 递归步骤
+    // 閫掑綊姝ラ
     if (needPrimeUnique) {
         for (int d : primes) {
             if (used[d]) continue;
@@ -229,7 +229,7 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
             used[d] = true;
             cur.push_back(d);
             if (findPasswordDfs(idx + 1, targetHash, lock, decrypt_count, foundPassword)) {
-                return true; // 如果子搜索找到密码，立即返回
+                return true; // 濡傛灉瀛愭悳绱㈡壘鍒板瘑鐮侊紝绔嬪嵆杩斿洖
             }
             cur.pop_back();
             used[d] = false;
@@ -241,25 +241,26 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
             
             cur.push_back(d);
             if (findPasswordDfs(idx + 1, targetHash, lock, decrypt_count, foundPassword)) {
-                return true; // 如果子搜索找到密码，立即返回
+                return true; // 濡傛灉瀛愭悳绱㈡壘鍒板瘑鐮侊紝绔嬪嵆杩斿洖
             }
             cur.pop_back();
         }
     }
 
-    return false; // 在这个分支下没有找到密码
+    return false; // 鍦ㄨ繖涓垎鏀笅娌℃湁鎵惧埌瀵嗙爜
 }
 
 /**
- * @brief ��ȡ�ƽ���Ϣ���������ܴ���������.
- * @param argc �����в�������.
- * @param argv �����в�������.
- * @return �������ܴ����������pair.
+ * @brief 获取破解信息，包括解密次数和密码.
+ * @param argc 命令行参数数量.
+ * @param argv 命令行参数数组.
+ * @return 包含解密次数和密码的pair.
  */
 std::pair<int,string> get_crack_info(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
-    string password; // ����
+    string password; // 密码
     QString dirPath = "../password_test";
+    //QString dirPath = "../vscode_algo";
     QDir directory(dirPath);
 
     if (!directory.exists()) {
@@ -274,14 +275,14 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
         QString jsonPath = directory.filePath(fileName);
 
 
-        // --- 1. ����ÿ���ļ���״̬ ---
+        // --- 1. 重置每个文件的状态 ---
         posFixed.assign(3, -1);
         posParity.assign(3, -1);
         needPrimeUnique = false;
         cur.clear();
         fill(begin(used), end(used), false);
         
-        // --- 2. ��ȡ�ͽ���JSON�ļ� ---
+        // --- 2. 读取和解析JSON文件 ---
         QFile jsonFile(jsonPath);
         if (!jsonFile.open(QIODevice::ReadOnly)) {
             cerr << "Failed to open JSON file for reading: " << jsonPath.toStdString() << endl;
@@ -300,7 +301,7 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
         QJsonObject rootObj = doc.object();
 
 
-        // --- 3. ��������"C"��������� ---
+        // --- 3. 处理来自"C"数组的线索 ---
         QJsonArray clues = rootObj.value("C").toArray();
         for (const QJsonValue &val : clues) {
             QJsonArray arr = val.toArray();
@@ -314,7 +315,7 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
             }
         }
         
-        // --- 4. �������벢��ȷ���� ---
+        // --- 4. 搜索密码并精确计数 ---
         string inputHash = rootObj.value("L").toString().toStdString();
         int decrypt_count = 0;
         string foundPassword = "";
@@ -326,7 +327,7 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
         total_decrypt_count += decrypt_count;
 
 
-        // --- 5. ���Ҳ������� ---
+        // --- 5. 查找并保存结果 ---
         if (!foundPassword.empty()) {
             std::cout << "File: " << left << setw(15) << fileName.toStdString() 
                  << " -> Password found: " << foundPassword 
@@ -348,7 +349,7 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
         }
     }
 
-    // --- 6. ��ӡ�������� ---
+    // --- 6. 打印最终总数 ---
     cout << "\n================================================" << endl;
     cout << "  Total decryption attempts for all files: " << total_decrypt_count << endl;
     cout << "================================================" << endl;

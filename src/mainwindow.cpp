@@ -1,7 +1,7 @@
 #include "heads/mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "backtrack_find_clue.h"
-#include "exam4.h"
+#include "heads/backtrack_find_clue.h"
+#include "heads/exam4.h"
 #include <QInputDialog>
 #include <algorithm>
 #include <QTimer>
@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <random> // 新增：用于屏幕抖动
 #include <windows.h>
-#include"gamechoose.h"
+#include "heads/gamechoose.h"
 
 
 void MainWindow::ontimeout()
@@ -118,15 +118,18 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
 }
 
 
-void MainWindow::onBackButtonClicked()
-{
-    gamechoose*newchoose=new gamechoose();
-    newchoose->show();
-    this->show();
-}
+// void MainWindow::onBackButtonClicked()
+// {
+//     gamechoose*newchoose=new gamechoose();
+//     newchoose->show();
+//     this->show();
+// }
+
 void MainWindow::onExitReached()
 {
     // 停止当前窗口的所有计时器，以防止后台继续处理
+    pair<int,string> crackinfo=get_crack_info(0,nullptr);
+    
     Player.playerTimer->stop();
     if (generationTimer)
     {

@@ -25,7 +25,6 @@ set(PROJECT_SOURCES
         src/main.cpp
         src/player.cpp
         src/renderthread.cpp
-        src/exam4.cpp
         src/mainwindow.cpp
         src/lock.cpp
         src/heads/autocontrol.h
@@ -33,6 +32,7 @@ set(PROJECT_SOURCES
         src/heads/boss.h
         src/heads/collect_coin.h
         src/heads/dp.h
+        src/heads/exam4.h
         src/heads/gamechoose.h
         src/heads/gamecontrol.h
         src/heads/gamemain.h
