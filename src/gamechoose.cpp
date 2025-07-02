@@ -290,13 +290,14 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-    w = new MainWindow(this->dimension, model, this);
-    if (dimension > 0)
+    w=new MainWindow(this->dimension,model, this);
+    if(dimension>0)
     {
         w->show();
     }
     connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
     this->hide();
+    connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
 
     // if(this->dimension==0)
     // {
@@ -330,7 +331,7 @@ void gamechoose::onRandomButtonClicked()
 
 void gamechoose::onExitButtonClicked()
 {
-    delete w;
+    w->deleteLater();
     w = nullptr;
     this->show();
 }
