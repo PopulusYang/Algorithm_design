@@ -71,7 +71,7 @@ private:
     QTimer *generationTimer = nullptr;
     boss *bossWindow = nullptr;
     player Player;
-
+    bool gameover = false;
     // Boss 相关
     int bossAnim = 0;
     int bossAnimFrameCounter = 0;

@@ -9,8 +9,8 @@
 #include <QMessageBox>
 #include <QTextEdit>
 #include <QVBoxLayout>
-#include <QTableWidget>       // 新增：用于创建表格
-#include <QHeaderView>        // 新增：用于美化表头
+#include <QTableWidget> // 新增：用于创建表格
+#include <QHeaderView>  // 新增：用于美化表头
 #include "heads/backtrack_find_clue.h"
 #include "heads/lock.h"       // 添加 lock.h 头文件
 #include <QCryptographicHash> // 新增：用于计算 SHA256
@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <random> // 新增：用于屏幕抖动
 #include <windows.h>
-
 
 void MainWindow::ontimeout()
 {
@@ -50,11 +49,11 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     {
         gameController = new GameController(informations);
     }
-    if(mazeSize==0)
+    if (mazeSize == 0)
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
-                              gameController->Skills,Player.playersource); // 创建 boss 窗口的实例
+                              gameController->Skills, Player.playersource); // 创建 boss 窗口的实例
 
         bossWindow->show(); // 显示它
         connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
@@ -127,13 +126,11 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
                                  { autoCtrl.thread_auto_run(); });
 }
 
-
-
 void MainWindow::onExitReached()
 {
     // 停止当前窗口的所有计时器，以防止后台继续处理
-    pair<int,string> crackinfo=get_crack_info(0,nullptr);
-    
+    pair<int, string> crackinfo = get_crack_info(0, nullptr);
+
     Player.playerTimer->stop();
     if (generationTimer)
     {
@@ -155,22 +152,23 @@ void MainWindow::onExitReached()
         if (autoCtrl.rundone)
             runalongThread->join();
     }
-    if (!gameController->boss_in_map)
+    if(!gameovere)
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
-                                    gameController->Skills,Player.playersource); // 创建 boss 窗口的实例
-                           
+                              gameController->Skills, Player.playersource); // 创建 boss 窗口的实例
+
         bossWindow->show(); // 显示它
         connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
 
         // 关闭当前的迷宫窗口
-        this->close();
+        this->hide();
     }
 }
 
 void MainWindow::onExitClicked()
 {
+    gameover = true;
     onExitReached();
 
     this->hide();
@@ -253,7 +251,7 @@ void MainWindow::onRenderTick()
         m_screenShakeFrames--;
     }
 
-    if (!Player.ai_control && Player.cando && Player.pressedKeys.contains(Qt::Key_E))
+    if (Player.cando && Player.pressedKeys.contains(Qt::Key_E))
     {
         int playerTileX = qRound(Player.playerPos.y() + 0.15);
         int playerTileY = qRound(Player.playerPos.x() + 0.1);
@@ -521,7 +519,7 @@ void MainWindow::crackPassword()
 bool MainWindow::locker_status()
 {
     // 1. 判断是否在储物柜附近
-    if (gameController->is_near_locker)
+    if (gameController->is_near_locker||Player.ai_control)
     {
         // 立刻重置状态，避免重复触发
         gameController->is_near_locker = false;
@@ -532,9 +530,8 @@ bool MainWindow::locker_status()
         QByteArray dataToHash = passwordStr.toUtf8();
         QString sha256_hash = QCryptographicHash::hash(dataToHash, QCryptographicHash::Sha256).toHex();
 
-        // 3. 创建并显示密码对话框
-        Lock lockDialog(sha256_hash, gameController->received_clue, this);
-        if (lockDialog.exec() == QDialog::Accepted)
+        Lock lockDialog = Lock(sha256_hash, gameController->received_clue, this);
+        if (!Player.ai_control && lockDialog.exec() == QDialog::Accepted)
         {
             int guess_password = lockDialog.getPassword();
 
@@ -549,6 +546,21 @@ bool MainWindow::locker_status()
             {
                 QMessageBox::warning(this, "失败", "密码错误！");
                 return false; // 密码错误，返回 false
+            }
+        }
+        else if (Player.ai_control)
+        {
+            auto [first, second] = get_crack_info(0, nullptr);
+            if (first > Player.playersource)
+            {
+                QMessageBox::warning(this, "失败", "没能收集足够的金币以开锁！");
+                return false;
+            }
+            else
+            {
+                int password = std::stoi(second);
+                QMessageBox::information(this, "成功",
+                                         "密码正确！门已打开。");
             }
         }
         else

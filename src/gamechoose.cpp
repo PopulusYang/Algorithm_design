@@ -131,6 +131,22 @@ void gamechoose::onFileButtonClicked()
         return;
     }
 
+    // 将文件复制到 ./password_test/test.json
+    QDir dir;
+    if (!dir.exists("./password_test"))
+    {
+        dir.mkpath("./password_test");
+    }
+    QString destPath = "./password_test/test.json";
+    if (QFile::exists(destPath))
+    {
+        QFile::remove(destPath);
+    }
+    if (!QFile::copy(filePath, destPath))
+    {
+        QMessageBox::warning(this, "复制文件失败", "无法将文件复制到 " + destPath);
+    }
+
     // 2. 读取文件内容
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -274,12 +290,12 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-    w=new MainWindow(this->dimension,model, this);
-    if(mazesize>0)
+    w = new MainWindow(this->dimension, model, this);
+    if (dimension > 0)
     {
         w->show();
-        connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
     }
+    connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
     this->hide();
 
     // if(this->dimension==0)
@@ -294,7 +310,6 @@ void gamechoose::onFileButtonClicked()
     //     w->show();
     //     this->hide();
     // }
-
 }
 
 void gamechoose::onRandomButtonClicked()

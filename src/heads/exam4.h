@@ -259,7 +259,7 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
 std::pair<int,string> get_crack_info(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
     string password; // 密码
-    QString dirPath = "../password_test";
+    QString dirPath = "./password_test";
     //QString dirPath = "../vscode_algo";
     QDir directory(dirPath);
 
