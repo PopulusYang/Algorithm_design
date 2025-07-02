@@ -233,8 +233,7 @@ void gamechoose::onFileButtonClicked()
                 else if (cell == "B")
                 {
                     this->maze[i][j] =
-                        static_cast<int>(MAZE::BOSS);
-                    this->boss_in_map = true;
+                        static_cast<int>(MAZE::WAY);
                 } // Boss
                 else if (cell == "T")
                 {
@@ -242,7 +241,7 @@ void gamechoose::onFileButtonClicked()
                     this->traps[current_pos] = false;                // 存入陷阱地图，初值为false
                 }
                 else if (cell == "L")
-                    this->maze[i][j] = static_cast<int>(MAZE::LOCKER); // 密码锁
+                    this->maze[i][j] = static_cast<int>(MAZE::WAY); // 密码锁
                 else
                     this->maze[i][j] = 0; // 默认为路
             }
@@ -291,10 +290,8 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-
-
-    w=new MainWindow(this->dimension,model, this,nullptr);
-    if(dimension>0)
+    w = new MainWindow(this->dimension, model, this, nullptr);
+    if (dimension > 0)
     {
         w->show();
     }

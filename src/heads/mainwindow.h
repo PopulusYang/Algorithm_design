@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QApplication>
 #include <QMainWindow>
 #include <QPainter>    // 包含 QPainter
 #include <QPaintEvent> // 包含 QPaintEvent
@@ -19,6 +20,7 @@
 #include "gamecontrol.h"
 #include "autocontrol.h"
 #include "renderthread.h"
+#include "exam4.h"
 #include"boss.h"
 #include <thread>
 #include <list>
@@ -71,6 +73,7 @@ private:
     QTimer *generationTimer = nullptr;
     boss *bossWindow = nullptr;
     player Player;
+    QDialog* victoryDialog;
 
     // Boss 相关
     int bossAnim = 0;
