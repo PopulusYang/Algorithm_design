@@ -7,23 +7,19 @@
 #include <QVBoxLayout>
 #include <algorithm>
 // 构造函数实现
-boss::boss(std::vector<int>initialBosshp, std::vector<Skill> initialSkills, QWidget *parent) :
+boss::boss(std::vector<int>initialBosshp, std::vector<Skill> initialSkills,int playersource, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::boss), // 使用小写的 ui::boss
     m_currentTurn(0),
     m_currentTargetBossIndex(0)
 {
-    ui->setupUi(this);
-
-
+    ui->setupUi(this);  
+    currsource=playersource;
     this->bosshp = initialBosshp;
     this->Skills = initialSkills;
     this->m_currentBossHp = this->bosshp;
-
     m_currentSkillCooldowns.resize(this->Skills.size(), 0);
-
     this->skillid = solveBossRush(this->bosshp, this->Skills);
-
     setupUiElements();
 
     connect(ui->nextTurnButton, &QPushButton::clicked, this, &boss::onNextTurnClicked);
@@ -254,9 +250,11 @@ void boss::updateUI()
         historyString = "无"; // 如果还没有使用技能，则显示 "无"
     }
 
-    QString fullLabelText = QString("当前回合: %1 | 已用技能序列: %2")
+    QString fullLabelText = QString("当前回合: %1 | 当前资源数：%2\n已用技能序列: %3")
                                 .arg(m_currentTurn)
+                                .arg(currsource)
                                 .arg(historyString);
+    currsource--;
 
     // 3. 更新 turnLabel
     ui->turnLabel->setText(fullLabelText);

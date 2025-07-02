@@ -27,6 +27,7 @@
 #include <random> // 新增：用于屏幕抖动
 #include <windows.h>
 
+
 void MainWindow::ontimeout()
 {
     emit needMove(gameController);
@@ -38,6 +39,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     m_model = model;
     // 初始化并生成迷宫
     if (model == 2)
@@ -48,7 +50,17 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     {
         gameController = new GameController(informations);
     }
+    if(mazeSize==0)
+    {
+        // 创建并显示新的boss窗口
+        bossWindow = new boss(gameController->bosshp,
+                              gameController->Skills,Player.playersource); // 创建 boss 窗口的实例
 
+        bossWindow->show(); // 显示它
+        connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
+        this->hide();
+        return;
+    }
     autoCtrl.mazeinformation = gameController;
 
     const int maxWidth = 1280;
@@ -115,6 +127,8 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
                                  { autoCtrl.thread_auto_run(); });
 }
 
+
+
 void MainWindow::onExitReached()
 {
     // 停止当前窗口的所有计时器，以防止后台继续处理
@@ -145,8 +159,8 @@ void MainWindow::onExitReached()
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
-                              gameController->Skills); // 创建 boss 窗口的实例
-
+                                    gameController->Skills,Player.playersource); // 创建 boss 窗口的实例
+                           
         bossWindow->show(); // 显示它
         connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
 
