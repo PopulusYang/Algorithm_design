@@ -15,8 +15,6 @@
 #include <algorithm>
 #include <random> // 新增：用于屏幕抖动
 #include <windows.h>
-#include"gamechoose.h"
-
 
 void MainWindow::ontimeout()
 {
@@ -106,13 +104,6 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
                                  { autoCtrl.thread_auto_run(); });
 }
 
-
-void MainWindow::onBackButtonClicked()
-{
-    gamechoose*newchoose=new gamechoose();
-    newchoose->show();
-    this->show();
-}
 void MainWindow::onExitReached()
 {
     // 停止当前窗口的所有计时器，以防止后台继续处理
@@ -141,7 +132,7 @@ void MainWindow::onExitReached()
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
-                                    gameController->Skills); // 创建 boss 窗口的实例
+                              gameController->Skills); // 创建 boss 窗口的实例
 
         bossWindow->show(); // 显示它
         connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
@@ -153,6 +144,8 @@ void MainWindow::onExitReached()
 
 void MainWindow::onExitClicked()
 {
+    onExitReached();
+
     this->hide();
     emit exit_mainwindow();
 }

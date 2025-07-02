@@ -40,7 +40,7 @@ int dp::weight(point dest, point current) const
 
 void dp::isWorth(djstruct &input)
 {
-    if (*(input.path.end() - 1) == end || input.lenght == 0 || clues.count(*(input.path.end()-1))) // 如果路径终点是迷宫出口或者路径长度为0，跳过价值评估直接认可
+    if (*(input.path.end() - 1) == end || input.lenght == 0 || clues.count(*(input.path.end() - 1))) // 如果路径终点是迷宫出口或者路径长度为0，跳过价值评估直接认可
         return;
     float cost = input.lenght;                          // 路径代价
     float gain = sourse_value[*(input.path.end() - 1)]; // 价值
@@ -58,7 +58,7 @@ void dp::isWorth(djstruct &input)
     }
 }
 
-void dp::full_the_path(std::vector<point> &input) 
+void dp::full_the_path(std::vector<point> &input)
 {
     collecter.tempset = sourse;
     std::vector<point> output;
@@ -73,7 +73,7 @@ void dp::full_the_path(std::vector<point> &input)
         {
             collecter.tempset.erase(target);
         }
-        else if(target != end && !clues.count(target))
+        else if (target != end && !clues.count(target))
         {
             // 如果目标点不在资源集合中，直接跳过
             continue;
@@ -85,7 +85,7 @@ void dp::full_the_path(std::vector<point> &input)
         // 在补全段终点贪心收集金币
         auto [hascollected, final_pos] = greedy_simulate(rpath, rpath.size() - 1);
         if (final_pos != rpath.back())
-    
+
         {
             i -= hascollected.size();
 
@@ -95,7 +95,6 @@ void dp::full_the_path(std::vector<point> &input)
                         input.end());
         }
 
-            
         if (rpath.size() > 1)
             output.insert(output.end(), rpath.begin() + 1, rpath.end());
 
@@ -107,10 +106,10 @@ void dp::full_the_path(std::vector<point> &input)
 // 修改greedy_simulate：模拟时同步修改path，并返回最终停留点
 std::pair<std::unordered_set<point>, point> dp::greedy_simulate(std::vector<point> &path, size_t start_idx)
 {
-    //将迪杰斯特拉算法得到的路径中途经过的资源全部标记
-    for(auto p : path)
+    // 将迪杰斯特拉算法得到的路径中途经过的资源全部标记
+    for (auto p : path)
     {
-        if(collecter.tempset.count(p))
+        if (collecter.tempset.count(p))
         {
             collecter.tempset.erase(p);
         }
@@ -211,9 +210,9 @@ djstruct dp::Dijkstra(point S, point E) // 迪杰斯特拉算法求两点路径
 其中n和m分别是地图的行数和列数，完美解决动态规划算法优化的太好的问题
 std::vector<point> dp::findBestPath(point playerstart)
 {
-    int k = sourse.size() + 3;
+    int k = sourse.size() + clues.size();
     std::vector<point> R(sourse.begin(), sourse.end()); // 拍平成vector
-    for(auto [p, b] : clues)
+    for (auto [p, b] : clues)
     {
         R.push_back(p); // 将线索点也加入资源列表
     }
