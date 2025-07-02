@@ -1,4 +1,4 @@
-#include "collect_coin.h"
+#include "heads/collect_coin.h"
 
 bool coin_collecter::ifsourvaild(point currentpoint) // 判断周围视野中是否有资源
 {

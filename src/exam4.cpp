@@ -273,7 +273,7 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
     for (const QString &fileName : jsonFiles) {
         QString jsonPath = directory.filePath(fileName);
 
-
+<<<<<<<< HEAD:exam4.h
         // --- 1. ÷ÿ÷√√ø∏ˆŒƒº˛µƒ◊¥Ã¨ ---
         posFixed.assign(3, -1);
         posParity.assign(3, -1);
@@ -289,7 +289,23 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
         }
         QByteArray jsonData = jsonFile.readAll();
         jsonFile.close();
-    
+========
+//         // --- 1. ÈáçÁΩÆÊØè‰∏™Êñá‰ª∂ÁöÑÁä∂ÊÄÅ ---
+//         posFixed.assign(3, -1);
+//         posParity.assign(3, -1);
+//         needPrimeUnique = false;
+//         cur.clear();
+//         fill(begin(used), end(used), false);
+        
+//         // --- 2. ËØªÂèñÂíåËß£ÊûêJSONÊñá‰ª∂ ---
+//         QFile jsonFile(jsonPath);
+//         if (!jsonFile.open(QIODevice::ReadOnly)) {
+//             cerr << "Failed to open JSON file for reading: " << jsonPath.toStdString() << endl;
+//             continue;
+//         }
+//         QByteArray jsonData = jsonFile.readAll();
+//         jsonFile.close();
+>>>>>>>> 16e18461d5b1478a2ac4839f448d1df08f51bb1f:src/exam4.cpp
 
         QJsonParseError parseError;
         QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
@@ -299,7 +315,7 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
         }
         QJsonObject rootObj = doc.object();
 
-
+<<<<<<<< HEAD:exam4.h
         // --- 3. ¥¶¿Ì¿¥◊‘"C" ˝◊ÈµƒœﬂÀ˜ ---
         QJsonArray clues = rootObj.value("C").toArray();
         for (const QJsonValue &val : clues) {
@@ -319,18 +335,45 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
         int decrypt_count = 0;
         string foundPassword = "";
         PasswordLock lock;
-
+========
+//         // --- 3. Â§ÑÁêÜÊù•Ëá™"C"Êï∞ÁªÑÁöÑÁ∫øÁ¥¢ ---
+//         QJsonArray clues = rootObj.value("C").toArray();
+//         for (const QJsonValue &val : clues) {
+//             QJsonArray arr = val.toArray();
+//             vector<int> v;
+//             for (const QJsonValue &elem : arr) v.push_back(elem.toInt());
+//             if (v.size() == 2) {
+//                 if (v[0] == -1 && v[1] == -1) needPrimeUnique = true;
+//                 else posParity[v[0] - 1] = v[1];
+//             } else if (v.size() == 3) {
+//                 for (int j = 0; j < 3; ++j) if (v[j] != -1) { posFixed[j] = v[j]; break; }
+//             }
+//         }
+        
+//         // --- 4. ÊêúÁ¥¢ÂØÜÁ†ÅÂπ∂Á≤æÁ°ÆËÆ°Êï∞ ---
+//         string inputHash = rootObj.value("L").toString().toStdString();
+//         int decrypt_count = 0;
+//         string foundPassword = "";
+//         PasswordLock lock;
+>>>>>>>> 16e18461d5b1478a2ac4839f448d1df08f51bb1f:src/exam4.cpp
 
         findPasswordDfs(0, inputHash, lock, decrypt_count, foundPassword);
         
         total_decrypt_count += decrypt_count;
 
-
+<<<<<<<< HEAD:exam4.h
         // --- 5. ≤È’“≤¢±£¥ÊΩ·π˚ ---
         if (!foundPassword.empty()) {
             std::cout << "File: " << left << setw(15) << fileName.toStdString() 
                  << " -> Password found: " << foundPassword 
                  << " (Attempts: " << decrypt_count << ")" << endl;
+========
+//         // --- 5. Êü•ÊâæÂπ∂‰øùÂ≠òÁªìÊûú ---
+//         if (!foundPassword.empty()) {
+//             cout << "File: " << left << setw(15) << fileName.toStdString() 
+//                  << " -> Password found: " << foundPassword 
+//                  << " (Attempts: " << decrypt_count << ")" << endl;
+>>>>>>>> 16e18461d5b1478a2ac4839f448d1df08f51bb1f:src/exam4.cpp
 
             rootObj.insert("P", QString::fromStdString(foundPassword));
             rootObj.insert("D", decrypt_count);
@@ -356,5 +399,14 @@ std::pair<int,string> get_crack_info(int argc, char *argv[]) {
     return crack_result;
 }
 
+<<<<<<<< HEAD:exam4.h
 #endif
+========
+//     // --- 6. ÊâìÂç∞ÊúÄÁªàÊÄªÊï∞ ---
+//     cout << "\n================================================" << endl;
+//     cout << "  Total decryption attempts for all files: " << total_decrypt_count << endl;
+//     cout << "================================================" << endl;
 
+//     return 0;
+// }
+>>>>>>>> 16e18461d5b1478a2ac4839f448d1df08f51bb1f:src/exam4.cpp

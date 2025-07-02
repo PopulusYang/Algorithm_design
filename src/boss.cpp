@@ -1,11 +1,11 @@
-#include "boss.h"
+#include "heads/boss.h"
+#include "heads/gamechoose.h"
 #include "ui_boss.h" // 确保 ui 文件名是 boss.ui
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QPushButton>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <algorithm>
-#include"gamechoose.h"
 // 构造函数实现
 boss::boss(std::vector<int>initialBosshp, std::vector<Skill> initialSkills, QWidget *parent) :
     QWidget(parent),
@@ -15,26 +15,19 @@ boss::boss(std::vector<int>initialBosshp, std::vector<Skill> initialSkills, QWid
 {
     ui->setupUi(this);
 
-    // 将传入的参数赋值给成员变量
+
     this->bosshp = initialBosshp;
     this->Skills = initialSkills;
-
-    // 初始化当前血量
     this->m_currentBossHp = this->bosshp;
 
-    // 初始化技能冷却状态
     m_currentSkillCooldowns.resize(this->Skills.size(), 0);
 
-    // 调用您的函数获取出招序列
     this->skillid = solveBossRush(this->bosshp, this->Skills);
 
-    // 设置UI元素
     setupUiElements();
 
-    // 信号槽连接
     connect(ui->nextTurnButton, &QPushButton::clicked, this, &boss::onNextTurnClicked);
 
-    // 初始化UI显示
     updateUI();
 }
 
@@ -262,7 +255,7 @@ void boss::updateUI()
     }
 
     QString fullLabelText = QString("当前回合: %1 | 已用技能序列: %2")
-                                .arg(m_currentTurn + 1)
+                                .arg(m_currentTurn)
                                 .arg(historyString);
 
     // 3. 更新 turnLabel
@@ -314,8 +307,7 @@ void boss::cleanupUiElements()
 
 void boss::on_returnbotton_clicked()
 {
-    gamechoose*newgame=new gamechoose();
-    newgame->show();
     this->hide();
+    emit exit_bossui();
 }
 

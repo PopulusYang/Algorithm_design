@@ -21,6 +21,8 @@ enum class Technique
     bigTech
 };
 
+void record_clue(GameController *gameController, double xd, double yd);
+
 class player : public QObject
 {
     Q_OBJECT
@@ -31,10 +33,12 @@ public:
     QPointF playerAcc;     // 玩家加速度
     QTimer *playerTimer;   // 控制玩家移动的定时器
     QSet<int> pressedKeys; // 当前按下的键
-    float inertia;         // 惯性系数
     float moveSpeed;       // 基础速度
     point playerpoint;//玩家位置
     int playersource = 0;//资源量
+    bool ai_control = false; // 是否启用自动控制
+    bool cando = false;
+    bool runalongthepath = false;
 
     player& operator=(const player &rhs)
     {
@@ -44,10 +48,10 @@ public:
             playerAcc = rhs.playerAcc;
             playerTimer = rhs.playerTimer;
             pressedKeys = rhs.pressedKeys;
-            inertia = rhs.inertia;
             moveSpeed = rhs.moveSpeed;
             playerpoint = rhs.playerpoint;
             playersource = rhs.playersource;
+            ai_control = rhs.ai_control;
         }
         return *this;
     }
@@ -55,9 +59,9 @@ public:
     player(const player &rhs)
         : playerPos(rhs.playerPos), playerVel(rhs.playerVel), playerAcc(rhs.playerAcc),
           playerTimer(rhs.playerTimer), pressedKeys(rhs.pressedKeys),
-          inertia(rhs.inertia), moveSpeed(rhs.moveSpeed),
+          moveSpeed(rhs.moveSpeed),
           playerpoint(rhs.playerpoint),
-          playersource(rhs.playersource){}
+          playersource(rhs.playersource),ai_control(rhs.ai_control){}
 
     QPixmap playerSprite;
     int playerDir = 2;            // 0:左 1:下 2:上 3:右
