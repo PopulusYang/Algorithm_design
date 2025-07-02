@@ -41,7 +41,6 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     bool event(QEvent *event) override; // 用于关闭输入法
-    void drawCluePath();
     void crackPassword();
     bool locker_status();
     void generatePasswords_Backtracking(
@@ -55,7 +54,6 @@ private slots:
     void ontimeout();
     void onGenerationStep();
     void onSolveMazeClicked();
-    void onResetGameClicked();
     void onFrameReady(const QPixmap &frame);
     void onRenderTick();
     void onTrapTriggered(const QPointF &playerPos);
@@ -67,7 +65,6 @@ private:
     int blockSize;
     QPushButton *solveButton;
     std::vector<point> solvedPath;
-    std::vector<std::vector<std::pair<int, int>>> cluePath;
     QTimer *generationTimer = nullptr;
 
     player Player;

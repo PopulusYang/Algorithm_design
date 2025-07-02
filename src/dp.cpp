@@ -40,7 +40,7 @@ int dp::weight(point dest, point current) const
 
 void dp::isWorth(djstruct &input)
 {
-    if (*(input.path.end() - 1) == end || input.lenght == 0) // 如果路径终点是迷宫出口或者路径长度为0，跳过价值评估直接认可
+    if (*(input.path.end() - 1) == end || input.lenght == 0 || clues.count(*(input.path.end()-1))) // 如果路径终点是迷宫出口或者路径长度为0，跳过价值评估直接认可
         return;
     float cost = input.lenght;                          // 路径代价
     float gain = sourse_value[*(input.path.end() - 1)]; // 价值
@@ -73,7 +73,7 @@ void dp::full_the_path(std::vector<point> &input)
         {
             collecter.tempset.erase(target);
         }
-        else if(target != end)
+        else if(target != end && !clues.count(target))
         {
             // 如果目标点不在资源集合中，直接跳过
             continue;
@@ -211,8 +211,12 @@ djstruct dp::Dijkstra(point S, point E) // 迪杰斯特拉算法求两点路径
 其中n和m分别是地图的行数和列数，完美解决动态规划算法优化的太好的问题
 std::vector<point> dp::findBestPath(point playerstart)
 {
-    int k = sourse.size();
+    int k = sourse.size() + 3;
     std::vector<point> R(sourse.begin(), sourse.end()); // 拍平成vector
+    for(auto [p, b] : clues)
+    {
+        R.push_back(p); // 将线索点也加入资源列表
+    }
     int V = k + 2;
     // 预处理dist
     std::vector<std::vector<int>> dist(V, std::vector<int>(V, INF));

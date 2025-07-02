@@ -205,15 +205,15 @@ public:
         if (trap_count < 0)
             trap_count = 0;
 
-        // ??????????BOSS???
-        if (dimension >= 9)
-        {
-            locker_count = 1;
-        }
-        else if (dimension >= 7)
-        {
-            locker_count = 1;
-        }
+        // 不再生成锁，从出口出去需要锁
+        // if (dimension >= 9)
+        // {
+        //     locker_count = 1;
+        // }
+        // else if (dimension >= 7)
+        // {
+        //     locker_count = 1;
+        // }
         start = {1, 1};
         maze[start.x][start.y] = static_cast<int>(MAZE::START);
         end = {dimension - 2, dimension - 2};
@@ -493,6 +493,8 @@ private:
             break;
         case MAZE::LOCKER:
             locker = pos;
+            gamemain::lock.x = pos.first;
+            gamemain::lock.y = pos.second;
             break;
         case MAZE::TRAP:
             traps.insert({point(pos.first, pos.second), false});
@@ -514,6 +516,7 @@ private:
             temp_point.x = pos.first;
             temp_point.y = pos.second;
             clue = pos;
+            clues.insert({temp_point, false});
             break;
         }
         case MAZE::SOURCE:

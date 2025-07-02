@@ -95,12 +95,14 @@ public:
     std::vector<clue_content> received_clue;
     point start;
     point end;
+    point lock; // 锁的位置
 
-    bool boss_in_map = false; // 是否有BOSS
+    bool boss_in_map = false; // BOSS是否在地图上
     
     std::unordered_set<point> sourse;
     std::unordered_map<point, int> sourse_value; // 资源价值
     std::unordered_map<point, bool> traps;
+    std::unordered_map<point, bool> clues;
     std::vector<Skill>Skills;//玩家的招式伤害和对应的冷却回合
     std::vector<int>bosshp;
     int getSize()

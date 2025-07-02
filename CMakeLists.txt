@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
         src/renderthread.cpp
         src/exam4.cpp
         src/mainwindow.cpp
+        src/lock.cpp
         src/heads/autocontrol.h
         src/heads/backtrack_find_clue.h
         src/heads/boss.h
@@ -39,10 +40,12 @@ set(PROJECT_SOURCES
         src/heads/mapbuild.h
         src/heads/player.h
         src/heads/renderthread.h
+        src/heads/lock.h
         src/jsonlib/json.hpp
         src/ui/boss.ui
         src/ui/gamechoose.ui
         src/ui/mainwindow.ui
+        src/ui/lock.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
