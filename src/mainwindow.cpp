@@ -1,18 +1,18 @@
-#include "mainwindow.h"
+#include "heads/mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "backtrack_find_clue.h"
-#include <QInputDialog>
-#include <algorithm>
-#include <QTimer>
-#include <QKeyEvent>
-#include <QMessageBox>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QTableWidget>       // 新增：用于创建表格
-#include <QHeaderView>        // 新增：用于美化表头
+#include "heads/backtrack_find_clue.h"
 #include <QCryptographicHash> // 新增：用于计算 SHA256
-#include <QLabel>             // 修复：用于QLabel类型
-#include <random>             // 新增：用于屏幕抖动
+#include <QHeaderView>        // 新增：用于美化表头
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QLabel> // 修复：用于QLabel类型
+#include <QMessageBox>
+#include <QTableWidget> // 新增：用于创建表格
+#include <QTextEdit>
+#include <QTimer>
+#include <QVBoxLayout>
+#include <algorithm>
+#include <random> // 新增：用于屏幕抖动
 #include <windows.h>
 
 void MainWindow::ontimeout()

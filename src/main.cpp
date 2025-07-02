@@ -1,4 +1,4 @@
-#include"gamechoose.h"
+#include "heads/gamechoose.h"
 #include <QApplication>
 
 

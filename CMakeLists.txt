@@ -9,44 +9,46 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/ui)
+
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/img DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        mapbuild.h
-        gamemain.h
-        dp.h
-        dp.cpp
-        player.h
-        player.cpp
-        autocontrol.h
-        gamemain.h
-        boss.h
-        boss.cpp
-        boss.ui
-        exam4.cpp
-        json.hpp
-        collect_coin.cpp
-        collect_coin.h
-        backtrack_find_clue.h
-        renderthread.h
-        renderthread.cpp
+        src/boss.cpp
+        src/collect_coin.cpp
+        src/dp.cpp
+        src/gamechoose.cpp
+        src/main.cpp
+        src/player.cpp
+        src/renderthread.cpp
+        src/exam4.cpp
+        src/mainwindow.cpp
+        src/heads/autocontrol.h
+        src/heads/backtrack_find_clue.h
+        src/heads/boss.h
+        src/heads/collect_coin.h
+        src/heads/dp.h
+        src/heads/gamechoose.h
+        src/heads/gamecontrol.h
+        src/heads/gamemain.h
+        src/heads/mainwindow.h
+        src/heads/mapbuild.h
+        src/heads/player.h
+        src/heads/renderthread.h
+        src/jsonlib/json.hpp
+        src/ui/boss.ui
+        src/ui/gamechoose.ui
+        src/ui/mainwindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(AlgorithmDesign
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        gamechoose.h gamechoose.cpp gamechoose.ui
-        gamecontrol.h
-        gamecontrol.h
-
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET AlgorithmDesign APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

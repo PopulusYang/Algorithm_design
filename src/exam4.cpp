@@ -17,37 +17,37 @@ bool used[10] = {false};
 
 class SHA256 {
 private:
-    // SHA-256Ëã·¨µÄ³£Á¿
+    // SHA-256ç®—æ³•çš„å¸¸é‡
     const static uint32_t K[64];
     
-    // ³õÊ¼¹şÏ£Öµ£¨À´×ÔSHA-256±ê×¼£©
+    // åˆå§‹å“ˆå¸Œå€¼ï¼ˆæ¥è‡ªSHA-256æ ‡å‡†ï¼‰
     std::array<uint32_t, 8> H = {
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
     };
     
-    // ¹¤¾ßº¯Êı£ºÓÒĞı×ª
+    // å·¥å…·å‡½æ•°ï¼šå³æ—‹è½¬
     inline uint32_t rightRotate(uint32_t value, unsigned int count) {
         return (value >> count) | (value << (32 - count));
     }
     
-    // ´¦Àíµ¥¸ö512Î»µÄÊı¾İ¿é
+    // å¤„ç†å•ä¸ª512ä½çš„æ•°æ®å—
     void processBlock(const uint8_t* block) {
-        // ´´½¨ÏûÏ¢µ÷¶È±í
+        // åˆ›å»ºæ¶ˆæ¯è°ƒåº¦è¡¨
         uint32_t W[64];
         for (int t = 0; t < 16; t++) {
             W[t] = (block[t * 4] << 24) | (block[t * 4 + 1] << 16) |
                    (block[t * 4 + 2] << 8) | (block[t * 4 + 3]);
         }
         
-        // À©Õ¹ÏûÏ¢µ÷¶È±í
+        // æ‰©å±•æ¶ˆæ¯è°ƒåº¦è¡¨
         for (int t = 16; t < 64; t++) {
             uint32_t s0 = rightRotate(W[t-15], 7) ^ rightRotate(W[t-15], 18) ^ (W[t-15] >> 3);
             uint32_t s1 = rightRotate(W[t-2], 17) ^ rightRotate(W[t-2], 19) ^ (W[t-2] >> 10);
             W[t] = W[t-16] + s0 + W[t-7] + s1;
         }
         
-        // ³õÊ¼»¯¹¤×÷±äÁ¿
+        // åˆå§‹åŒ–å·¥ä½œå˜é‡
         uint32_t a = H[0];
         uint32_t b = H[1];
         uint32_t c = H[2];
@@ -57,7 +57,7 @@ private:
         uint32_t g = H[6];
         uint32_t h = H[7];
         
-        // Ö÷Ñ­»·
+        // ä¸»å¾ªç¯
         for (int t = 0; t < 64; t++) {
             uint32_t S1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
             uint32_t ch = (e & f) ^ ((~e) & g);
@@ -76,7 +76,7 @@ private:
             a = temp1 + temp2;
         }
         
-        // ¸üĞÂ¹şÏ£Öµ
+        // æ›´æ–°å“ˆå¸Œå€¼
         H[0] += a;
         H[1] += b;
         H[2] += c;
@@ -88,31 +88,31 @@ private:
     }
     
 public:
-    // ¼ÆËãÊäÈëÊı¾İµÄSHA-256¹şÏ£Öµ
+    // è®¡ç®—è¾“å…¥æ•°æ®çš„SHA-256å“ˆå¸Œå€¼
     std::vector<uint8_t> compute(const std::vector<uint8_t>& message) {
-        // ¼ÆËãÌî³äºóµÄ³¤¶È£¨Ô­Ê¼³¤¶È + 1×Ö½ÚµÄ1 + Ìî³ä0 + 8×Ö½ÚµÄ³¤¶È£©
+        // è®¡ç®—å¡«å……åçš„é•¿åº¦ï¼ˆåŸå§‹é•¿åº¦ + 1å­—èŠ‚çš„1 + å¡«å……0 + 8å­—èŠ‚çš„é•¿åº¦ï¼‰
         uint64_t originalBitLength = message.size() * 8;
-        uint64_t paddedLength = message.size() + 1 + 8; // ÖÁÉÙĞèÒªÌí¼Ó9¸ö×Ö½Ú
-        paddedLength = (paddedLength + 63) & ~63;       // µ÷ÕûÎª64×Ö½ÚµÄ±¶Êı£¨512Î»£©
+        uint64_t paddedLength = message.size() + 1 + 8; // è‡³å°‘éœ€è¦æ·»åŠ 9ä¸ªå­—èŠ‚
+        paddedLength = (paddedLength + 63) & ~63;       // è°ƒæ•´ä¸º64å­—èŠ‚çš„å€æ•°ï¼ˆ512ä½ï¼‰
         
-        // ´´½¨Ìî³äºóµÄÏûÏ¢
+        // åˆ›å»ºå¡«å……åçš„æ¶ˆæ¯
         std::vector<uint8_t> paddedMessage(paddedLength, 0);
         std::copy(message.begin(), message.end(), paddedMessage.begin());
         
-        // Ìí¼ÓÒ»¸ö1Î»£¨×÷ÎªÒ»¸ö×Ö½ÚµÄ0x80£©
+        // æ·»åŠ ä¸€ä¸ª1ä½ï¼ˆä½œä¸ºä¸€ä¸ªå­—èŠ‚çš„0x80ï¼‰
         paddedMessage[message.size()] = 0x80;
         
-        // Ìí¼ÓÏûÏ¢³¤¶È£¨ÒÔÎ»Îªµ¥Î»£¬´ó¶ËĞò£©
+        // æ·»åŠ æ¶ˆæ¯é•¿åº¦ï¼ˆä»¥ä½ä¸ºå•ä½ï¼Œå¤§ç«¯åºï¼‰
         for (int i = 0; i < 8; i++) {
             paddedMessage[paddedLength - 8 + i] = (originalBitLength >> ((7 - i) * 8)) & 0xFF;
         }
         
-        // °´¿é´¦ÀíÏûÏ¢
+        // æŒ‰å—å¤„ç†æ¶ˆæ¯
         for (size_t i = 0; i < paddedLength; i += 64) {
             processBlock(&paddedMessage[i]);
         }
         
-        // Éú³É×îÖÕ¹şÏ£Öµ£¨32×Ö½Ú£©
+        // ç”Ÿæˆæœ€ç»ˆå“ˆå¸Œå€¼ï¼ˆ32å­—èŠ‚ï¼‰
         std::vector<uint8_t> hash(32);
         for (int i = 0; i < 8; i++) {
             hash[i * 4] = (H[i] >> 24) & 0xFF;
@@ -124,7 +124,7 @@ public:
         return hash;
     }
     
-    // ÖØÖÃ¹şÏ£×´Ì¬
+    // é‡ç½®å“ˆå¸ŒçŠ¶æ€
     void reset() {
         H = {
             0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
@@ -133,7 +133,7 @@ public:
     }
 };
 
-// SHA-256Ëã·¨µÄ³£Á¿£¨À´×ÔSHA-256±ê×¼£©
+// SHA-256ç®—æ³•çš„å¸¸é‡ï¼ˆæ¥è‡ªSHA-256æ ‡å‡†ï¼‰
 const uint32_t SHA256::K[64] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -147,13 +147,13 @@ const uint32_t SHA256::K[64] = {
 
 class PasswordLock {
 private:
-    // ÓëPython°æ±¾¶ÔÆëµÄsaltÖµ: b'\xb2S"e}\xdf\xb0\xfe\x9c\xde\xde\xfe\xf3\x1d\xdc>'
+    // ä¸Pythonç‰ˆæœ¬å¯¹é½çš„saltå€¼: b'\xb2S"e}\xdf\xb0\xfe\x9c\xde\xde\xfe\xf3\x1d\xdc>'
     std::vector<unsigned char> salt = {
         0xb2, 0x53, 0x22, 0x65, 0x7d, 0xdf, 0xb0, 0xfe, 
         0x9c, 0xde, 0xde, 0xfe, 0xf3, 0x1d, 0xdc, 0x3e
     };
 
-    // ¸¨Öúº¯Êı£º½«×Ö½ÚÊı×é×ª»»ÎªÊ®Áù½øÖÆ×Ö·û´®
+    // è¾…åŠ©å‡½æ•°ï¼šå°†å­—èŠ‚æ•°ç»„è½¬æ¢ä¸ºåå…­è¿›åˆ¶å­—ç¬¦ä¸²
     std::string bytesToHex(const std::vector<uint8_t>& bytes) {
         std::stringstream ss;
         for (const auto& byte : bytes) {
@@ -164,7 +164,7 @@ private:
 
 public:
     std::string hashPassword(const std::string& password) {
-        // ½«ÃÜÂë×ª»»Îª×Ö½ÚÁ÷
+        // å°†å¯†ç è½¬æ¢ä¸ºå­—èŠ‚æµ
         std::vector<unsigned char> passwordBytes(password.begin(), password.end());
         
         std::vector<unsigned char> combined;
@@ -177,47 +177,47 @@ public:
         return bytesToHex(hashBytes);
     }
     
-    // ÑéÖ¤ÃÜÂë
+    // éªŒè¯å¯†ç 
     bool verifyPassword(const std::string& inputPassword, const std::string& storedHash) {
-        // Ê¹ÓÃÏàÍ¬µÄÑÎÖµ¶ÔÊäÈëÃÜÂë½øĞĞ¹şÏ£
+        // ä½¿ç”¨ç›¸åŒçš„ç›å€¼å¯¹è¾“å…¥å¯†ç è¿›è¡Œå“ˆå¸Œ
         std::string calculatedHash = hashPassword(inputPassword);
         
-        // ±È½Ï¼ÆËã³öµÄ¹şÏ£ÖµÓë´æ´¢µÄ¹şÏ£Öµ
+        // æ¯”è¾ƒè®¡ç®—å‡ºçš„å“ˆå¸Œå€¼ä¸å­˜å‚¨çš„å“ˆå¸Œå€¼
         return calculatedHash == storedHash;
     }
 };
 
 
 /**
- * @brief Éî¶ÈÓÅÏÈËÑË÷ÒÔ²éÕÒÃÜÂë.
- * @param idx µ±Ç°ÕıÔÚ´¦ÀíµÄÃÜÂëÎ»ÖÃ (0-2).
- * @param targetHash ÒªÆ¥ÅäµÄÄ¿±ê¹şÏ£×Ö·û´®.
- * @param lock ÓÃÓÚ¼ÆËã¹şÏ£µÄPasswordLockÊµÀı.
- * @param decrypt_count ÒıÓÃ£¬ÓÃÓÚÀÛ¼Ó½âÃÜ³¢ÊÔ´ÎÊı.
- * @param foundPassword ÒıÓÃ£¬ÓÃÓÚ´æ´¢ÕÒµ½µÄÃÜÂë.
- * @return true Èç¹ûÕÒµ½ÃÜÂë£¬ÔòËÑË÷ÖÕÖ¹.
- * @return false Èç¹ûÎ´ÕÒµ½ÃÜÂë£¬Ôò¼ÌĞøËÑË÷.
+ * @brief æ·±åº¦ä¼˜å…ˆæœç´¢ä»¥æŸ¥æ‰¾å¯†ç .
+ * @param idx å½“å‰æ­£åœ¨å¤„ç†çš„å¯†ç ä½ç½® (0-2).
+ * @param targetHash è¦åŒ¹é…çš„ç›®æ ‡å“ˆå¸Œå­—ç¬¦ä¸².
+ * @param lock ç”¨äºè®¡ç®—å“ˆå¸Œçš„PasswordLockå®ä¾‹.
+ * @param decrypt_count å¼•ç”¨ï¼Œç”¨äºç´¯åŠ è§£å¯†å°è¯•æ¬¡æ•°.
+ * @param foundPassword å¼•ç”¨ï¼Œç”¨äºå­˜å‚¨æ‰¾åˆ°çš„å¯†ç .
+ * @return true å¦‚æœæ‰¾åˆ°å¯†ç ï¼Œåˆ™æœç´¢ç»ˆæ­¢.
+ * @return false å¦‚æœæœªæ‰¾åˆ°å¯†ç ï¼Œåˆ™ç»§ç»­æœç´¢.
  */
-// Éî¶ÈÓÅÏÈÉú³ÉÂú×ãÌõ¼şµÄÈıÎ»ÃÜÂë
+// æ·±åº¦ä¼˜å…ˆç”Ÿæˆæ»¡è¶³æ¡ä»¶çš„ä¸‰ä½å¯†ç 
 bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int& decrypt_count, string& foundPassword) {
-    // »ù±¾Çé¿ö£ºµ±Ò»¸öÍêÕûµÄÈıÎ»ÃÜÂëÉú³Éºó
+    // åŸºæœ¬æƒ…å†µï¼šå½“ä¸€ä¸ªå®Œæ•´çš„ä¸‰ä½å¯†ç ç”Ÿæˆå
     if (idx == 3) {
         string pwd = string(1, char('0' + cur[0])) +
                      string(1, char('0' + cur[1])) +
                      string(1, char('0' + cur[2]));
         
-        decrypt_count++; // Ôö¼Ó³¢ÊÔ´ÎÊı
+        decrypt_count++; // å¢åŠ å°è¯•æ¬¡æ•°
 
-        // Á¢¼´¼ì²é¹şÏ£Öµ
+        // ç«‹å³æ£€æŸ¥å“ˆå¸Œå€¼
         if (lock.hashPassword(pwd) == targetHash) {
             foundPassword = pwd;
-            return true; // ÕÒµ½ÃÜÂë£¬·µ»ØtrueÒÔÖÕÖ¹ËÑË÷
+            return true; // æ‰¾åˆ°å¯†ç ï¼Œè¿”å›trueä»¥ç»ˆæ­¢æœç´¢
         }
         
-        return false; // ¹şÏ£²»Æ¥Åä£¬¼ÌĞøËÑË÷
+        return false; // å“ˆå¸Œä¸åŒ¹é…ï¼Œç»§ç»­æœç´¢
     }
 
-    // µİ¹é²½Öè
+    // é€’å½’æ­¥éª¤
     if (needPrimeUnique) {
         for (int d : primes) {
             if (used[d]) continue;
@@ -227,7 +227,7 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
             used[d] = true;
             cur.push_back(d);
             if (findPasswordDfs(idx + 1, targetHash, lock, decrypt_count, foundPassword)) {
-                return true; // Èç¹û×ÓËÑË÷ÕÒµ½ÃÜÂë£¬Á¢¼´·µ»Ø
+                return true; // å¦‚æœå­æœç´¢æ‰¾åˆ°å¯†ç ï¼Œç«‹å³è¿”å›
             }
             cur.pop_back();
             used[d] = false;
@@ -239,13 +239,13 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
             
             cur.push_back(d);
             if (findPasswordDfs(idx + 1, targetHash, lock, decrypt_count, foundPassword)) {
-                return true; // Èç¹û×ÓËÑË÷ÕÒµ½ÃÜÂë£¬Á¢¼´·µ»Ø
+                return true; // å¦‚æœå­æœç´¢æ‰¾åˆ°å¯†ç ï¼Œç«‹å³è¿”å›
             }
             cur.pop_back();
         }
     }
 
-    return false; // ÔÚÕâ¸ö·ÖÖ§ÏÂÃ»ÓĞÕÒµ½ÃÜÂë
+    return false; // åœ¨è¿™ä¸ªåˆ†æ”¯ä¸‹æ²¡æœ‰æ‰¾åˆ°å¯†ç 
 }
 
 // --- MAIN FUNCTION (MODIFIED) ---
@@ -266,14 +266,14 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
 //     for (const QString &fileName : jsonFiles) {
 //         QString jsonPath = directory.filePath(fileName);
 
-//         // --- 1. ÖØÖÃÃ¿¸öÎÄ¼şµÄ×´Ì¬ ---
+//         // --- 1. é‡ç½®æ¯ä¸ªæ–‡ä»¶çš„çŠ¶æ€ ---
 //         posFixed.assign(3, -1);
 //         posParity.assign(3, -1);
 //         needPrimeUnique = false;
 //         cur.clear();
 //         fill(begin(used), end(used), false);
         
-//         // --- 2. ¶ÁÈ¡ºÍ½âÎöJSONÎÄ¼ş ---
+//         // --- 2. è¯»å–å’Œè§£æJSONæ–‡ä»¶ ---
 //         QFile jsonFile(jsonPath);
 //         if (!jsonFile.open(QIODevice::ReadOnly)) {
 //             cerr << "Failed to open JSON file for reading: " << jsonPath.toStdString() << endl;
@@ -290,7 +290,7 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
 //         }
 //         QJsonObject rootObj = doc.object();
 
-//         // --- 3. ´¦ÀíÀ´×Ô"C"Êı×éµÄÏßË÷ ---
+//         // --- 3. å¤„ç†æ¥è‡ª"C"æ•°ç»„çš„çº¿ç´¢ ---
 //         QJsonArray clues = rootObj.value("C").toArray();
 //         for (const QJsonValue &val : clues) {
 //             QJsonArray arr = val.toArray();
@@ -304,7 +304,7 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
 //             }
 //         }
         
-//         // --- 4. ËÑË÷ÃÜÂë²¢¾«È·¼ÆÊı ---
+//         // --- 4. æœç´¢å¯†ç å¹¶ç²¾ç¡®è®¡æ•° ---
 //         string inputHash = rootObj.value("L").toString().toStdString();
 //         int decrypt_count = 0;
 //         string foundPassword = "";
@@ -314,7 +314,7 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
         
 //         total_decrypt_count += decrypt_count;
 
-//         // --- 5. ²éÕÒ²¢±£´æ½á¹û ---
+//         // --- 5. æŸ¥æ‰¾å¹¶ä¿å­˜ç»“æœ ---
 //         if (!foundPassword.empty()) {
 //             cout << "File: " << left << setw(15) << fileName.toStdString() 
 //                  << " -> Password found: " << foundPassword 
@@ -336,7 +336,7 @@ bool findPasswordDfs(int idx, const string& targetHash, PasswordLock& lock, int&
 //         }
 //     }
 
-//     // --- 6. ´òÓ¡×îÖÕ×ÜÊı ---
+//     // --- 6. æ‰“å°æœ€ç»ˆæ€»æ•° ---
 //     cout << "\n================================================" << endl;
 //     cout << "  Total decryption attempts for all files: " << total_decrypt_count << endl;
 //     cout << "================================================" << endl;

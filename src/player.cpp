@@ -1,7 +1,7 @@
-#include "player.h"
-#include <windows.h>
-#include <QMessageBox>
+#include "heads/player.h"
 #include <QInputDialog>
+#include <QMessageBox>
+#include <windows.h>
 
 // 在玩家接触到线索时，将此时的线索信息储存起来
 void record_clue(GameController *gameController, double xd, double yd)

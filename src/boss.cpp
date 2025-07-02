@@ -1,11 +1,11 @@
-#include "boss.h"
+#include "heads/boss.h"
+#include "heads/gamechoose.h"
 #include "ui_boss.h" // 确保 ui 文件名是 boss.ui
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QPushButton>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <algorithm>
-#include"gamechoose.h"
 // 构造函数实现
 boss::boss(std::vector<int>initialBosshp, std::vector<Skill> initialSkills, QWidget *parent) :
     QWidget(parent),

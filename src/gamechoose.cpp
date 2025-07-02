@@ -1,4 +1,4 @@
-#include "gamechoose.h"
+#include "heads/gamechoose.h"
 #include "ui_gamechoose.h"
 //extern struct Skill;
 gamechoose::gamechoose(QWidget *parent)

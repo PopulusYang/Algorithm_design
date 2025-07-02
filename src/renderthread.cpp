@@ -1,4 +1,4 @@
-#include "renderthread.h"
+#include "heads/renderthread.h"
 
 RenderThread::RenderThread(QObject *parent)
     : QThread(parent)

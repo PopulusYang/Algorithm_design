@@ -1,4 +1,4 @@
-#include "dp.h"
+#include "heads/dp.h"
 constexpr int INF = 1e9;
 
 int dp::getCellWeight(MAZE cellType) const
