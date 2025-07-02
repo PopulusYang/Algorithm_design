@@ -290,7 +290,9 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-    w=new MainWindow(this->dimension,model, this);
+
+
+    w=new MainWindow(this->dimension,model, this,this);
     if(dimension>0)
     {
         w->show();
@@ -322,8 +324,10 @@ void gamechoose::onRandomButtonClicked()
 
     if (ok) // 仅当用户点击“OK”时才创建和显示主窗口
     {
-        w = new MainWindow(mazeSize, 2, this);
+
+        w = new MainWindow(mazeSize, 2, this, this);
         connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
+
         w->show();
         this->hide();
     }
@@ -333,5 +337,6 @@ void gamechoose::onExitButtonClicked()
 {
     w->deleteLater();
     w = nullptr;
+
     this->show();
 }

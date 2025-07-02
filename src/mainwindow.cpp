@@ -26,6 +26,9 @@
 #include <algorithm>
 #include <random> // 新增：用于屏幕抖动
 #include <windows.h>
+#include <QThread>
+
+
 
 void MainWindow::ontimeout()
 {
@@ -53,7 +56,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
-                              gameController->Skills,0); // 创建 boss 窗口的实例
+                              gameController->Skills, 0, this); // 创建 boss 窗口的实例
 
         bossWindow->show(); // 显示它
         connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
@@ -120,10 +123,13 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     connect(m_renderTimer, &QTimer::timeout, this, &MainWindow::onRenderTick);
     m_renderTimer->start(16); // ~60 FPS
 
+    connect(this, &MainWindow::showWarningMessageBox, this, &MainWindow::onShowWarningMessageBox);
+    connect(this, &MainWindow::showInformationMessageBox, this, &MainWindow::onShowInformationMessageBox);
+
     // crackPassword locker_status改为用E建触发
 
-    autoThread = new std::thread([this]()
-                                 { autoCtrl.thread_auto_run(); });
+    autoThread = new AutoThread(&autoCtrl, this);
+    autoThread->start();
 }
 
 void MainWindow::onExitReached()
@@ -143,20 +149,26 @@ void MainWindow::onExitReached()
 
     // 停止线程
     autoCtrl.stopautocontrol();
-    if (autoThread && autoThread->joinable())
+    // if (autoThread && autoThread->joinable()) { autoThread->join(); }
+    if (autoThread)
     {
-        autoThread->join();
+        autoThread->quit();
+        autoThread->wait();
     }
-    if (runalongThread && runalongThread->joinable())
+    // if (runalongThread && runalongThread->joinable()) {
+    //     if (autoCtrl.rundone)
+    //         runalongThread->join();
+    // }
+    if (runalongThread && autoCtrl.rundone)
     {
-        if (autoCtrl.rundone)
-            runalongThread->join();
+        runalongThread->quit();
+        runalongThread->wait();
     }
-    if(m_model==2)
+    if (m_model == 2)
     {
         QMessageBox::information(this, "提示", "恭喜通关");
     }
-    if (gameController->bosshp.size()>0)
+    if (gameController->bosshp.size() > 0)
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
@@ -191,7 +203,6 @@ MainWindow::~MainWindow()
         generationTimer->stop();
         delete generationTimer;
     }
-
     // 停止并清理渲染线程
     if (m_renderThread)
     {
@@ -199,16 +210,23 @@ MainWindow::~MainWindow()
         m_renderThread->wait();
         delete m_renderThread;
     }
-
     delete ui;
     delete gameController; // 释放内存
     autoCtrl.stopautocontrol();
-    if (autoThread && autoThread->joinable())
-        autoThread->join();
-    delete autoThread;
-    if (runalongThread && runalongThread->joinable())
-        runalongThread->join();
-    delete runalongThread;
+    // if (autoThread && autoThread->joinable()) autoThread->join();
+    if (autoThread)
+    {
+        autoThread->quit();
+        autoThread->wait();
+        delete autoThread;
+    }
+    // if (runalongThread && runalongThread->joinable()) runalongThread->join();
+    if (runalongThread)
+    {
+        runalongThread->quit();
+        runalongThread->wait();
+        delete runalongThread;
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -369,8 +387,9 @@ void MainWindow::onSolveMazeClicked()
     }
     // 开始自动走
     Player.ai_control = true;
-    runalongThread = new std::thread([this]()
-                                     { autoCtrl.runalongthePath(solvedPath); });
+    // runalongThread = new std::thread([this]() { autoCtrl.runalongthePath(solvedPath); });
+    runalongThread = new RunalongThread(&autoCtrl, solvedPath, this);
+    runalongThread->start();
 }
 
 void MainWindow::onTrapTriggered(const QPointF &playerPos)
@@ -523,7 +542,7 @@ void MainWindow::crackPassword()
 bool MainWindow::locker_status()
 {
     // 1. 判断是否在储物柜附近
-    if (gameController->is_near_locker||Player.ai_control)
+    if (gameController->is_near_locker || Player.ai_control)
     {
         // 立刻重置状态，避免重复触发
         gameController->is_near_locker = false;
@@ -557,14 +576,17 @@ bool MainWindow::locker_status()
             auto [first, second] = get_crack_info(0, nullptr);
             if (first > Player.playersource)
             {
-                QMessageBox::warning(this, "失败", "没能收集足够的金币以开锁！");
+                QMetaObject::invokeMethod(this, "onShowWarningMessageBox", Qt::QueuedConnection,
+                                          Q_ARG(QString, "失败"),
+                                          Q_ARG(QString, "没能收集足够的金币以开锁！"));
                 return false;
             }
             else
             {
-                int password = std::stoi(second);
-                QMessageBox::information(this, "成功",
-                                         "密码正确！门已打开。");
+                QMetaObject::invokeMethod(this, "onShowInformationMessageBox", Qt::QueuedConnection,
+                                          Q_ARG(QString, "成功"),
+                                          Q_ARG(QString, "密码正确！门已打开。"));
+                return true;
             }
         }
         else
@@ -611,4 +633,14 @@ void MainWindow::onGenerationStep()
         }
         update();
     }
+}
+
+void MainWindow::onShowWarningMessageBox(const QString &title, const QString &text)
+{
+    QMessageBox::warning(this, title, text);
+}
+
+void MainWindow::onShowInformationMessageBox(const QString &title, const QString &text)
+{
+    QMessageBox::information(this, title, text);
 }
