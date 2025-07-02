@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "backtrack_find_clue.h"
+#include "exam4.h"
 #include <QInputDialog>
 #include <algorithm>
 #include <QTimer>

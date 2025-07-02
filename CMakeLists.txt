@@ -30,7 +30,7 @@ set(PROJECT_SOURCES
         boss.h
         boss.cpp
         boss.ui
-        exam4.cpp
+        exam4.h
         json.hpp
         collect_coin.cpp
         collect_coin.h
