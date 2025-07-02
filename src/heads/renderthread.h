@@ -19,7 +19,6 @@ public:
     point start;
     point end;
     std::vector<point> solvedPath;
-    std::vector<std::vector<std::pair<int, int>>> cluePath;
 
     std::list<DamageIndicator> *damageIndicators = nullptr;
     // 玩家状态
@@ -39,7 +38,7 @@ public:
     SceneData &operator=(const SceneData &rhs);
     SceneData(const SceneData &rhs)
         : start(rhs.start), end(rhs.end),
-          solvedPath(rhs.solvedPath), cluePath(rhs.cluePath),
+          solvedPath(rhs.solvedPath), 
           playerData(rhs.playerData), blockSize(rhs.blockSize),
           isGenerating(rhs.isGenerating), windowSize(rhs.windowSize),
           camX(rhs.camX), camY(rhs.camY), bossAnim(rhs.bossAnim), goldAnim(rhs.goldAnim), gameController(rhs.gameController), damageIndicators(rhs.damageIndicators),clueAnim(rhs.clueAnim) {}
@@ -56,7 +55,6 @@ inline SceneData &SceneData::operator=(const SceneData &rhs)
         start = rhs.start;
         end = rhs.end;
         solvedPath = rhs.solvedPath;
-        cluePath = rhs.cluePath;
         playerData = rhs.playerData;
         blockSize = rhs.blockSize;
         isGenerating = rhs.isGenerating;

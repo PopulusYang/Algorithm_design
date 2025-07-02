@@ -222,12 +222,14 @@ inline void autocontroller::thread_auto_run()
 
 inline void autocontroller::runalongthePath(std::vector<point> path)
 {
-    rundone = false; // 重置标记
-    // 先把vector拍成queue
-    std::deque<point> temp_pathq = std::deque<point>(path.begin(), path.end());
-    std::queue<point> pathq(temp_pathq);
-    state newstate;
-    while (!pathq.empty())
+  p->runalongthepath = true;
+  rundone = false; // 重置标记
+  // 先把vector拍成queue
+  std::deque<point> temp_pathq
+      = std::deque<point> (path.begin (), path.end ());
+  std::queue<point> pathq (temp_pathq);
+  state newstate;
+  while (!pathq.empty ())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         if (threadrunning)
@@ -261,5 +263,6 @@ inline void autocontroller::runalongthePath(std::vector<point> path)
         control(newstate);
     }
     std::cout << "自动控制结束" << std::endl;
+    p->runalongthepath = false;
     rundone = true; // 标记自动控制已完成
 }

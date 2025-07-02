@@ -1,20 +1,22 @@
-#include "mainwindow.h"
+#include "heads/mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "backtrack_find_clue.h"
-#include <QInputDialog>
-#include <algorithm>
-#include <QTimer>
-#include <QKeyEvent>
-#include <QMessageBox>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QTableWidget>       // 新增：用于创建表格
-#include <QHeaderView>        // 新增：用于美化表头
+#include "heads/backtrack_find_clue.h"
+#include "heads/lock.h"       // 添加 lock.h 头文件
 #include <QCryptographicHash> // 新增：用于计算 SHA256
-#include <QLabel>             // 修复：用于QLabel类型
-#include <random>             // 新增：用于屏幕抖动
+#include <QHeaderView>        // 新增：用于美化表头
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QLabel> // 修复：用于QLabel类型
+#include <QMessageBox>
+#include <QTableWidget> // 新增：用于创建表格
+#include <QTextEdit>
+#include <QTimer>
+#include <QVBoxLayout>
+#include <algorithm>
+#include <random> // 新增：用于屏幕抖动
 #include <windows.h>
 #include"gamechoose.h"
+
 
 void MainWindow::ontimeout()
 {
@@ -22,7 +24,8 @@ void MainWindow::ontimeout()
 }
 
 // MainWindow 构造函数中初始化
-MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget *parent)
+MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
+                       QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -36,16 +39,14 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     {
         gameController = new GameController(informations);
     }
-    // gameController->generate(); // Replaced with animation
-    // gameController->placeFeatures();
 
     autoCtrl.mazeinformation = gameController;
 
-    // 动态计算blockSize以适应1920*1080的屏幕
     const int maxWidth = 1280;
     const int maxHeight = 720;
     // 使用gameController->getSize()以获取经过验证的实际大小
-    blockSize = std::min(maxWidth / gameController->getSize(), maxHeight / gameController->getSize());
+    blockSize = std::min(maxWidth / gameController->getSize(),
+                         maxHeight / gameController->getSize());
     blockSize -= (blockSize % 3); // 确保blockSize可以被3整除，以适应3x3子网格
 
     // 根据迷宫尺寸和区块大小，设置窗口的固定大小
@@ -53,48 +54,45 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     int height = gameController->getSize() * blockSize;
     this->setFixedSize(width, height);
 
-    // Animate maze generation
     generationTimer = new QTimer(this);
-    connect(generationTimer, &QTimer::timeout, this, &MainWindow::onGenerationStep);
+    connect(generationTimer, &QTimer::timeout, this,
+            &MainWindow::onGenerationStep);
     if (model == 2)
     {
         gameController->generate_init();
     }
-    generationTimer->start(5); // 5ms per step, adjust for speed
+    generationTimer->start(5); // 设置地图生成动画5ms刷新一次
 
     solveButton = new QPushButton("一键开挂", this);
     solveButton->setGeometry(10, 10, 100, 30);
-    connect(solveButton, &QPushButton::clicked, this, &MainWindow::onSolveMazeClicked);
-    QPushButton *backButton = new QPushButton("返回", this);
-    backButton->setGeometry(10, 50, 100, 30); // Positioned below "一键开挂"
-    connect(backButton, &QPushButton::clicked, this, &MainWindow::onBackButtonClicked);
-    // ===== CODE ADDED END =====
+    connect(solveButton, &QPushButton::clicked, this,
+            &MainWindow::onSolveMazeClicked);
+
+    exitButton = new QPushButton("返回主界面", this);
+    exitButton->setGeometry(10, 50, 100, 30);
+    connect(exitButton, &QPushButton::clicked, this, &MainWindow::onExitClicked);
 
     connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
-    connect(&Player, &player::trapTriggered, this, &MainWindow::onTrapTriggered);
+    connect(&Player, &player::trapTriggered, this,
+            &MainWindow::onTrapTriggered);
 
     connect(&Player, &player::exitReached, this, &MainWindow::onExitReached);
 
-    // 玩家初始位置在起点
-    // Player.playerPos = QPointF(gameController->start.y, gameController->start.x); // This is now set in onGenerationStep
     Player.playerVel = QPointF(0, 0);
     Player.playerAcc = QPointF(0, 0);
-    Player.inertia = 0.85f;
-    Player.moveSpeed = 0.38f;
+    Player.moveSpeed = 0.5f;
     Player.playerTimer = new QTimer(this);
     connect(Player.playerTimer, &QTimer::timeout, this, &MainWindow::ontimeout);
-    connect(&Player, &player::needUpdate,
-            this, QOverload<>::of(&QWidget::update));
+    connect(&Player, &player::needUpdate, this,
+            QOverload<>::of(&QWidget::update));
     Player.playerTimer->start(16); // ~60fps
     setFocusPolicy(Qt::StrongFocus);
     setAttribute(Qt::WA_InputMethodEnabled, false); // 禁用输入法
-    // gameController->print(); // 从此处移除
-    // 加载精灵图
-    Player.playerSprite.load("../img/player.png"); // 确保player.png在资源文件或同目录下
 
     // 初始化并启动新的渲染线程
     m_renderThread = new RenderThread(this);
-    connect(m_renderThread, &RenderThread::frameReady, this, &MainWindow::onFrameReady);
+    connect(m_renderThread, &RenderThread::frameReady, this,
+            &MainWindow::onFrameReady);
     m_renderThread->start();
 
     // 初始化用于驱动渲染的计时器
@@ -102,25 +100,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     connect(m_renderTimer, &QTimer::timeout, this, &MainWindow::onRenderTick);
     m_renderTimer->start(16); // ~60 FPS
 
-    solveButton = new QPushButton("带我去找线索", this);
-    solveButton->setGeometry(10, 90, 100, 30);
-    connect(solveButton, &QPushButton::clicked, this, &MainWindow::drawCluePath);
-
-    // 写一个按钮：按下弹出一个窗口，展示在当前识别进度下（根据receive_clue中的数据和数据个数决定）搜索出来的密码
-    // 如有一个线索，就剩100种可能，两个线索，就10种可能，三个线索，就一种可能。
-    // 根据当前的线索把所有可能的密码显示出来
-    // 访问receive_clue：用gamecontroller->receive_clue访问。
-    solveButton = new QPushButton("破解密码", this);
-    solveButton->setGeometry(10, 130, 100, 30);
-    connect(solveButton, &QPushButton::clicked, this, &MainWindow::crackPassword);
-
-    solveButton = new QPushButton("输入密码", this);
-    solveButton->setGeometry(10, 170, 100, 30);
-    connect(solveButton, &QPushButton::clicked, this, &MainWindow::locker_status);
-
-    QPushButton *resetButton = new QPushButton("重置迷宫", this);
-    resetButton->setGeometry(10, 210, 100, 30);
-    connect(resetButton, &QPushButton::clicked, this, &MainWindow::onResetGameClicked);
+    // crackPassword locker_status改为用E建触发
 
     autoThread = new std::thread([this]()
                                  { autoCtrl.thread_auto_run(); });
@@ -157,18 +137,31 @@ void MainWindow::onExitReached()
         if (autoCtrl.rundone)
             runalongThread->join();
     }
-    if(gameController->bosshp.size()!=0)
+    if (!gameController->boss_in_map)
     {
         // 创建并显示新的boss窗口
-        boss *bossWindow = new boss(gameController->bosshp,gameController->Skills); // 创建 boss 窗口的实例
-        bossWindow->show();             // 显示它
+        bossWindow = new boss(gameController->bosshp,
+                                    gameController->Skills); // 创建 boss 窗口的实例
+
+        bossWindow->show(); // 显示它
+        connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
 
         // 关闭当前的迷宫窗口
         this->close();
     }
-
 }
 
+void MainWindow::onExitClicked()
+{
+    this->hide();
+    emit exit_mainwindow();
+}
+void MainWindow::exitbossgame()
+{
+    delete bossWindow;
+    bossWindow = nullptr;
+    emit exit_mainwindow();
+}
 MainWindow::~MainWindow()
 {
     if (generationTimer)
@@ -204,7 +197,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
-    Player.pressedKeys.remove(event->key());
+    if (Player.pressedKeys.contains(event->key()))
+        Player.pressedKeys.remove(event->key());
     event->accept();
 }
 
@@ -237,6 +231,28 @@ void MainWindow::onRenderTick()
     if (m_screenShakeFrames > 0)
     {
         m_screenShakeFrames--;
+    }
+
+    if (!Player.ai_control && Player.cando && Player.pressedKeys.contains(Qt::Key_E))
+    {
+        int playerTileX = qRound(Player.playerPos.y() + 0.15);
+        int playerTileY = qRound(Player.playerPos.x() + 0.1);
+        switch (gameController->maze[playerTileX][playerTileY])
+        {
+        case static_cast<int>(MAZE::CLUE):
+            record_clue(gameController, playerTileX, playerTileY);
+            crackPassword();
+            break;
+        case static_cast<int>(MAZE::EXIT):
+        case static_cast<int>(MAZE::LOCKER):
+            bool istrue = locker_status();
+            if (gameController->maze[playerTileX][playerTileY] == static_cast<int>(MAZE::EXIT))
+            {
+                if (istrue)
+                    onExitReached();
+            }
+        }
+        Player.pressedKeys.remove(Qt::Key_E);
     }
 
     // 更新伤害指示器
@@ -281,7 +297,6 @@ void MainWindow::onRenderTick()
     SceneData data;
     data.gameController = gameController; // 直接传递指针
     data.solvedPath = solvedPath;
-    data.cluePath = cluePath;
     data.playerData = &Player; // 复制玩家状态
     data.blockSize = blockSize;
     data.isGenerating = (generationTimer != nullptr);
@@ -325,22 +340,15 @@ void MainWindow::onSolveMazeClicked()
         return;
     if (gameController)
     {
-        solvedPath = gameController->findBestPath({static_cast<int>(std::round(Player.playerPos.y())), static_cast<int>(std::round(Player.playerPos.x()))});
+        solvedPath = gameController->findBestPath(
+            {static_cast<int>(std::round(Player.playerPos.y())),
+             static_cast<int>(std::round(Player.playerPos.x()))});
         update(); // 触发重绘以显示路径
     }
     // 开始自动走
+    Player.ai_control = true;
     runalongThread = new std::thread([this]()
                                      { autoCtrl.runalongthePath(solvedPath); });
-}
-
-void MainWindow::drawCluePath()
-{
-    std::pair<int, int> player_current_pos;
-    player_current_pos.first = Player.playerPos.y() + 1;
-    player_current_pos.second = Player.playerPos.x() + 1;
-    clue_finder finder(gameController->getSize(), gameController->getmaze(), player_current_pos, 3);
-    cluePath = finder.find_all_clue_paths();
-    update(); // 触发重绘以显示路径
 }
 
 void MainWindow::onTrapTriggered(const QPointF &playerPos)
@@ -350,10 +358,8 @@ void MainWindow::onTrapTriggered(const QPointF &playerPos)
 }
 
 void MainWindow::generatePasswords_Backtracking(
-    const int totalDigits,
-    const std::map<int, int> &known_digits,
-    QList<QPair<QString, QString>> &passwordHashes,
-    QString currentPassword)
+    const int totalDigits, const std::map<int, int> &known_digits,
+    QList<QPair<QString, QString>> &passwordHashes, QString currentPassword)
 {
     // --- 基础情况：密码已达到所需长度 ---
     if (currentPassword.length() == totalDigits)
@@ -361,7 +367,8 @@ void MainWindow::generatePasswords_Backtracking(
         // 将密码字符串转换为字节数组以进行哈希计算
         QByteArray dataToHash = currentPassword.toUtf8();
         // 计算 SHA256 哈希值，并转换为十六进制字符串
-        QString hash = QCryptographicHash::hash(dataToHash, QCryptographicHash::Sha256).toHex();
+        QString hash = QCryptographicHash::hash(dataToHash, QCryptographicHash::Sha256)
+                           .toHex();
         // 将密码和哈希值添加到结果列表
         passwordHashes.append({currentPassword, hash});
         return;
@@ -376,14 +383,18 @@ void MainWindow::generatePasswords_Backtracking(
     {
         // 如果该位数字已知，则直接使用该数字继续递归
         int known_digit = it->second;
-        generatePasswords_Backtracking(totalDigits, known_digits, passwordHashes, currentPassword + QString::number(known_digit));
+        generatePasswords_Backtracking(
+            totalDigits, known_digits, passwordHashes,
+            currentPassword + QString::number(known_digit));
     }
     else
     {
         // 如果该位数字未知，则尝试所有可能的数字 (0-9)
         for (int i = 0; i < 10; ++i)
         {
-            generatePasswords_Backtracking(totalDigits, known_digits, passwordHashes, currentPassword + QString::number(i));
+            generatePasswords_Backtracking(
+                totalDigits, known_digits, passwordHashes,
+                currentPassword + QString::number(i));
         }
     }
 }
@@ -405,7 +416,10 @@ void MainWindow::crackPassword()
     std::map<int, int> known_digits;
     for (const auto &clue : gameController->received_clue)
     {
-        clueMsg += QString("%1. 密码第%2位 = %3\n").arg(idx++).arg(clue.gen_order_index).arg(clue.password_dig_val);
+        clueMsg += QString("%1. 密码第%2位 = %3\n")
+                       .arg(idx++)
+                       .arg(clue.gen_order_index)
+                       .arg(clue.password_dig_val);
         known_digits[clue.gen_order_index] = clue.password_dig_val;
     }
     msgBox.setText(clueMsg);
@@ -428,7 +442,8 @@ void MainWindow::crackPassword()
         // ===================================================================
         // 使用回溯法代替穷举法
         // ===================================================================
-        generatePasswords_Backtracking(totalDigits, known_digits, passwordHashes, "");
+        generatePasswords_Backtracking(totalDigits, known_digits,
+                                       passwordHashes, "");
         // ===================================================================
 
         // 6. 在一个新的带表格的窗口中显示结果
@@ -438,9 +453,11 @@ void MainWindow::crackPassword()
 
         // 创建表格控件
         QTableWidget *tableWidget = new QTableWidget(passwordHashes.size(), 2, possibleDialog);
-        tableWidget->setHorizontalHeaderLabels({"密码 (Password)", "SHA256 哈希值 (Hash)"});
-        tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); // 设置为只读
-        tableWidget->verticalHeader()->setVisible(false);                // 隐藏行号
+        tableWidget->setHorizontalHeaderLabels(
+            {"密码 (Password)", "SHA256 哈希值 (Hash)"});
+        tableWidget->setEditTriggers(
+            QAbstractItemView::NoEditTriggers);           // 设置为只读
+        tableWidget->verticalHeader()->setVisible(false); // 隐藏行号
 
         // 填充表格数据
         int row = 0;
@@ -459,8 +476,10 @@ void MainWindow::crackPassword()
         }
 
         // 让列宽自动适应内容
-        tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive); // 第一列可手动调整
+        tableWidget->horizontalHeader()->setSectionResizeMode(
+            QHeaderView::Stretch);
+        tableWidget->horizontalHeader()->setSectionResizeMode(
+            0, QHeaderView::Interactive); // 第一列可手动调整
         tableWidget->resizeColumnsToContents();
 
         // 布局管理
@@ -468,7 +487,8 @@ void MainWindow::crackPassword()
         layout->addWidget(tableWidget);
 
         QPushButton *closeButton = new QPushButton("关闭", possibleDialog);
-        connect(closeButton, &QPushButton::clicked, possibleDialog, &QDialog::accept);
+        connect(closeButton, &QPushButton::clicked, possibleDialog,
+                &QDialog::accept);
         layout->addWidget(closeButton);
 
         possibleDialog->setLayout(layout);
@@ -486,59 +506,23 @@ bool MainWindow::locker_status()
         // 立刻重置状态，避免重复触发
         gameController->is_near_locker = false;
 
-        // 2. 获取正确密码并计算其SHA256哈希值
+        // 2. 获取正确密码
         int ans_password = gameController->getpassword();
-
-        // 将int密码格式化为三位数的字符串（例如 42 -> "042"），以确保哈希值一致性
         QString passwordStr = QString("%1").arg(ans_password, 3, 10, QChar('0'));
         QByteArray dataToHash = passwordStr.toUtf8();
         QString sha256_hash = QCryptographicHash::hash(dataToHash, QCryptographicHash::Sha256).toHex();
 
-        // 3. 创建一个自定义对话框作为弹窗
-        QDialog dialog(this);
-        dialog.setWindowTitle("储物柜密码");
-
-        // 创建布局和控件
-        QVBoxLayout *layout = new QVBoxLayout(&dialog);
-
-        // 用于显示哈希值和提示信息的标签
-        QLabel *infoLabel = new QLabel(&dialog);
-        infoLabel->setText(QString("目标储物柜密码 (SHA256):\n%1\n\n请输入你猜测的3位密码:").arg(sha256_hash));
-        infoLabel->setWordWrap(true); // 允许文本换行
-
-        // 用于输入密码的行编辑器
-        QLineEdit *passwordInput = new QLineEdit(&dialog);
-        passwordInput->setPlaceholderText("例如: 123");
-        // 使用验证器，只允许用户输入0-999之间的整数
-        passwordInput->setValidator(new QIntValidator(0, 999, &dialog));
-        passwordInput->setMaxLength(3); // 限制最大长度为3
-
-        // 创建标准的 "OK" 和 "Cancel" 按钮
-        QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
-        connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept); // 连接OK按钮到accept槽
-        connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // 连接Cancel按钮到reject槽
-
-        // 将控件添加到布局中
-        layout->addWidget(infoLabel);
-        layout->addWidget(passwordInput);
-        layout->addWidget(buttonBox);
-        dialog.setLayout(layout);
-
-        // 4. 显示对话框，并等待用户操作。代码会在此处暂停，直到对话框关闭。
-        // dialog.exec() 返回 QDialog::Accepted (用户按了OK) 或 QDialog::Rejected (用户按了Cancel)
-        if (dialog.exec() == QDialog::Accepted)
+        // 3. 创建并显示密码对话框
+        Lock lockDialog(sha256_hash, gameController->received_clue, this);
+        if (lockDialog.exec() == QDialog::Accepted)
         {
-            // 如果用户点击了 "OK"
-            QString guessStr = passwordInput->text();
-
-            // 将输入的字符串转换为整数
-            bool conversion_ok;
-            int guess_password = guessStr.toInt(&conversion_ok);
+            int guess_password = lockDialog.getPassword();
 
             // 5. 判断密码是否正确
-            if (conversion_ok && guess_password == ans_password)
+            if (guess_password == ans_password)
             {
-                QMessageBox::information(this, "成功", "密码正确！储物柜已打开。");
+                QMessageBox::information(this, "成功",
+                                         "密码正确！储物柜已打开。");
                 return true; // 密码正确，返回 true
             }
             else
@@ -562,74 +546,11 @@ bool MainWindow::locker_status()
     }
 }
 
-void MainWindow::onResetGameClicked()
-{
-    if (runalongThread)
-    {
-        if (runalongThread->joinable())
-        {
-            if (autoCtrl.rundone)
-            {
-                runalongThread->join();
-            }
-            else
-            {
-                // 如果正在自动寻路，提示用户等待
-                QMessageBox::warning(this, "警告", "正在自动寻路，请等待完成后再重置。");
-                return;
-            }
-        }
-        delete runalongThread;
-        runalongThread = nullptr;
-    }
-
-    if (generationTimer)
-    {
-        generationTimer->stop();
-        delete generationTimer;
-        generationTimer = nullptr;
-    }
-
-    solvedPath.clear();
-    cluePath.clear();
-
-    bool ok;
-    int mazeSize = QInputDialog::getInt(this, "选择迷宫大小",
-                                        "大小 (7-51, 建议为奇数):", 11, 7, 51, 1, &ok);
-    if (!ok)
-    {
-        return; // 用户取消
-    }
-
-    delete gameController;
-    gameController = new GameController(mazeSize);
-    // gameController->generate(); // Replaced with animation
-    // gameController->placeFeatures();
-
-    autoCtrl.mazeinformation = gameController;
-
-    const int maxWidth = 1280;
-    const int maxHeight = 720;
-    blockSize = std::min(maxWidth / gameController->getSize(), maxHeight / gameController->getSize());
-    blockSize -= (blockSize % 3);
-
-    this->setFixedSize(gameController->getSize() * blockSize, gameController->getSize() * blockSize);
-
-    // Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
-    Player.playerVel = QPointF(0, 0);
-    Player.playerAcc = QPointF(0, 0);
-
-    generationTimer = new QTimer(this);
-    connect(generationTimer, &QTimer::timeout, this, &MainWindow::onGenerationStep);
-    gameController->generate_init();
-    generationTimer->start(5);
-}
-
 void MainWindow::onGenerationStep()
 {
     if (gameController && gameController->generateStep())
     {
-        update(); // Request a repaint to show the new wall
+        update();
     }
     else
     {
@@ -644,13 +565,14 @@ void MainWindow::onGenerationStep()
         {
             if (m_model == 2)
             {
-                gameController->placeFeatures();       // Place features after generation is complete
+                gameController->placeFeatures();       // Place features after
+                                                       // generation is complete
                 gameController->exportToJsonDefault(); // 导出到../map.json
             }
             gameController->print(); // 在此处调用 print
             // 在确定起点后设置玩家位置
             Player.playerPos = QPointF(gameController->start.y, gameController->start.x);
         }
-        update(); // Final repaint with features
+        update();
     }
 }

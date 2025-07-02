@@ -1,13 +1,13 @@
-#include "player.h"
-#include <windows.h>
-#include <QMessageBox>
+#include "heads/player.h"
 #include <QInputDialog>
+#include <QMessageBox>
+#include <windows.h>
 
 // 在玩家接触到线索时，将此时的线索信息储存起来
 void record_clue(GameController *gameController, double xd, double yd)
 {
-    int x = (int)xd;
-    int y = (int)yd;
+    int x = static_cast<int>(std::round(xd));
+    int y = static_cast<int>(std::round(yd));
     point temp_point;
     temp_point.x = x;
     temp_point.y = y;
@@ -29,7 +29,9 @@ void record_clue(GameController *gameController, double xd, double yd)
     if (!already)
     {
         gameController->received_clue.push_back(clue);
-        // std::cout<<"recorded a clue, now i know the "<<clue.gen_order_index<<" of password is:"<<clue.password_dig_val<<std::endl;
+        gameController->maze[x][y] = static_cast<int>(MAZE::WAY);
+        // std::cout<<"recorded a clue, now i know the "<<clue.gen_order_index<<"
+        // of password is:"<<clue.password_dig_val<<std::endl;
     }
 }
 
@@ -113,13 +115,12 @@ void player::onPlayerMove(GameController *gameController)
     int cur_x = qRound(playerPos.y() + 0.15);
     int cur_y = qRound(playerPos.x() + 0.1);
 
-
-
     if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::CLUE)
     {
-        // std::cout<<"find a clue in :("<<cur_x<<","<<cur_y<<")"<<std::endl;
-        record_clue(gameController, cur_x, cur_y);
+        if (ai_control)
+            record_clue(gameController, cur_x, cur_y);
     }
+
     else if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::SOURCE)
     {
         point resource_pos(cur_x, cur_y);
@@ -156,7 +157,7 @@ void player::onPlayerMove(GameController *gameController)
         }
     }
 
-    if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::LOCKER)
+    if (static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::LOCKER || static_cast<MAZE>(gameController->maze[cur_x][cur_y]) == MAZE::EXIT)
     {
         // std::cout<<"find locker in :("<<cur_x<<","<<cur_y<<")"<<std::endl;
         locker_interaction(gameController);
@@ -171,11 +172,16 @@ void player::onPlayerMove(GameController *gameController)
 
         MAZE cell = static_cast<MAZE>(gameController->maze[nx][ny]);
         // 检查当前位置是否为线索点
+        // 此处需添加逻辑：判断自动控制是否在继续
+        // 或者通过E键触发
         if (cell == MAZE::EXIT)
         {
-            playerPos = nextPos; // 将玩家移动到出口位置
-            emit exitReached();  // 发射信号
-            return;              // 在此停止本次移动的后续处理
+            if (ai_control && !runalongthepath)
+            {
+                playerPos = nextPos; // 将玩家移动到出口位置
+                emit exitReached();  // 发射信号
+                return;
+            }
         }
         if (cell != MAZE::WALL)
         {

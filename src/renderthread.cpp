@@ -1,7 +1,6 @@
-#include "renderthread.h"
+#include "heads/renderthread.h"
 
-RenderThread::RenderThread(QObject *parent)
-    : QThread(parent)
+RenderThread::RenderThread(QObject *parent) : QThread(parent)
 {
     // 在构造函数中预加载所有图像资源
     m_playerSprite.load("./img/player.png");
@@ -80,7 +79,8 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
         col = 0 + (data.playerData->playerAnim % 2);
     else if (data.playerData->playerState == "walk")
         col = 2 + (data.playerData->playerAnim % 4);
-    QRect playerSrcRect(col * playerSpriteW, dir * playerSpriteH, playerSpriteW, playerSpriteH);
+    QRect playerSrcRect(col * playerSpriteW, dir * playerSpriteH, playerSpriteW,
+                        playerSpriteH);
 
     // --- 2. 渲染世界（地图、物品等） ---
     painter->save(); // 保存当前状态，以便后续恢复
@@ -88,7 +88,8 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
     if (!data.isGenerating)
     {
         // 计算一个动态的缩放因子，以抵消blockSize变化带来的影响
-        // 目标是让渲染出的元素尺寸与 blockSize 为 63 (mazesize=11时的基准值) 时保持一致
+        // 目标是让渲染出的元素尺寸与 blockSize 为 63 (mazesize=11时的基准值)
+        // 时保持一致
         const float baseBlockSize = 63.0f;
         float dynamicScale = baseBlockSize / static_cast<float>(data.blockSize);
 
@@ -116,7 +117,8 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
     {
         for (int j = 0; j < data.gameController->mazesize; ++j)
         {
-            QRect blockRect(j * data.blockSize, i * data.blockSize, data.blockSize, data.blockSize);
+            QRect blockRect(j * data.blockSize, i * data.blockSize, data.blockSize,
+                            data.blockSize);
             MAZE blockType = static_cast<MAZE>(data.gameController->maze[i][j]);
 
             // 先绘制一个深灰色底板作为通路
@@ -144,7 +146,8 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
                 // 创建一个更小的矩形来绘制金币，使其不填满整个格子
                 int goldSize = data.blockSize / 3; // 将金币大小设置为格子的2/3
                 int offset = (data.blockSize - goldSize) / 2;
-                QRect goldRect(blockRect.x() + offset, blockRect.y() + offset, goldSize, goldSize);
+                QRect goldRect(blockRect.x() + offset, blockRect.y() + offset, goldSize,
+                               goldSize);
 
                 painter->drawPixmap(goldRect, m_goldPixmap, srcRect);
             }
@@ -161,7 +164,8 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
                 // 创建一个更小的矩形来绘制金币，使其不填满整个格子
                 int goldSize = data.blockSize / 3; // 将金币大小设置为格子的2/3
                 int offset = (data.blockSize - goldSize) / 2;
-                QRect goldRect(blockRect.x() + offset, blockRect.y() + offset, goldSize, goldSize);
+                QRect goldRect(blockRect.x() + offset, blockRect.y() + offset, goldSize,
+                               goldSize);
                 painter->drawPixmap(goldRect, m_cluePixmap, srcRect);
             }
             else if (blockType == MAZE::TRAP)
@@ -196,9 +200,11 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
 
     // --- 3. 渲染玩家 ---
     // 现在我们在屏幕坐标系下绘制，玩家大小将是固定的像素值
-    const int playerRenderSize = 48; // 玩家在屏幕上的固定渲染大小（例如48x48像素）
+    const int playerRenderSize =
+        48; // 玩家在屏幕上的固定渲染大小（例如48x48像素）
     QRectF playerDestRect(0, 0, playerRenderSize, playerRenderSize);
-    playerDestRect.moveCenter(playerScreenCenter); // 将玩家矩形的中心移动到之前计算好的屏幕位置
+    playerDestRect.moveCenter(
+        playerScreenCenter); // 将玩家矩形的中心移动到之前计算好的屏幕位置
     painter->drawPixmap(playerDestRect, m_playerSprite, playerSrcRect);
 
     // 绘制伤害数字
@@ -209,9 +215,9 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
         for (const auto &indicator : *data.damageIndicators)
         {
             // 将伤害数字的世界坐标转换为屏幕坐标
-            QPointF textWorldPos(
-                indicator.position.x() * data.blockSize + data.blockSize,
-                indicator.position.y() * data.blockSize);
+            QPointF textWorldPos(indicator.position.x() * data.blockSize +
+                                     data.blockSize,
+                                 indicator.position.y() * data.blockSize);
             QPointF textScreenPos = painter->worldTransform().map(textWorldPos);
 
             // 根据生命周期计算透明度和位置偏移
@@ -229,7 +235,9 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
     // --- 4. 渲染UI覆盖层（如渐变遮罩） ---
     if (!data.isGenerating)
     {
-        QRadialGradient grad(data.windowSize.width() / 2, data.windowSize.height() / 2, data.windowSize.width() / 2.2);
+        QRadialGradient grad(data.windowSize.width() / 2,
+                             data.windowSize.height() / 2,
+                             data.windowSize.width() / 2.2);
         grad.setColorAt(0.7, QColor(0, 0, 0, 0));    // 中心区域更亮
         grad.setColorAt(0.95, QColor(0, 0, 0, 150)); // 边缘渐变
         grad.setColorAt(1, QColor(0, 0, 0, 220));    // 最外层更暗
@@ -241,4 +249,32 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
     painter->setFont(QFont("Arial", 14, QFont::Bold));
     QString resourceText = QString("金钱: %1").arg(data.playerData->playersource);
     painter->drawText(20, 600, resourceText);
+
+    if (!data.playerData->ai_control) // 人类玩家控制才会显示
+    {
+        // 当玩家在特殊地块上时显示提示
+        int playerTileX = qRound(data.playerData->playerPos.y() + 0.15);
+        int playerTileY = qRound(data.playerData->playerPos.x() + 0.1);
+
+        if (data.gameController->inBounds(playerTileX, playerTileY))
+        {
+            MAZE currentTile = static_cast<MAZE>(
+                data.gameController->maze[playerTileX][playerTileY]);
+            if (currentTile == MAZE::CLUE || currentTile == MAZE::EXIT ||
+                currentTile == MAZE::LOCKER)
+            {
+                painter->setPen(Qt::white);
+                painter->setFont(QFont("Microsoft YaHei", 16, QFont::Bold));
+                QString promptText = "按下 E 键进行调查";
+                // 获取文本尺寸以进行居中
+                QFontMetrics metrics(painter->font());
+                int textWidth = metrics.horizontalAdvance(promptText);
+                int xPos = (data.windowSize.width() - textWidth) / 2;
+                painter->drawText(xPos, data.windowSize.height() - 50, promptText);
+                data.playerData->cando = true;
+            }
+            else
+                data.playerData->cando = false;
+        }
+    }
 }

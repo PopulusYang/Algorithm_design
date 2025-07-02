@@ -66,6 +66,9 @@ private:
     std::vector<QProgressBar*> m_bossHpBars;
     std::vector<QLabel*> m_skillLabels;
     std::vector<QProgressBar*> m_skillCooldownBars;
+
+signals:
+    void exit_bossui();
 };
 
 #endif // BOSS_H

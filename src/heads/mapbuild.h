@@ -8,7 +8,9 @@
 #include <ctime>
 #include <algorithm>
 #include <utility>
-#include <windows.h> // 包含windows.h以使用SetConsoleOutputCP
+#include <fstream>
+#include "../jsonlib/json.hpp"
+#include <windows.h> // ??windows.h???SetConsoleOutputCP
 #include <fstream>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -27,16 +29,16 @@ public:
     };
     std::vector<Division> division_stack;
 
-    std::pair<int, int> start_m; // 起点坐标
-    std::pair<int, int> exit;    // 终点坐标
-    std::pair<int, int> boss;    // BOSS坐标
-    std::pair<int, int> locker;  // 机关坐标
-    std::pair<int, int> clue;    // 线索坐标
+    std::pair<int, int> start_m; // ????
+    std::pair<int, int> exit;    // ????
+    std::pair<int, int> boss;    // BOSS??
+    std::pair<int, int> locker;  // ????
+    std::pair<int, int> clue;    // ????
 
-    // 线索内容，到达线索对应的坐标时，利用坐标作为参数，读取这个线索指示出的密码位和密码值（例如密码：456，访问这个线索之后，可以知道4是密码值，1是密码位，即密码的第一位是4）
+    // ????????????????????????????????????????????????456??????????????4?????1?????????????4?
     std::unordered_map<point, clue_content> clue_set;
     clue_content clue_arr[4];
-    // 构造函数，初始化迷宫尺寸和随机数生成器
+    // ???????????????????
     MazeGenerator(int size) : gamemain(size)
     {
         mazesize = size;
@@ -97,7 +99,7 @@ public:
     {
         if (division_stack.empty())
         {
-            return false; // 生成完成
+            return false; // ????
         }
 
         Division current = division_stack.back();
@@ -188,10 +190,10 @@ public:
         gold_count = 4 * dimension - 24;
         trap_count = dimension - 6;
 
-        // 为 gold_count 添加一个上限，防止DP算法因资源过多而崩溃
+        // ? gold_count ?????????DP??????????
         if (gold_count > 14)
         {
-            gold_count = 14; // 避免金币数量太多导致dp崩溃
+            gold_count = 14; // ??????????dp??
         }
         if (trap_count > 20)
         {
@@ -203,15 +205,15 @@ public:
         if (trap_count < 0)
             trap_count = 0;
 
-        // 仅在较大的地图上放置BOSS和机关
-        if (dimension >= 9)
-        {
-            locker_count = 1;
-        }
-        else if (dimension >= 7)
-        {
-            locker_count = 1;
-        }
+        // 不再生成锁，从出口出去需要锁
+        // if (dimension >= 9)
+        // {
+        //     locker_count = 1;
+        // }
+        // else if (dimension >= 7)
+        // {
+        //     locker_count = 1;
+        // }
         start = {1, 1};
         maze[start.x][start.y] = static_cast<int>(MAZE::START);
         end = {dimension - 2, dimension - 2};
@@ -429,7 +431,7 @@ public:
         return clue;
     }
 
-    // 生成完地图之后，利用这个函数就可以得到密码锁密码的值
+    // ??????????????????????????
     int getpassword() const
     {
         int password = 0;
@@ -443,7 +445,7 @@ public:
         return password;
     }
 
-    // 遇到线索时，调用这两个函数获取线索，集齐三个线索，就可以得到密码的值，与getpassword()的返回值比较，即可判断密码是否正确
+    // ????????????????????????????????????getpassword()?????????????????
     int getclue_index(point clue_point)
     {
         auto it = clue_set.find(clue_point);
@@ -451,7 +453,7 @@ public:
         {
             return it->second.gen_order_index;
         }
-        return -1; // 或者其他适当的错误值
+        return -1; // ??????????
     }
 
     int getclue_val(point clue_point)
@@ -461,7 +463,7 @@ public:
         {
             return it->second.password_dig_val;
         }
-        return -1; // 或者其他适当的错误值
+        return -1; // ??????????
     }
 
 private:
@@ -491,6 +493,8 @@ private:
             break;
         case MAZE::LOCKER:
             locker = pos;
+            gamemain::lock.x = pos.first;
+            gamemain::lock.y = pos.second;
             break;
         case MAZE::TRAP:
             traps.insert({point(pos.first, pos.second), false});
@@ -512,6 +516,7 @@ private:
             temp_point.x = pos.first;
             temp_point.y = pos.second;
             clue = pos;
+            clues.insert({temp_point, false});
             break;
         }
         case MAZE::SOURCE:
