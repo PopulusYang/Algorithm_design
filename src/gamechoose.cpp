@@ -212,7 +212,7 @@ void gamechoose::onFileButtonClicked()
                 }
                 else if (cell == "C")
                 {
-                    this->maze[i][j] = static_cast<int>(MAZE::CLUE);
+                    this->maze[i][j] = static_cast<int>(MAZE::WAY);
                 }
                 else if (cell == "B")
                 {
