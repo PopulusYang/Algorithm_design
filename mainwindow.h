@@ -60,6 +60,7 @@ private slots:
     void onRenderTick();
     void onTrapTriggered(const QPointF &playerPos);
     void onExitReached();
+    void onBackButtonClicked();
 
 private:
     Ui::MainWindow *ui;

@@ -1,6 +1,6 @@
 #include "gamechoose.h"
 #include "ui_gamechoose.h"
-//extern struct Skill;
+#include"boss.h"
 gamechoose::gamechoose(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::gamechoose)
@@ -216,9 +216,6 @@ void gamechoose::onFileButtonClicked()
                 else this->maze[i][j] = 0;                 // 默认为路
             }
         }
-    } else {
-        QMessageBox::warning(this, "错误", "JSON文件中缺少'maze'数组或格式不正确。");
-        // return;
     }
 
     // 5. 处理 "B" (Boss HP) 数据
@@ -257,11 +254,19 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-    MainWindow*w=new MainWindow(this->mazesize,model, this);
-    w->show();
-    this->hide();
-    // boss*mboss=new boss(bosshp,Skills);
-    // mboss->show();
+    if(this->mazesize==0)
+    {
+        boss* newboss=new boss(this->bosshp,this->Skills);
+        newboss->show();
+        this->hide();
+    }
+    else
+    {
+        MainWindow*w=new MainWindow(this->mazesize,model, this);
+        w->show();
+        this->hide();
+    }
+
 }
 
 void gamechoose::onRandomButtonClicked()

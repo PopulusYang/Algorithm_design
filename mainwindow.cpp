@@ -14,6 +14,7 @@
 #include <QLabel>             // 修复：用于QLabel类型
 #include <random>             // 新增：用于屏幕抖动
 #include <windows.h>
+#include"gamechoose.h"
 
 void MainWindow::ontimeout()
 {
@@ -64,6 +65,11 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
     solveButton = new QPushButton("一键开挂", this);
     solveButton->setGeometry(10, 10, 100, 30);
     connect(solveButton, &QPushButton::clicked, this, &MainWindow::onSolveMazeClicked);
+    QPushButton *backButton = new QPushButton("返回", this);
+    backButton->setGeometry(10, 50, 100, 30); // Positioned below "一键开挂"
+    connect(backButton, &QPushButton::clicked, this, &MainWindow::onBackButtonClicked);
+    // ===== CODE ADDED END =====
+
     connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
     connect(&Player, &player::trapTriggered, this, &MainWindow::onTrapTriggered);
 
@@ -120,6 +126,13 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations, QWidget 
                                  { autoCtrl.thread_auto_run(); });
 }
 
+
+void MainWindow::onBackButtonClicked()
+{
+    gamechoose*newchoose=new gamechoose();
+    newchoose->show();
+    this->show();
+}
 void MainWindow::onExitReached()
 {
     // 停止当前窗口的所有计时器，以防止后台继续处理
