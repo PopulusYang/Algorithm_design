@@ -314,8 +314,7 @@ void boss::cleanupUiElements()
 
 void boss::on_returnbotton_clicked()
 {
-    gamechoose*newgame=new gamechoose();
-    newgame->show();
     this->hide();
+    emit exit_bossui();
 }
 

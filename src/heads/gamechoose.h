@@ -39,6 +39,7 @@ private slots:
 private:
     Ui::gamechoose *ui;
     MainWindow *w = nullptr;
+
 };
 
 #endif // GAMECHOOSE_H

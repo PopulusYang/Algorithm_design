@@ -132,9 +132,11 @@ void MainWindow::onExitReached()
     if (!gameController->boss_in_map)
     {
         // 创建并显示新的boss窗口
-        boss *bossWindow = new boss(gameController->bosshp,
+        bossWindow = new boss(gameController->bosshp,
                                     gameController->Skills); // 创建 boss 窗口的实例
-        bossWindow->show();                                  // 显示它
+
+        bossWindow->show(); // 显示它
+        connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
 
         // 关闭当前的迷宫窗口
         this->close();
@@ -144,6 +146,12 @@ void MainWindow::onExitReached()
 void MainWindow::onExitClicked()
 {
     this->hide();
+    emit exit_mainwindow();
+}
+void MainWindow::exitbossgame()
+{
+    delete bossWindow;
+    bossWindow = nullptr;
     emit exit_mainwindow();
 }
 MainWindow::~MainWindow()

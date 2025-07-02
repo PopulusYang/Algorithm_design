@@ -59,6 +59,7 @@ private slots:
     void onTrapTriggered(const QPointF &playerPos);
     void onExitReached();
     void onExitClicked();
+    void exitbossgame();
 
 private:
     Ui::MainWindow *ui;
@@ -68,7 +69,7 @@ private:
     QPushButton *exitButton;
     std::vector<point> solvedPath;
     QTimer *generationTimer = nullptr;
-
+    boss *bossWindow = nullptr;
     player Player;
 
     // Boss 相关
