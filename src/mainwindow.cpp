@@ -54,7 +54,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
-                              gameController->Skills,Player.playersource); // 创建 boss 窗口的实例
+                              gameController->Skills,0); // 创建 boss 窗口的实例
 
         bossWindow->show(); // 显示它
         connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
@@ -155,7 +155,11 @@ void MainWindow::onExitReached()
         if (autoCtrl.rundone)
             runalongThread->join();
     }
-    if (!gameController->boss_in_map)
+    if(m_model==2)
+    {
+        QMessageBox::information(this, "提示", "恭喜通关");
+    }
+    if (gameController->bosshp.size()>0)
     {
         // 创建并显示新的boss窗口
         bossWindow = new boss(gameController->bosshp,
