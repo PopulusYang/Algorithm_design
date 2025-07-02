@@ -1,6 +1,17 @@
 #include "heads/mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "heads/backtrack_find_clue.h"
+#include "heads/exam4.h"
+#include <QInputDialog>
+#include <algorithm>
+#include <QTimer>
+#include <QKeyEvent>
+#include <QMessageBox>
+#include <QTextEdit>
+#include <QVBoxLayout>
+#include <QTableWidget>       // 新增：用于创建表格
+#include <QHeaderView>        // 新增：用于美化表头
+#include "heads/backtrack_find_clue.h"
 #include "heads/lock.h"       // 添加 lock.h 头文件
 #include <QCryptographicHash> // 新增：用于计算 SHA256
 #include <QHeaderView>        // 新增：用于美化表头
@@ -107,6 +118,8 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
 void MainWindow::onExitReached()
 {
     // 停止当前窗口的所有计时器，以防止后台继续处理
+    pair<int,string> crackinfo=get_crack_info(0,nullptr);
+    
     Player.playerTimer->stop();
     if (generationTimer)
     {
