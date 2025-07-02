@@ -274,18 +274,26 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-    if(this->mazesize==0)
+    w=new MainWindow(this->dimension,model, this);
+    if(mazesize>0)
     {
-        boss* newboss=new boss(this->bosshp,this->Skills);
-        newboss->show();
-        this->hide();
-    }
-    else
-    {
-        MainWindow*w=new MainWindow(this->mazesize,model, this);
         w->show();
-        this->hide();
+        connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
     }
+    this->hide();
+
+    // if(this->dimension==0)
+    // {
+    //     boss* newboss=new boss(this->bosshp,this->Skills,20);
+    //     newboss->show();
+    //     this->hide();
+    // }
+    // else
+    // {
+    //     MainWindow*w=new MainWindow(this->mazesize,model, this);
+    //     w->show();
+    //     this->hide();
+    // }
 
 }
 

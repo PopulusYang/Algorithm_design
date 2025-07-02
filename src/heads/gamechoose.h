@@ -31,6 +31,7 @@ public:
     ~gamechoose();
     void paintEvent(QPaintEvent *event) override;
     int model=-1;
+
 private slots:
     void onFileButtonClicked();   // 用于响应 fileButton 点击事件的槽函数
     void onRandomButtonClicked(); // 用于响应 randomButton 点击事件的槽函数

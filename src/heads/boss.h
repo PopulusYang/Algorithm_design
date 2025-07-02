@@ -33,7 +33,7 @@ class boss : public QWidget
 
 public:
     // 构造函数使用新的类名
-    explicit boss(std::vector<int> initialBosshp,std::vector<Skill>initialSkills, QWidget *parent = nullptr);
+    explicit boss(std::vector<int> initialBosshp,std::vector<Skill>initialSkills,int playersource, QWidget *parent = nullptr);
     ~boss();
 
     std::vector<int> solveBossRush(std::vector<int>&bosshp,std::vector<Skill>&skills);
@@ -50,11 +50,11 @@ private:
 
     Ui::boss *ui; // 指向小写 'b' 的 ui 类
 
-    // --- 核心数据 (已按您的要求命名) ---
+
     std::vector<int> bosshp;
     std::vector<Skill> Skills;
     std::vector<int> skillid;
-
+    int currsource;
     // --- 内部战斗状态变量 ---
     std::vector<int> m_currentBossHp;
     int m_currentTurn;
