@@ -87,7 +87,7 @@ void dp::full_the_path(std::vector<point> &input)
         if (final_pos != rpath.back())
 
         {
-            i -= hascollected.size();
+            size -= hascollected.size();
 
             input.erase(std::remove_if(input.begin(), input.end(),
                                        [&](point x)

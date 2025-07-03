@@ -19,7 +19,8 @@
 #include "gamecontrol.h"
 #include "autocontrol.h"
 #include "renderthread.h"
-#include"boss.h"
+#include "boss.h"
+#include "autothread.h"
 #include <thread>
 #include <list>
 
@@ -34,7 +35,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    MainWindow(int mazeSize,int model, gamemain *informations = nullptr, QWidget *parent = nullptr);
+    MainWindow(int mazeSize, int model, gamemain *informations = nullptr, QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
@@ -59,8 +60,9 @@ private slots:
     void onTrapTriggered(const QPointF &playerPos);
     void onExitReached();
     void onExitClicked();
-    void onreturn();
-  //  void exitbossgame();
+    void exitbossgame();
+    void onShowWarningMessageBox(const QString &title, const QString &text);
+    void onShowInformationMessageBox(const QString &title, const QString &text);
 
 private:
     Ui::MainWindow *ui;
@@ -72,7 +74,7 @@ private:
     QTimer *generationTimer = nullptr;
     boss *bossWindow = nullptr;
     player Player;
-
+    bool gameover = false;
     // Boss 相关
     int bossAnim = 0;
     int bossAnimFrameCounter = 0;
@@ -92,15 +94,17 @@ private:
     QTimer *m_renderTimer = nullptr; // 用于驱动渲染的计时器
 
     int m_screenShakeFrames = 0;
-    int m_model=-1;
+    int m_model = -1;
     std::list<DamageIndicator> m_damageIndicators;
 
     autocontroller autoCtrl = autocontroller(&Player);
-    std::thread *autoThread = nullptr;
-    std::thread *runalongThread = nullptr;
+    AutoThread *autoThread = nullptr;
+    RunalongThread *runalongThread = nullptr;
 
 signals:
     void needMove(GameController *gameController);
-  // void exit_mainwindow();
+    void exit_mainwindow();
+    void showWarningMessageBox(const QString &title, const QString &text);
+    void showInformationMessageBox(const QString &title, const QString &text);
 };
 #endif // MAINWINDOW_H

@@ -179,7 +179,7 @@ void player::onPlayerMove(GameController *gameController)
             if (ai_control && !runalongthepath)
             {
                 playerPos = nextPos; // 将玩家移动到出口位置
-                emit exitReached();  // 发射信号
+                pressedKeys.insert(Qt::Key_E);
                 return;
             }
         }

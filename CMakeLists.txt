@@ -20,6 +20,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/img DESTINATION ${CMAKE_CURRENT_BINARY_DIR
 set(PROJECT_SOURCES
         src/boss.cpp
         src/collect_coin.cpp
+        src/autothread.cpp
         src/dp.cpp
         src/gamechoose.cpp
         src/main.cpp
@@ -40,6 +41,7 @@ set(PROJECT_SOURCES
         src/heads/mapbuild.h
         src/heads/player.h
         src/heads/renderthread.h
+        src/heads/autothread.h
         src/heads/lock.h
         src/jsonlib/json.hpp
         src/ui/boss.ui

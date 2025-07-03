@@ -250,31 +250,28 @@ void RenderThread::renderScene(QPainter *painter, const SceneData &data)
     QString resourceText = QString("金钱: %1").arg(data.playerData->playersource);
     painter->drawText(20, 600, resourceText);
 
-    if (!data.playerData->ai_control) // 人类玩家控制才会显示
-    {
-        // 当玩家在特殊地块上时显示提示
-        int playerTileX = qRound(data.playerData->playerPos.y() + 0.15);
-        int playerTileY = qRound(data.playerData->playerPos.x() + 0.1);
+    // 当玩家在特殊地块上时显示提示
+    int playerTileX = qRound(data.playerData->playerPos.y() + 0.15);
+    int playerTileY = qRound(data.playerData->playerPos.x() + 0.1);
 
-        if (data.gameController->inBounds(playerTileX, playerTileY))
+    if (data.gameController->inBounds(playerTileX, playerTileY))
+    {
+        MAZE currentTile = static_cast<MAZE>(
+            data.gameController->maze[playerTileX][playerTileY]);
+        if (currentTile == MAZE::CLUE || currentTile == MAZE::EXIT ||
+            currentTile == MAZE::LOCKER)
         {
-            MAZE currentTile = static_cast<MAZE>(
-                data.gameController->maze[playerTileX][playerTileY]);
-            if (currentTile == MAZE::CLUE || currentTile == MAZE::EXIT ||
-                currentTile == MAZE::LOCKER)
-            {
-                painter->setPen(Qt::white);
-                painter->setFont(QFont("Microsoft YaHei", 16, QFont::Bold));
-                QString promptText = "按下 E 键进行调查";
-                // 获取文本尺寸以进行居中
-                QFontMetrics metrics(painter->font());
-                int textWidth = metrics.horizontalAdvance(promptText);
-                int xPos = (data.windowSize.width() - textWidth) / 2;
-                painter->drawText(xPos, data.windowSize.height() - 50, promptText);
-                data.playerData->cando = true;
-            }
-            else
-                data.playerData->cando = false;
+            painter->setPen(Qt::white);
+            painter->setFont(QFont("Microsoft YaHei", 16, QFont::Bold));
+            QString promptText = "按下 E 键进行调查";
+            // 获取文本尺寸以进行居中
+            QFontMetrics metrics(painter->font());
+            int textWidth = metrics.horizontalAdvance(promptText);
+            int xPos = (data.windowSize.width() - textWidth) / 2;
+            painter->drawText(xPos, data.windowSize.height() - 50, promptText);
+            data.playerData->cando = true;
         }
+        else
+            data.playerData->cando = false;
     }
 }
