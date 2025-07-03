@@ -117,6 +117,7 @@ void gamechoose::paintEvent(QPaintEvent *event)
 
 void gamechoose::onFileButtonClicked()
 {
+    this->Skills.clear();
     model = 1;
     QString filePath = QFileDialog::getOpenFileName(
         this,
@@ -217,7 +218,7 @@ void gamechoose::onFileButtonClicked()
                 else if (cell == "B")
                 {
                     this->maze[i][j] =
-                        static_cast<int>(MAZE::BOSS);
+                        static_cast<int>(MAZE::WAY);
                     this->boss_in_map = true;
                 } // Boss
                 else if (cell == "T")
@@ -278,13 +279,21 @@ void gamechoose::onFileButtonClicked()
             }
         }
     }
+    if(this->mazesize>0)
+    {
+        w = new MainWindow(this->mazesize, model, this);
+        connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
+        w->show();
+        this->hide();
+    }
+    else
+    {
+        boss*mboss=new boss(bosshp,Skills,0);
+        mboss->show();
+        this->close();
+    }
 
-    w = new MainWindow(this->mazesize, model, this);
-    connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
-    w->show();
-    this->hide();
-    // boss*mboss=new boss(bosshp,Skills);
-    // mboss->show();
+
 }
 
 void gamechoose::onRandomButtonClicked()

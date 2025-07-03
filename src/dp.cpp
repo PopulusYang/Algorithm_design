@@ -211,7 +211,7 @@ djstruct dp::Dijkstra(point S, point E) // 迪杰斯特拉算法求两点路径
 其中n和m分别是地图的行数和列数，完美解决动态规划算法优化的太好的问题
 std::vector<point> dp::findBestPath(point playerstart)
 {
-    int k = sourse.size() + 3;
+    int k = sourse.size() + clues.size();
     std::vector<point> R(sourse.begin(), sourse.end()); // 拍平成vector
     for(auto [p, b] : clues)
     {

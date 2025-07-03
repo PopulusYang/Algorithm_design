@@ -1,7 +1,4 @@
-#include "heads/mainwindow.h"
-#include "./ui_mainwindow.h"
-#include "heads/backtrack_find_clue.h"
-#include "heads/lock.h"       // 添加 lock.h 头文件
+#include "heads/lock.h"       // 添加 ock.h 头文件
 #include <QCryptographicHash> // 新增：用于计算 SHA256
 #include <QHeaderView>        // 新增：用于美化表头
 #include <QInputDialog>
@@ -15,7 +12,10 @@
 #include <algorithm>
 #include <random> // 新增：用于屏幕抖动
 #include <windows.h>
-
+#include<QMessageBox>
+#include "heads/mainwindow.h"
+#include "./ui_mainwindow.h"
+#include "heads/backtrack_find_clue.h"
 
 void MainWindow::ontimeout()
 {
@@ -129,11 +129,15 @@ void MainWindow::onExitReached()
         if (autoCtrl.rundone)
             runalongThread->join();
     }
-    if (!gameController->boss_in_map)
+    if(m_model==2)
+    {
+        QMessageBox::information(this,"提示","胜利");
+    }
+    if (gameController->bosshp.size()>0)
     {
         // 创建并显示新的boss窗口
         boss *bossWindow = new boss(gameController->bosshp,
-                                    gameController->Skills); // 创建 boss 窗口的实例
+                                    gameController->Skills,Player.playersource); // 创建 boss 窗口的实例
         bossWindow->show();                                  // 显示它
 
         // 关闭当前的迷宫窗口
