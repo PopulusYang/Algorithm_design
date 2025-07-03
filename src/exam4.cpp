@@ -305,9 +305,9 @@ std::pair<int, string> get_crack_info()
         // --- 5. 查找并保存结果 ---
         if (!foundPassword.empty())
         {
-            std::cout << "File: " << left << setw(15) << fileName.toStdString()
-                      << " -> Password found: " << foundPassword
-                      << " (Attempts: " << decrypt_count << ")" << endl;
+            // std::cout << "File: " << left << setw(15) << fileName.toStdString()
+            //           << " -> Password found: " << foundPassword
+            //           << " (Attempts: " << decrypt_count << ")" << endl;
 
             rootObj.insert("P", QString::fromStdString(foundPassword));
             rootObj.insert("D", decrypt_count);
@@ -325,15 +325,11 @@ std::pair<int, string> get_crack_info()
         }
         else
         {
-            cout << "File: " << left << setw(15) << fileName.toStdString()
-                 << " -> Password NOT found. (Total attempts in space: " << decrypt_count << ")" << endl;
+            // cout << "File: " << left << setw(15) << fileName.toStdString()
+            //      << " -> Password NOT found. (Total attempts in space: " << decrypt_count << ")" << endl;
         }
     }
 
-    // --- 6. 打印最终总数 ---
-    cout << "\n================================================" << endl;
-    cout << "  Total decryption attempts for all files: " << total_decrypt_count << endl;
-    cout << "================================================" << endl;
     crack_result = {total_decrypt_count, password};
     return crack_result;
 }

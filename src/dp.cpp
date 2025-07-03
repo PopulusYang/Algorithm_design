@@ -54,7 +54,6 @@ void dp::isWorth(djstruct &input)
 
     {
         input.lenght = INF;
-        std::cout << "该路径可收获" << gain << "，代价" << cost << ",worth:" << worth << std::endl;
     }
 }
 
@@ -298,18 +297,7 @@ std::vector<point> dp::findBestPath(point playerstart)
     for (int idx : orderR)
         fullPath.push_back(R[idx]);
     fullPath.push_back(end);
-    std::cout << "补满前" << std::endl;
-    for (auto p : fullPath)
-    {
-        std::cout << p.x << "," << p.y << std::endl;
-    }
 
     full_the_path(fullPath);
-
-    std::cout << "补满后" << std::endl;
-    for (auto p : fullPath)
-    {
-        std::cout << p.x << "," << p.y << std::endl;
-    }
     return fullPath;
 }

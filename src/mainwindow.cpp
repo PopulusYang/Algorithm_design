@@ -390,7 +390,7 @@ void MainWindow::onSolveMazeClicked()
 void MainWindow::onTrapTriggered(const QPointF &playerPos)
 {
     m_screenShakeFrames = 15;                             // 抖动15帧
-    m_damageIndicators.push_back({"-20", playerPos, 60}); // 显示60帧
+    m_damageIndicators.push_back({"-30", playerPos, 60}); // 显示60帧
 }
 
 void MainWindow::generatePasswords_Backtracking(

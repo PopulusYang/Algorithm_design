@@ -217,7 +217,7 @@ inline void autocontroller::thread_auto_run()
         laststate = currentstate;
         std::this_thread::sleep_for(std::chrono::milliseconds(50)); // 等待50毫秒
     }
-    std::cout << "自动控制即将关闭" << std::endl;
+    // std::cout << "自动控制即将关闭" << std::endl;
 }
 
 inline void autocontroller::runalongthePath(std::vector<point> path)
@@ -259,10 +259,10 @@ inline void autocontroller::runalongthePath(std::vector<point> path)
                 newstate = state::up;
         }
 
-        std::cout << "现在的行走方向:" << newstate << std::endl;
+       // std::cout << "现在的行走方向:" << newstate << std::endl;
         control(newstate);
     }
-    std::cout << "自动控制结束" << std::endl;
+  //  std::cout << "自动控制结束" << std::endl;
     p->runalongthepath = false;
     rundone = true; // 标记自动控制已完成
 }

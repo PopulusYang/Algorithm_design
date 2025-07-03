@@ -146,7 +146,7 @@ void player::onPlayerMove(GameController *gameController)
             {
                 gameController->traps[trap_pos] = true; // 标记陷阱为已触发
                 // 扣除金钱
-                playersource -= 20;
+                playersource -= 30;
                 if (playersource < 0)
                 {
                     playersource = 0; // 金钱不能为负
