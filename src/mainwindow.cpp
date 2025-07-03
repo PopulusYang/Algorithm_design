@@ -143,13 +143,13 @@ void MainWindow::onExitReached()
 
         QVBoxLayout *layout = new QVBoxLayout(victoryDialog);
 
-        QLabel *titleLabel = new QLabel("恭喜您赢了！", victoryDialog);
+        QLabel *titleLabel = new QLabel("密码已经破译，即将boss大战", victoryDialog);
         titleLabel->setFont(QFont("Arial", 16, QFont::Bold));
         titleLabel->setAlignment(Qt::AlignCenter);
         layout->addWidget(titleLabel);
 
         // 计算并显示最短路径信息
-        solvedPath = gameController->findBestPath({gameController->start.y, gameController->start.x});
+        // solvedPath = gameController->findBestPath({gameController->start.y, gameController->start.x});
         QString pathText;
         if (!solvedPath.empty())
         {
