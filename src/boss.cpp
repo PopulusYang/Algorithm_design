@@ -1,11 +1,11 @@
-#include "heads/boss.h"
-#include "heads/gamechoose.h"
-#include "ui_boss.h" // 确保 ui 文件名是 boss.ui
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <algorithm>
+#include "heads/boss.h"
+#include "heads/gamechoose.h"
+#include "ui_boss.h" // 确保 ui 文件名是 boss.ui
 // 构造函数实现
 boss::boss(std::vector<int>initialBosshp, std::vector<Skill> initialSkills,int playersource, QWidget *parent) :
     QWidget(parent),
@@ -23,7 +23,7 @@ boss::boss(std::vector<int>initialBosshp, std::vector<Skill> initialSkills,int p
     setupUiElements();
 
     connect(ui->nextTurnButton, &QPushButton::clicked, this, &boss::onNextTurnClicked);
-
+    connect(ui->returnbotton, &QPushButton::clicked, this, &boss::exit_bossui);
     updateUI();
 }
 
@@ -33,7 +33,12 @@ boss::~boss()
     delete ui;
 }
 
-
+void boss::exit_bossui()
+{
+    gamechoose *newgame=new gamechoose();
+    newgame->show();
+    this->close();
+}
 int boss::callowerBound(std::vector<int>&bosshp,std::vector<Skill>skills)//计算下界函数
 {
     int totalremainhp;
@@ -303,9 +308,5 @@ void boss::cleanupUiElements()
     m_skillCooldownBars.clear();
 }
 
-void boss::on_returnbotton_clicked()
-{
-    this->hide();
-    emit exit_bossui();
-}
+
 

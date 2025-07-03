@@ -68,7 +68,7 @@ private:
     std::vector<QProgressBar*> m_skillCooldownBars;
 
 signals:
-    void exit_bossui();
+     void exit_bossui();
 };
 
 #endif // BOSS_H

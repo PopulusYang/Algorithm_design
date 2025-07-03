@@ -59,7 +59,8 @@ private slots:
     void onTrapTriggered(const QPointF &playerPos);
     void onExitReached();
     void onExitClicked();
-    void exitbossgame();
+    void onreturn();
+  //  void exitbossgame();
 
 private:
     Ui::MainWindow *ui;
@@ -100,6 +101,6 @@ private:
 
 signals:
     void needMove(GameController *gameController);
-    void exit_mainwindow();
+  // void exit_mainwindow();
 };
 #endif // MAINWINDOW_H

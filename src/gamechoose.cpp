@@ -274,26 +274,26 @@ void gamechoose::onFileButtonClicked()
         }
     }
 
-    w=new MainWindow(this->dimension,model, this);
-    if(dimension>0)
-    {
-        w->show();
-    }
-    this->hide();
-    connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
-
-    // if(this->dimension==0)
+    // w=new MainWindow(this->dimension,model, this);
+    // if(dimension>0)
     // {
-    //     boss* newboss=new boss(this->bosshp,this->Skills,20);
-    //     newboss->show();
-    //     this->hide();
-    // }
-    // else
-    // {
-    //     MainWindow*w=new MainWindow(this->mazesize,model, this);
     //     w->show();
-    //     this->hide();
     // }
+    // this->hide();
+    // connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
+
+    if(this->dimension==0)
+    {
+        boss* newboss=new boss(this->bosshp,this->Skills,20);
+        newboss->show();
+        this->hide();
+    }
+    else
+    {
+        MainWindow*w=new MainWindow(this->mazesize,model, this);
+        w->show();
+        this->hide();
+    }
 
 }
 
@@ -307,7 +307,7 @@ void gamechoose::onRandomButtonClicked()
     if (ok) // 仅当用户点击“OK”时才创建和显示主窗口
     {
         w = new MainWindow(mazeSize, 2, this);
-        connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
+       // connect(w, &MainWindow::exit_mainwindow, this, &gamechoose::onExitButtonClicked);
         w->show();
         this->hide();
     }

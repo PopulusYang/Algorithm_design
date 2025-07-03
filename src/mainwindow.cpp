@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <random> // 新增：用于屏幕抖动
 #include <windows.h>
-
+#include"heads/gamechoose.h"
 
 void MainWindow::ontimeout()
 {
@@ -50,17 +50,17 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     {
         gameController = new GameController(informations);
     }
-    if(mazeSize==0)
-    {
-        // 创建并显示新的boss窗口
-        bossWindow = new boss(gameController->bosshp,
-                              gameController->Skills,0); // 创建 boss 窗口的实例
+    // if(mazeSize==0)
+    // {
+    //     // 创建并显示新的boss窗口
+    //     bossWindow = new boss(gameController->bosshp,
+    //                           gameController->Skills,0); // 创建 boss 窗口的实例
 
-        bossWindow->show(); // 显示它
-        connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
-        this->hide();
-        return;
-    }
+    //     bossWindow->show(); // 显示它
+    //     connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
+    //     this->hide();
+    //     return;
+    // }
     autoCtrl.mazeinformation = gameController;
 
     const int maxWidth = 1280;
@@ -91,7 +91,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
 
     exitButton = new QPushButton("返回主界面", this);
     exitButton->setGeometry(10, 50, 100, 30);
-    connect(exitButton, &QPushButton::clicked, this, &MainWindow::onExitClicked);
+    connect(exitButton, &QPushButton::clicked, this, &MainWindow::onreturn);
 
     connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
     connect(&Player, &player::trapTriggered, this,
@@ -131,6 +131,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
 
 void MainWindow::onExitReached()
 {
+
     // 停止当前窗口的所有计时器，以防止后台继续处理
     pair<int,string> crackinfo=get_crack_info(0,nullptr);
     
@@ -166,26 +167,33 @@ void MainWindow::onExitReached()
                                     gameController->Skills,Player.playersource); // 创建 boss 窗口的实例
                            
         bossWindow->show(); // 显示它
-        connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
+       // connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
 
         // 关闭当前的迷宫窗口
         this->close();
     }
 }
 
-void MainWindow::onExitClicked()
-{
-    onExitReached();
 
-    this->hide();
-    emit exit_mainwindow();
-}
-void MainWindow::exitbossgame()
+void MainWindow::onreturn()
 {
-    delete bossWindow;
-    bossWindow = nullptr;
-    emit exit_mainwindow();
+    gamechoose *newgame=new gamechoose();
+    newgame->show();
+    this->close();
 }
+// void MainWindow::onExitClicked()
+// {
+//     onExitReached();
+
+//     this->hide();
+//     emit exit_mainwindow();
+// }
+// void MainWindow::exitbossgame()
+// {
+//     delete bossWindow;
+//     bossWindow = nullptr;
+//     emit exit_mainwindow();
+// }
 MainWindow::~MainWindow()
 {
     if (generationTimer)
