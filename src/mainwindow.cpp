@@ -62,7 +62,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
     //     connect(bossWindow, &boss::exit_bossui, this, &MainWindow::exitbossgame);
     //     this->hide();
     //     return;
-    // }
+    }
     autoCtrl.mazeinformation = gameController;
 
     const int maxWidth = 1280;
@@ -93,7 +93,7 @@ MainWindow::MainWindow(int mazeSize, int model, gamemain *informations,
 
     exitButton = new QPushButton("返回主界面", this);
     exitButton->setGeometry(10, 50, 100, 30);
-    connect(exitButton, &QPushButton::clicked, this, &MainWindow::onreturn);
+    //connect(exitButton, &QPushButton::clicked, this, &MainWindow::onreturn);
 
     connect(this, &MainWindow::needMove, &Player, &player::onPlayerMove);
     connect(&Player, &player::trapTriggered, this,
@@ -187,13 +187,14 @@ void MainWindow::onExitClicked()
 {
     gameover = true;
     onExitReached();
-
-void MainWindow::onreturn()
-{
-    gamechoose *newgame=new gamechoose();
-    newgame->show();
-    this->close();
 }
+
+// void MainWindow::onreturn()
+// {
+//     gamechoose *newgame=new gamechoose();
+//     newgame->show();
+//     this->close();
+// }
 // void MainWindow::onExitClicked()
 // {
 //     onExitReached();
@@ -207,6 +208,7 @@ void MainWindow::onreturn()
 //     bossWindow = nullptr;
 //     emit exit_mainwindow();
 // }
+
 MainWindow::~MainWindow()
 {
     if (generationTimer)
@@ -653,5 +655,5 @@ void MainWindow::onShowWarningMessageBox(const QString &title, const QString &te
 
 void MainWindow::onShowInformationMessageBox(const QString &title, const QString &text)
 {
-    QMessageBox::information(this, title, text);
+      QMessageBox::information(this, title, text);
 }

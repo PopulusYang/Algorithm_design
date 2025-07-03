@@ -33,12 +33,12 @@ boss::~boss()
     delete ui;
 }
 
-void boss::exit_bossui()
-{
-    gamechoose *newgame=new gamechoose();
-    newgame->show();
-    this->close();
-}
+// void boss::exit_bossui()
+// {
+//     gamechoose *newgame=new gamechoose();
+//     newgame->show();
+//     this->close();
+// }
 int boss::callowerBound(std::vector<int>&bosshp,std::vector<Skill>skills)//计算下界函数
 {
     int totalremainhp;
