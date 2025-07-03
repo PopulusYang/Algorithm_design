@@ -22,6 +22,7 @@
 #include"boss.h"
 #include <thread>
 #include <list>
+#include "exam4.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -68,6 +69,7 @@ private:
     QPushButton *exitButton;
     std::vector<point> solvedPath;
     QTimer *generationTimer = nullptr;
+    QDialog *victoryDialog;
 
     player Player;
 

@@ -132,6 +132,21 @@ void gamechoose::onFileButtonClicked()
         return;
     }
 
+    QDir dir;
+    if (!dir.exists("./password_test"))
+    {
+        dir.mkpath("./password_test");
+    }
+    QString destPath = "./password_test/test.json";
+    if (QFile::exists(destPath))
+    {
+        QFile::remove(destPath);
+    }
+    if (!QFile::copy(filePath, destPath))
+    {
+        QMessageBox::warning(this, "复制文件失败", "无法将文件复制到 " + destPath);
+    }
+
     // 2. 读取文件内容
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))

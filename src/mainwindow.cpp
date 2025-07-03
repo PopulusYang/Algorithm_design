@@ -135,9 +135,57 @@ void MainWindow::onExitReached()
     }
     if (gameController->bosshp.size()>0)
     {
+        auto [i, p] = get_crack_info();
+
+        // 创建一个新的对话框来显示胜利信息
+        victoryDialog = new QDialog(nullptr);
+        victoryDialog->setWindowTitle("密码已破译");
+
+        QVBoxLayout *layout = new QVBoxLayout(victoryDialog);
+
+        QLabel *titleLabel = new QLabel("恭喜您赢了！", victoryDialog);
+        titleLabel->setFont(QFont("Arial", 16, QFont::Bold));
+        titleLabel->setAlignment(Qt::AlignCenter);
+        layout->addWidget(titleLabel);
+
+        // 计算并显示最短路径信息
+        solvedPath = gameController->findBestPath({gameController->start.y, gameController->start.x});
+        QString pathText;
+        if (!solvedPath.empty())
+        {
+            pathText = QString("最短路径长度: %1\n路径点: ").arg(solvedPath.size());
+            for (const auto &point : solvedPath)
+            {
+                pathText += QString("(%1,%2) ").arg(point.x).arg(point.y);
+            }
+        }
+        else
+        {
+            pathText = "未能计算出路径。";
+        }
+
+        QTextEdit *infoText = new QTextEdit(victoryDialog);
+        infoText->setReadOnly(true);
+        infoText->setText(QString("<b>通关统计:</b><br><br>"
+                                  "解密尝试次数: %1<br>"
+                                  "最终破译密码: %2<br><br>"
+                                  "%3")
+                              .arg(i)
+                              .arg(QString::fromStdString(p))
+                              .arg(pathText));
+        layout->addWidget(infoText);
+
+        QPushButton *okButton = new QPushButton("继续", victoryDialog);
+        connect(okButton, &QPushButton::clicked, victoryDialog, &QDialog::accept);
+        layout->addWidget(okButton);
+
+        victoryDialog->setLayout(layout);
+        victoryDialog->exec(); // 显示对话框并等待用户交互
+
+
         // 创建并显示新的boss窗口
         boss *bossWindow = new boss(gameController->bosshp,
-                                    gameController->Skills,Player.playersource); // 创建 boss 窗口的实例
+                                    gameController->Skills,Player.playersource - i); // 创建 boss 窗口的实例
         bossWindow->show();                                  // 显示它
 
         // 关闭当前的迷宫窗口

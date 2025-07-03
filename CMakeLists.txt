@@ -31,6 +31,7 @@ set(PROJECT_SOURCES
         src/heads/autocontrol.h
         src/heads/backtrack_find_clue.h
         src/heads/boss.h
+        src/heads/exam4.h
         src/heads/collect_coin.h
         src/heads/dp.h
         src/heads/gamechoose.h
